@@ -8,27 +8,15 @@ import { DespieceScene, type PartId } from './three/DespieceScene'
 const STAGES: { title: string; desc: string }[] = [
   {
     title: 'El cubo montado',
-    desc: '26 piezas encajadas que parecen un bloque sólido. Gíralo con el ratón y avanza para ver qué hay dentro.',
+    desc: '26 piezas encajadas que parecen un bloque sólido. Gíralo con el dedo y pulsa Siguiente para abrirlo por dentro.',
   },
   {
-    title: 'Las esquinas',
-    desc: 'Sacamos una: tiene 3 caras de color porque ocupa un vértice. Hay 8 en total, una en cada esquina.',
+    title: 'Por dentro: el mecanismo',
+    desc: 'Quitamos las piezas externas. Dentro hay un núcleo de 3 brazos: los centros van anclados a él y giran 360°. Eso articula todo el cubo.',
   },
   {
-    title: 'Las aristas',
-    desc: 'Esta pieza de borde tiene 2 caras. Hay 12, una en cada arista, siempre entre dos esquinas.',
-  },
-  {
-    title: 'El núcleo interior',
-    desc: 'Atenuamos las piezas externas: dentro hay un eje de 3 brazos. Las capas giran 360° a su alrededor.',
-  },
-  {
-    title: 'Tornillo y muelle',
-    desc: 'Cada centro va sujeto al núcleo con un tornillo y un muelle. El muelle da la tensión y deja girar las capas.',
-  },
-  {
-    title: 'Todo despiezado',
-    desc: 'Centros, aristas y esquinas alrededor del mecanismo que las mantiene unidas. Toca cualquier pieza.',
+    title: 'De qué se compone una pieza',
+    desc: 'Despiezamos un centro: pegatina, tapa, tornillo y muelle. El muelle da la tensión y el tornillo lo fija al núcleo. Toca cada parte.',
   },
 ]
 
@@ -63,6 +51,16 @@ const PARTS: Record<PartId, { name: string; meta?: string; desc: string }> = {
     name: 'Muelle',
     meta: 'uno por centro',
     desc: 'Da elasticidad. Permite que las piezas se separen un poco al girar y vuelvan a su sitio sin atascarse.',
+  },
+  tapa: {
+    name: 'Tapa',
+    meta: 'el cuerpo de la pieza',
+    desc: 'La carcasa de plástico que ves desde fuera. Sobre ella se pega la pegatina de color.',
+  },
+  pegatina: {
+    name: 'Pegatina de color',
+    meta: 'una por cara visible',
+    desc: 'El adhesivo de color que da su aspecto al cubo. En los modelos de gama alta se sustituye por plástico de color.',
   },
 }
 
