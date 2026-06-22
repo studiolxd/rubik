@@ -5,6 +5,7 @@ import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Button } from '@studiolxd/brand/button'
 import { CheckboxField } from '@studiolxd/brand/checkbox-field'
 import { RadioField } from '@studiolxd/brand/radio-field'
+import { List } from '@studiolxd/brand/list'
 import { IntroCube, type CubieFocus } from './IntroCube'
 import { MovesCube } from './MovesCube'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
@@ -318,7 +319,7 @@ export function Introduccion() {
 
       <aside className="intro__panel">
         <nav className="intro__index" aria-label="Índice de pasos">
-          <ol>
+          <List type="plain" className="intro__index-list">
             {STEPS.map((s, i) => (
               <li key={i}>
                 <button
@@ -331,7 +332,7 @@ export function Introduccion() {
                 </button>
               </li>
             ))}
-          </ol>
+          </List>
         </nav>
 
         <div className="intro__content">
@@ -341,7 +342,7 @@ export function Introduccion() {
           </Heading>
           {step.intro}
           {step.items && (
-            <ul className="intro__checks">
+            <List type="plain" className="intro__checks">
               {step.items.map((it) => (
                 <li key={keyOf(it.pos)}>
                   <CheckboxField
@@ -354,10 +355,10 @@ export function Introduccion() {
                   />
                 </li>
               ))}
-            </ul>
+            </List>
           )}
           {step.selectable && (
-            <ul className="intro__checks">
+            <List type="plain" className="intro__checks">
               {step.selectable.map((s) => (
                 <li key={s.key}>
                   <RadioField
@@ -369,10 +370,10 @@ export function Introduccion() {
                   />
                 </li>
               ))}
-            </ul>
+            </List>
           )}
           {step.moves && (
-            <ul className="intro__checks">
+            <List type="plain" className="intro__checks">
               {step.moves.map((m) => {
                 const key = moveNotation(m.face, m.prime)
                 return (
@@ -404,7 +405,7 @@ export function Introduccion() {
                   </li>
                 )
               })}
-            </ul>
+            </List>
           )}
         </div>
 

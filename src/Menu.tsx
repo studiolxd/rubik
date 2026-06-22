@@ -1,7 +1,9 @@
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Button } from '@studiolxd/brand/button'
+import { Link } from '@studiolxd/brand/link'
 import { Logo } from '@studiolxd/brand/logo'
+import { VisuallyHidden } from '@studiolxd/brand/visually-hidden'
 import { MenuCube } from './MenuCube'
 import { SECTIONS, type SectionId } from './sections'
 
@@ -26,15 +28,10 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
         ))}
       </nav>
 
-      <a
-        className="menu__logo"
-        href="https://studiolxd.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Studio LXD (se abre en una pestaña nueva)"
-      >
+      <Link href="https://studiolxd.com" external className="menu__logo">
         <Logo height={28} />
-      </a>
+        <VisuallyHidden>Studio LXD (se abre en una pestaña nueva)</VisuallyHidden>
+      </Link>
     </div>
   )
 }

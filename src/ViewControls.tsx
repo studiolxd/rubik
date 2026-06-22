@@ -8,6 +8,10 @@ import {
 } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { Modal } from '@studiolxd/brand/modal'
+import { Button } from '@studiolxd/brand/button'
+import { Icon } from '@studiolxd/brand/icon'
+import { List } from '@studiolxd/brand/list'
+import { VisuallyHidden } from '@studiolxd/brand/visually-hidden'
 
 /** Subconjunto de la API de TrackballControls que usamos desde los botones. */
 export interface ViewControlsHandle {
@@ -36,20 +40,6 @@ const PlusIcon = () => (
 const MinusIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
     <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-)
-
-const ResetIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="1 4 1 10 7 10" />
-    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
   </svg>
 )
 
@@ -333,55 +323,36 @@ export function ViewControls({
   return (
     <>
       <div className="view-controls">
-        <button
-          className="view-controls__btn"
-          onClick={() => setHelpOpen(true)}
-          aria-label="Ayuda: teclas"
-          title="Ayuda: teclas"
-        >
+        <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>
           <HelpIcon />
-        </button>
-        <button
-          className="view-controls__btn"
-          onClick={() => dolly(0.8)}
-          disabled={atMin}
-          aria-label="Acercar"
-          title="Acercar"
-        >
+          <VisuallyHidden>Ayuda: teclas</VisuallyHidden>
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => dolly(0.8)} disabled={atMin}>
           <PlusIcon />
-        </button>
-        <button
-          className="view-controls__btn"
-          onClick={() => dolly(1.25)}
-          disabled={atMax}
-          aria-label="Alejar"
-          title="Alejar"
-        >
+          <VisuallyHidden>Acercar</VisuallyHidden>
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => dolly(1.25)} disabled={atMax}>
           <MinusIcon />
-        </button>
-        <button
-          className="view-controls__btn"
-          onClick={resetView}
-          disabled={atInitial}
-          aria-label="Restaurar vista inicial"
-          title="Restaurar vista inicial"
-        >
-          <ResetIcon />
-        </button>
+          <VisuallyHidden>Alejar</VisuallyHidden>
+        </Button>
+        <Button variant="outline" size="sm" onClick={resetView} disabled={atInitial}>
+          <Icon name="retry" size="sm" />
+          <VisuallyHidden>Restaurar vista inicial</VisuallyHidden>
+        </Button>
 
         <Modal open={helpOpen} onClose={() => setHelpOpen(false)} title="Teclas">
           <div className="help-keys">
             {mode !== 'view' && (
               <>
                 <p className="help-keys__intro">Gira las caras del cubo con el teclado:</p>
-                <ul className="help-keys__list">
+                <List type="plain" className="help-keys__list">
                   {KEY_ROWS.map(({ key, label }) => (
                     <li key={key}>
                       <kbd>{key}</kbd>
                       <span>{label}</span>
                     </li>
                   ))}
-                </ul>
+                </List>
                 <p className="help-keys__note">
                   Mantén <kbd>Shift</kbd> a la vez para hacer el giro inverso.
                 </p>

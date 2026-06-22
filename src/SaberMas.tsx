@@ -1,5 +1,6 @@
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
+import { List } from '@studiolxd/brand/list'
 
 /**
  * Sección "Saber más": el origen y la historia del cubo de Rubik.
@@ -94,7 +95,7 @@ export function SaberMas() {
         <Heading level={3} size={5} weight="bold">
           Curiosidades y datos sorprendentes
         </Heading>
-        <ul className="saber__facts">
+        <List type="unordered" className="saber__facts">
           <li>
             Su creador tardó <strong>semanas en resolverlo por primera vez</strong>: diseñarlo fue
             una cosa; entender cómo volver al orden, otra muy distinta.
@@ -109,7 +110,7 @@ export function SaberMas() {
             <strong>visualización espacial, memoria, lógica y perseverancia</strong>, por eso sigue
             usándose como recurso en contextos de aprendizaje.
           </li>
-        </ul>
+        </List>
       </section>
     </article>
   )

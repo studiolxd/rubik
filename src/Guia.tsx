@@ -5,6 +5,7 @@ import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Tag } from '@studiolxd/brand/tag'
 import { CheckboxField } from '@studiolxd/brand/checkbox-field'
+import { List } from '@studiolxd/brand/list'
 import { Scene } from './three/Scene'
 import { KeyHint } from './Controls'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
@@ -144,7 +145,7 @@ export function Guia() {
           ) : (
             <>
               {/* Progreso por los 7 pasos. Pulsa uno para llevar el cubo al inicio de ese paso. */}
-              <ol className="guide-steps">
+              <List type="plain" className="guide-steps">
                 {STEPS.map((id, i) => {
                   const state = i < currentIdx ? 'done' : i === currentIdx ? 'current' : 'todo'
                   return (
@@ -165,7 +166,7 @@ export function Guia() {
                     </li>
                   )
                 })}
-              </ol>
+              </List>
 
               {solved ? (
                 <>

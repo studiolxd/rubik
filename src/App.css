@@ -101,7 +101,8 @@
   display: block;
 }
 
-/* Controles flotantes de cámara (esquina inferior izquierda) */
+/* Controles flotantes de cámara (esquina inferior izquierda). El contenedor no
+   captura el puntero; solo los botones de marca (que lo reactivan). */
 .view-controls {
   position: absolute;
   left: var(--spacing-3);
@@ -110,37 +111,17 @@
   flex-direction: column;
   gap: var(--spacing-2);
   z-index: 2;
-  pointer-events: none; /* solo los botones capturan el puntero */
+  pointer-events: none;
 }
 
-.view-controls__btn {
+.view-controls > button {
   pointer-events: auto;
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 1px solid var(--color-grey-light);
-  background: var(--color-white);
-  color: var(--color-text-on-light);
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-.view-controls__btn:hover:not(:disabled) {
-  background: var(--color-grey-lightest);
-}
-
-.view-controls__btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.view-controls__btn svg {
-  width: 20px;
-  height: 20px;
+/* Dimensiona los SVG propios (zoom/ayuda) dentro de los botones de marca. */
+.view-controls svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* Joystick virtual para girar la vista (esquina inferior derecha) */
@@ -256,10 +237,8 @@ kbd {
 .help-keys__intro {
   margin: 0 0 var(--spacing-3);
 }
+/* Reset de lista (list-style/margin/padding) lo aporta <List type="plain">. */
 .help-keys__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-2) var(--spacing-4);
@@ -362,13 +341,9 @@ kbd {
   color: var(--color-text-muted-on-light);
 }
 
-/* Lista de curiosidades */
+/* Lista de curiosidades. El reset/viñetas/sangría los aporta <List type="unordered">. */
 .saber__facts {
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-3);
-  margin: 0;
-  padding-left: var(--spacing-4);
 }
 .saber__facts li {
   line-height: 1.6;
@@ -406,14 +381,10 @@ kbd {
   overflow-y: auto;
 }
 
-/* Índice de pasos (salto directo) */
-.intro__index ol {
-  list-style: none;
-  margin: 0;
+/* Índice de pasos (salto directo). El reset de lista lo aporta <List type="plain">. */
+.intro__index-list {
   padding: 0 0 var(--spacing-4);
   border-bottom: 1px solid var(--color-grey-light);
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-1);
 }
 .intro__index-item {
@@ -452,12 +423,8 @@ kbd {
   color: var(--color-text-muted-on-light);
 }
 
+/* Reset de lista lo aporta <List type="plain">. */
 .intro__checks {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-3);
 }
 
@@ -493,12 +460,8 @@ kbd {
   gap: var(--spacing-3);
 }
 
+/* Reset de lista lo aporta <List type="plain">. */
 .guide-steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-2);
 }
 .guide-steps__item {
@@ -669,13 +632,6 @@ kbd {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.scan__errors {
-  margin: 0;
-  padding-left: var(--spacing-5);
-  text-align: left;
-  color: var(--color-text-on-light);
 }
 
 /* --- Mapa desplegado (el "esquema") con los colores leídos --- */

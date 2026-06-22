@@ -3,6 +3,8 @@ import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Tag } from '@studiolxd/brand/tag'
+import { Alert } from '@studiolxd/brand/alert'
+import { List } from '@studiolxd/brand/list'
 import { classifyFace, type Refs, type RGB } from './three/cube/colors'
 import {
   netToFacelets,
@@ -320,11 +322,17 @@ export function CubeScan({
           </>
         ) : (
           <>
-            <ul className="scan__errors">
-              {result.errors.map((e, i) => (
-                <li key={i}>{ERROR_TEXT[e.kind]}</li>
-              ))}
-            </ul>
+            <Alert
+              variant="error"
+              title="Revisa estos puntos"
+              description={
+                <List type="unordered">
+                  {result.errors.map((e, i) => (
+                    <li key={i}>{ERROR_TEXT[e.kind]}</li>
+                  ))}
+                </List>
+              }
+            />
             <Paragraph>
               Suele deberse a un color mal leído (rojo/naranja con poca luz) o a una cara torcida.
               Escanea de nuevo con buena iluminación.
