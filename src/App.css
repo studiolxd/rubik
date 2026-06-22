@@ -25,10 +25,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* `safe`: si el contenido no cabe (móvil/pantalla baja) se alinea al inicio en
+     vez de recortarse por arriba; con overflow-y se puede desplazar para verlo todo. */
+  justify-content: safe center;
+  overflow-y: auto;
   gap: var(--spacing-7);
   padding: max(var(--spacing-6), var(--safe-top)) max(var(--spacing-6), var(--safe-right))
     max(var(--spacing-6), var(--safe-bottom)) max(var(--spacing-6), var(--safe-left));
+}
+
+/* Evita que los bloques se compriman: si no caben, se desplazan (no se aplastan). */
+.menu > * {
+  flex-shrink: 0;
 }
 
 /* Logo de Studio LXD, esquina inferior derecha → studiolxd.com (pestaña nueva) */
@@ -42,6 +50,16 @@
 }
 .menu__logo:hover {
   opacity: 1;
+}
+
+/* En móvil el logo no flota: va al fondo de la portada, en flujo y centrado
+   (el centrado horizontal lo da `align-items: center` del .menu; el padding
+   inferior con safe-area lo mantiene sobre el indicador de inicio). */
+@media (max-width: 640px) {
+  .menu__logo {
+    position: static;
+    margin-top: auto;
+  }
 }
 
 .menu__brand {
@@ -76,12 +94,38 @@
   pointer-events: none;
 }
 
-.menu__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-3);
-  width: 100%;
-  max-width: 680px;
+/* Navegación de secciones: enlaces de texto (sin botones), al estilo de los
+   social links del footer de @studiolxd/brand. */
+.menu__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.menu__nav-link {
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-4);
+  font-weight: var(--font-weight-bold, 700);
+  line-height: 1.3;
+  color: var(--color-text-on-light);
+  text-decoration: none;
+  padding: var(--spacing-1) var(--spacing-2);
+  transition: color 0.12s ease;
+}
+
+.menu__nav-link:hover,
+.menu__nav-link:focus-visible {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 /* --- Pantalla de sección --- */

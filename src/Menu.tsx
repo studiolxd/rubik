@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
-import { Button } from '@studiolxd/brand/button'
 import { Link } from '@studiolxd/brand/link'
 import { Logo } from '@studiolxd/brand/logo'
 import { VisuallyHidden } from '@studiolxd/brand/visually-hidden'
@@ -25,12 +24,16 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
 
       <MenuCube onReady={() => setReady(true)} />
 
-      <nav className="menu__grid">
-        {SECTIONS.map((s) => (
-          <Button key={s.id} variant="outline" block onClick={() => onSelect(s.id)}>
-            {s.title}
-          </Button>
-        ))}
+      <nav className="menu__nav" aria-label="Secciones">
+        <ul className="menu__nav-list">
+          {SECTIONS.map((s) => (
+            <li key={s.id}>
+              <button type="button" className="menu__nav-link" onClick={() => onSelect(s.id)}>
+                {s.title}
+              </button>
+            </li>
+          ))}
+        </ul>
       </nav>
 
       <Link href="https://studiolxd.com" external className="menu__logo">
