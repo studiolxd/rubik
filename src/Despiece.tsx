@@ -18,14 +18,9 @@ const STAGES: { title: string; desc: string; highlight?: HighlightId }[] = [
     desc: 'Quitamos las piezas externas y separamos los centros. Dentro hay un núcleo de 3 brazos: cada centro va anclado a él con un tornillo y un muelle, y gira 360°. Eso articula todo el cubo.',
   },
   {
-    title: 'La pegatina de color',
-    desc: 'Despiezamos un centro de fuera hacia dentro. Lo primero, la pegatina: el adhesivo de color que da su aspecto al cubo. En los modelos de gama alta se sustituye por plástico de color.',
-    highlight: 'pegatina',
-  },
-  {
-    title: 'La tapa',
-    desc: 'La carcasa de plástico que ves desde fuera. Es el cuerpo de la pieza y sobre ella se pega la pegatina.',
-    highlight: 'tapa',
+    title: 'El muelle',
+    desc: 'Despiezamos un centro de dentro hacia fuera. Lo primero, el muelle: da elasticidad y permite que las piezas se separen un poco al girar y vuelvan a su sitio sin atascarse.',
+    highlight: 'muelle',
   },
   {
     title: 'El tornillo',
@@ -33,9 +28,14 @@ const STAGES: { title: string; desc: string; highlight?: HighlightId }[] = [
     highlight: 'tornillo',
   },
   {
-    title: 'El muelle',
-    desc: 'Da elasticidad. Permite que las piezas se separen un poco al girar y vuelvan a su sitio sin atascarse.',
-    highlight: 'muelle',
+    title: 'La tapa',
+    desc: 'La carcasa de plástico que ves desde fuera. Es el cuerpo de la pieza y sobre ella se pega la pegatina.',
+    highlight: 'tapa',
+  },
+  {
+    title: 'La pegatina de color',
+    desc: 'Y por fuera, la pegatina: el adhesivo de color que da su aspecto al cubo. En los modelos de gama alta se sustituye por plástico de color.',
+    highlight: 'pegatina',
   },
 ]
 
