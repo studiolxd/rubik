@@ -185,11 +185,7 @@ export function parseMove(token: string): Move {
 }
 
 export function parseMoves(alg: string): Move[] {
-  return alg
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(parseMove)
+  return alg.trim().split(/\s+/).filter(Boolean).map(parseMove)
 }
 
 // --- Mezcla y comprobación de resuelto --------------------------------------
@@ -216,7 +212,7 @@ export function scramble(count = 25, rng: () => number = Math.random): Move[] {
     const face = FACES[Math.floor(rng() * FACES.length)]
     if (face === last) continue
     last = face
-    const power = ((Math.floor(rng() * 3) + 1) as Power)
+    const power = (Math.floor(rng() * 3) + 1) as Power
     moves.push({ face, power })
   }
   return moves

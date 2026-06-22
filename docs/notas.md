@@ -1,4 +1,4 @@
-# Notas de producto — Rubrik
+# Notas de producto — Rubik
 
 > Documento de trabajo para recoger información y decidir más adelante cómo
 > reflejarla en la aplicación. **No implementado todavía** salvo donde se indique.
@@ -6,7 +6,7 @@
 
 ## Identidad
 
-- **Slogan:** *Gira. Aprende. Resuelve. Compite.*
+- **Slogan:** _Gira. Aprende. Resuelve. Compite._
 
 ## Navegación
 
@@ -23,29 +23,35 @@ Listado y detalle de cada una:
 ---
 
 ### 1. Sobre Studio LXD
+
 - Breve descripción de Studio LXD.
 - Enlace a nuestra web.
 
 ### 2. Saber más
+
 - **Historia** del cubo de Rubik.
 - **Curiosidades**.
 
 ### 3. Introducción al cubo
+
 - **Partes** del cubo (piezas: centros, aristas, esquinas…).
 - **Algoritmos**.
 - **Consejos**.
 
 ### 4. Guía paso a paso
+
 - Un **tutorial** que explica cómo montar el cubo.
 
 ### 5. Modo guiado
+
 - Es el **paso a paso actual** (ya implementado): te indica qué tecla pulsar
   para ir haciendo cada giro en tu cubo de Rubik físico.
 - **PENDIENTE:** cómo establecer el **estado inicial** del cubo virtual a partir
   del **estado actual del cubo real** (que el usuario introduzca/lea la
   configuración real de su cubo para resolver justo ese).
 
-### 6. Modo práctica
+### 6. Modo práctica ✅ implementado
+
 - Parte del modo paso a paso actual, **pero modificado**:
   - Se comporta como el **modo libre** (mueves las caras tú libremente).
   - Botón **Pista**:
@@ -56,14 +62,19 @@ Listado y detalle de cada una:
   - Si giras **bien** → te dice **OK**.
 
 ### 7. Modo libre
+
 - El **modo libre actual** tal cual (ya implementado).
 
-### 8. Modo cronometrado
-- Un **temporizador**.
+### 8. Modo cronometrado ⏳ parcial
+
+- Un **temporizador**. ✅ Implementado: arranca con el primer giro y se detiene
+  al resolver, mostrando el tiempo final (mm:ss.cs). Botón "Reiniciar / Nueva partida".
 - Al **completarlo** (resolver el cubo): guardar **usuario y tiempo**.
 - **PENDIENTE:** cómo guardamos usuario y tiempo (persistencia, ranking…).
+  De momento **solo se muestra** el tiempo, no se guarda.
 
 ### 9. Ranking
+
 - Sección que muestra el **ranking** de tiempos (alimentado por el modo cronometrado).
 - **PENDIENTE:** definir alcance (local vs global/backend), qué se muestra
   (usuario, tiempo, fecha…) y orden.
@@ -78,10 +89,11 @@ Listado y detalle de cada una:
    usuario y su tiempo (¿ranking?, ¿local?, ¿backend?).
 
 ## Estado actual (ya en la app)
+
 - **Navegación**: menú inicial con el slogan y las 9 secciones; botón "Volver al
   menú" en cada pantalla (siempre al inicio).
-- Secciones **con contenido**: **Modo libre** y **Modo guiado** (el paso a paso,
-  conectados al cubo 3D).
+- Secciones **con contenido**: **Modo libre**, **Modo guiado** (paso a paso),
+  **Modo práctica** (libre + pistas + corrección) y **Modo cronometrado**
+  (temporizador), todas conectadas al cubo 3D.
 - Resto de secciones: **vacías, solo con el título** (pendientes de contenido):
-  Sobre Studio LXD, Saber más, Introducción al cubo, Guía paso a paso,
-  Modo práctica, Modo cronometrado, Ranking.
+  Sobre Studio LXD, Saber más, Introducción al cubo, Guía paso a paso, Ranking.

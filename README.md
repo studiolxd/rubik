@@ -1,4 +1,4 @@
-# Rubrik
+# Rubik
 
 Cubo de Rubik 3×3×3 interactivo en 3D, construido con **React + React Three Fiber**.
 El cubo se renderiza en WebGL; el resto de la interfaz es HTML de React. Preparado
@@ -22,12 +22,12 @@ además para empaquetarse como **SCORM** (build estático con rutas relativas).
 
 ## Controles
 
-| Tecla | Acción |
-|-------|--------|
+| Tecla                   | Acción                                                                     |
+| ----------------------- | -------------------------------------------------------------------------- |
 | `U` `D` `L` `R` `F` `B` | Giro horario de la cara (Arriba, Abajo, Izquierda, Derecha, Frente, Atrás) |
-| `Shift` + cara | Giro antihorario (inverso) |
-| Ratón (arrastrar) | Rotar la vista |
-| Rueda del ratón | Zoom |
+| `Shift` + cara          | Giro antihorario (inverso)                                                 |
+| Ratón (arrastrar)       | Rotar la vista                                                             |
+| Rueda del ratón         | Zoom                                                                       |
 
 En **modo Paso a paso** las mismas teclas solo ejecutan el giro que toca según la
 solución; el panel te indica cuál pulsar.

@@ -2,7 +2,10 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Group, Vector3 } from 'three'
 import { Cubie } from './Cubie'
-import { ANIM_DURATION, type AnimState, type CubeController } from './useCube'
+import { type AnimState, type CubeController } from './useCube'
+
+/** CubeView solo necesita estos campos del controlador (cualquier modo). */
+type RenderController = Pick<CubeController, 'cubies' | 'anim' | '_completeAnim'>
 
 function easeInOutQuad(t: number): number {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
@@ -16,7 +19,13 @@ function easeInOutQuad(t: number): number {
  * la animación se confirma el giro (actualiza el estado lógico) y los cubies
  * pasan a su nueva posición sin salto visual.
  */
-export function CubeView({ controller }: { controller: CubeController }) {
+export function CubeView({
+  controller,
+  hideColors = false,
+}: {
+  controller: RenderController
+  hideColors?: boolean
+}) {
   const { cubies, anim, _completeAnim } = controller
   const pivotRef = useRef<Group>(null)
   const elapsed = useRef(0)
@@ -41,7 +50,7 @@ export function CubeView({ controller }: { controller: CubeController }) {
       completed.current = false
     }
     elapsed.current += delta
-    const t = Math.min(elapsed.current / ANIM_DURATION, 1)
+    const t = Math.min(elapsed.current / anim.duration, 1)
     if (pivot) pivot.setRotationFromAxisAngle(axisV3, easeInOutQuad(t) * anim.angle)
     if (t >= 1 && !completed.current) {
       completed.current = true
@@ -51,9 +60,14 @@ export function CubeView({ controller }: { controller: CubeController }) {
 
   return (
     <group>
-      {cubies.map((c) => (anim?.ids.has(c.id) ? null : <Cubie key={c.id} cubie={c} />))}
+      {cubies.map((c) =>
+        anim?.ids.has(c.id) ? null : <Cubie key={c.id} cubie={c} hideColors={hideColors} />,
+      )}
       <group ref={pivotRef}>
-        {anim && cubies.filter((c) => anim.ids.has(c.id)).map((c) => <Cubie key={c.id} cubie={c} />)}
+        {anim &&
+          cubies
+            .filter((c) => anim.ids.has(c.id))
+            .map((c) => <Cubie key={c.id} cubie={c} hideColors={hideColors} />)}
       </group>
     </group>
   )
