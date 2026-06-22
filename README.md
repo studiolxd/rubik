@@ -1,4 +1,4 @@
-# Rubrik
+# Rubik
 
 Cubo de Rubik 3×3×3 interactivo en 3D, construido con **React + React Three Fiber**.
 El cubo se renderiza en WebGL; el resto de la interfaz es HTML de React. Preparado

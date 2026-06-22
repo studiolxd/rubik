@@ -1,4 +1,4 @@
-# Notas de producto — Rubrik
+# Notas de producto — Rubik
 
 > Documento de trabajo para recoger información y decidir más adelante cómo
 > reflejarla en la aplicación. **No implementado todavía** salvo donde se indique.

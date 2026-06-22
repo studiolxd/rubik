@@ -9,7 +9,7 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
     <div className="menu">
       <div className="menu__brand">
         <Heading level={1} size={9} weight="bold">
-          Rubrik
+          Rubik
         </Heading>
         <Paragraph size="large">Gira. Aprende. Resuelve. Compite.</Paragraph>
       </div>
