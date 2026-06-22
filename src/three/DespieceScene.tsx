@@ -54,7 +54,7 @@ const H = Math.PI / 2
 /** Velocidad de interpolación (lerp) común a todas las animaciones por frame. */
 const EASE = 0.16
 /** Opacidad de las piezas que no están iluminadas durante el despiece. */
-const DIM = 0.35
+const DIM = 0.16
 
 /** Centro protagonista del despiece (la cara frontal, verde). */
 const FEATURED_CENTER: Vec3 = [0, 0, 1]
@@ -69,8 +69,9 @@ function typeOf(home: Vec3): PieceType {
   return n === 1 ? 'centro' : n === 2 ? 'arista' : 'esquina'
 }
 
-/** Recorre un subárbol aplicando lerp de opacidad e iluminación a sus materiales. */
-function animateMaterials(root: Object3D, opacity: number, glow: boolean) {
+/** Recorre un subárbol aplicando lerp de opacidad e iluminación a sus
+ *  materiales. `glow` es la intensidad emisiva objetivo (0 = sin brillo). */
+function animateMaterials(root: Object3D, opacity: number, glow: number) {
   root.traverse((o) => {
     if (!(o instanceof Mesh)) return
     const mats = Array.isArray(o.material) ? o.material : [o.material]
@@ -79,10 +80,7 @@ function animateMaterials(root: Object3D, opacity: number, glow: boolean) {
       mm.transparent = true
       mm.opacity += (opacity - mm.opacity) * EASE
       mm.depthWrite = mm.opacity > 0.9
-      if (mm.emissive) {
-        const target = glow ? 0.34 : 0
-        mm.emissiveIntensity += (target - mm.emissiveIntensity) * 0.2
-      }
+      mm.emissiveIntensity += (glow - mm.emissiveIntensity) * 0.25
     }
   })
 }
@@ -137,7 +135,7 @@ function AnimatedCubie({
     const g = ref.current
     if (!g) return
     g.position.lerp(target, EASE)
-    animateMaterials(g, opacity, false)
+    animateMaterials(g, opacity, 0)
   })
 
   return (
@@ -232,7 +230,7 @@ function Core() {
 function Mechanism({ visible, dim }: { visible: boolean; dim: boolean }) {
   const ref = useRef<Object3D>(null)
   useFrame(() => {
-    if (ref.current) animateMaterials(ref.current, visible ? (dim ? DIM : 1) : 0, false)
+    if (ref.current) animateMaterials(ref.current, visible ? (dim ? DIM : 1) : 0, 0)
   })
   const dirs = useMemo(() => CENTER_DIRS.filter((d) => !eq(d, FEATURED_CENTER)), [])
   return (
@@ -279,7 +277,7 @@ function CenterDespiece({
   const mechVisible = stage >= 1
   const spinning = stage === 1
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const c = cur.current
     const i = stage >= 2 ? 2 : stage // del paso 2 en adelante, la pieza queda despiezada
     c.muelle += (LAYOUT.muelle[i] - c.muelle) * EASE
@@ -298,17 +296,25 @@ function CenterDespiece({
       else capRef.current.rotation.y *= 0.9
     }
 
-    // Iluminación: en el despiece, solo brilla la parte explicada; el resto se
-    // atenúa. El tornillo y el muelle solo existen una vez visible el mecanismo.
-    const op = (part: HighlightId, alwaysVisible: boolean) =>
-      exploded ? (highlight === part ? 1 : DIM) : alwaysVisible ? 1 : mechVisible ? 1 : 0
-    if (muelleRef.current)
-      animateMaterials(muelleRef.current, op('muelle', false), highlight === 'muelle')
-    if (tornilloRef.current)
-      animateMaterials(tornilloRef.current, op('tornillo', false), highlight === 'tornillo')
-    if (tapaRef.current) animateMaterials(tapaRef.current, op('tapa', true), highlight === 'tapa')
-    if (pegatinaRef.current)
-      animateMaterials(pegatinaRef.current, op('pegatina', true), highlight === 'pegatina')
+    // Iluminación: en el despiece, la parte explicada brilla con un latido y
+    // crece un poco; el resto se atenúa con fuerza para que destaque. El
+    // tornillo y el muelle solo existen una vez visible el mecanismo.
+    const pulse = 0.55 + 0.3 * Math.sin(state.clock.elapsedTime * 5)
+    const part = (ref: { current: Object3D | null }, id: HighlightId, alwaysVisible: boolean) => {
+      const g = ref.current
+      if (!g) return
+      const on = highlight === id
+      const opacity = exploded ? (on ? 1 : DIM) : alwaysVisible ? 1 : mechVisible ? 1 : 0
+      animateMaterials(g, opacity, on ? pulse : 0)
+      const s = on ? 1.16 : 1
+      g.scale.x += (s - g.scale.x) * 0.2
+      g.scale.y = g.scale.x
+      g.scale.z = g.scale.x
+    }
+    part(muelleRef, 'muelle', false)
+    part(tornilloRef, 'tornillo', false)
+    part(tapaRef, 'tapa', true)
+    part(pegatinaRef, 'pegatina', true)
   })
 
   return (
@@ -368,7 +374,7 @@ function CenterDespiece({
               color={COLORS.F}
               roughness={0.4}
               metalness={0}
-              emissive="#ffffff"
+              emissive={COLORS.F}
               emissiveIntensity={0}
               transparent
             />
