@@ -121,7 +121,7 @@ function animateMaterials(root: Group, opacity: number, selected: boolean) {
       mm.opacity += (opacity - mm.opacity) * EASE
       mm.depthWrite = mm.opacity > 0.9
       if (mm.emissive) {
-        const target = selected ? 0.22 : 0
+        const target = selected ? 0.32 : 0
         mm.emissiveIntensity += (target - mm.emissiveIntensity) * 0.2
       }
     }
@@ -157,7 +157,7 @@ function AnimatedCubie({
     const g = ref.current
     if (!g) return
     g.position.lerp(target, EASE)
-    const s = selected ? 1.08 : 1
+    const s = selected ? 1.12 : 1
     g.scale.x += (s - g.scale.x) * 0.2
     g.scale.y = g.scale.x
     g.scale.z = g.scale.x
@@ -362,12 +362,18 @@ export function DespieceScene({
 
       {cubies.map((c) => {
         const t = typeOf(c.home)
+        // Al seleccionar un tipo de pieza, atenuamos las que no son de ese tipo
+        // para que la elegida (y sus hermanas) destaquen sin lugar a dudas.
+        const pieceSelected =
+          selected === 'centro' || selected === 'arista' || selected === 'esquina'
+        let opacity = opacityFor(c.home, stage)
+        if (pieceSelected && selected !== t) opacity = Math.min(opacity, 0.3)
         return (
           <AnimatedCubie
             key={c.id}
             cubie={c}
             offset={offsetFor(c.home, stage)}
-            opacity={opacityFor(c.home, stage)}
+            opacity={opacity}
             selected={selected === t}
             onPick={() => onSelect(t)}
           />
