@@ -97,7 +97,12 @@ function buildNet(C) {
 // --- Construcción 3D común (isométrico) ----------------------------------
 // faceColors: { U, L, R } ; shade: factor por cara ; rotateDeg: inclinación ;
 // withShadow: añade sombra de apoyo. Devuelve el documento SVG.
-function buildIso(C, { faceColors, shade, rotateDeg = 0, withShadow = false, pad, label, title }) {
+// stickerFill: si se indica, todos los stickers usan ese color plano (sin sombrear)
+// — se usa para la silueta "en blanco" que aparece mientras carga el cubo WebGL.
+function buildIso(
+  C,
+  { faceColors, shade, rotateDeg = 0, withShadow = false, pad, label, title, stickerFill },
+) {
   const s = 44,
     gap = 3,
     N = 3
@@ -149,7 +154,7 @@ function buildIso(C, { faceColors, shade, rotateDeg = 0, withShadow = false, pad
         const B = add(A, f.e1),
           Cc = add(A, f.e1, f.e2),
           D = add(A, f.e2)
-        const fill = darken(faceColors[f.key], shade[f.key])
+        const fill = stickerFill ?? darken(faceColors[f.key], shade[f.key])
         poly(
           [
             add(A, mul(n1, gap), mul(n2, gap)),
@@ -216,6 +221,23 @@ writeFileSync(
   }),
 )
 
+// Silueta "en blanco": misma pose/geometría que el corner pero con todos los
+// stickers blancos. Se muestra al instante mientras arranca el Canvas WebGL y
+// se desvanece al pintar el primer frame (MenuCube).
+writeFileSync(
+  out('cube-solved-corner-blank.svg'),
+  buildIso(C, {
+    faceColors: { U: C.D, L: C.B, R: C.R },
+    shade: { U: 1.0, R: 0.9, L: 0.72 },
+    stickerFill: '#ffffff',
+    rotateDeg: 17,
+    withShadow: false,
+    pad: 8,
+    label: 'Cubo de Rubik (silueta, cargando)',
+    title: 'Cubo de Rubik (silueta, cargando)',
+  }),
+)
+
 // Variante recortada para el favicon: misma pose que el corner, sin sombra y
 // con margen mínimo, para que el cubo llene el cuadro.
 writeFileSync(
@@ -232,5 +254,5 @@ writeFileSync(
 )
 
 console.log(
-  'SVG generados en public/: cube-solved-net.svg, cube-solved-isometric.svg, cube-solved-corner.svg, cube-favicon.svg',
+  'SVG generados en public/: cube-solved-net.svg, cube-solved-isometric.svg, cube-solved-corner.svg, cube-solved-corner-blank.svg, cube-favicon.svg',
 )
