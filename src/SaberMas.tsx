@@ -1,6 +1,7 @@
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { List } from '@studiolxd/brand/list'
+import { Despiece } from './Despiece'
 
 /**
  * Sección "Saber más": el origen y la historia del cubo de Rubik.
@@ -89,6 +90,19 @@ export function SaberMas() {
           3×3, también otros “twisty puzzles”). Hoy el cubo no es solo cultura pop, también es{' '}
           <strong>comunidad global organizada, con eventos y rankings</strong>.
         </Paragraph>
+      </section>
+
+      <section className="saber__block">
+        <Heading level={3} size={5} weight="bold">
+          Cómo es por dentro: el mecanismo
+        </Heading>
+        <Paragraph>
+          Lo que hace mágico al cubo no se ve: un <strong>mecanismo interior</strong> articula sus
+          piezas para que las capas giren sin que nada se desmonte. Avanza paso a paso para sacar
+          una esquina, una arista y, por fin, llegar al núcleo con su tornillo y su muelle. Puedes{' '}
+          <strong>tocar cada pieza</strong> para saber qué es.
+        </Paragraph>
+        <Despiece />
       </section>
 
       <section className="saber__block">
