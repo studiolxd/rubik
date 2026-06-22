@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Button } from '@studiolxd/brand/button'
@@ -9,6 +10,10 @@ import { SECTIONS, type SectionId } from './sections'
 
 /** Menú inicial: marca + slogan + acceso a cada sección. */
 export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
+  // Un overlay blanco cubre la portada hasta que el cubo WebGL pinta su primer
+  // frame; entonces se desvanece rápido para que no se vea el arranque del Canvas.
+  const [ready, setReady] = useState(false)
+
   return (
     <div className="menu">
       <div className="menu__brand">
@@ -18,7 +23,7 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
         <Paragraph size="large">Gira. Aprende. Resuelve. Compite.</Paragraph>
       </div>
 
-      <MenuCube />
+      <MenuCube onReady={() => setReady(true)} />
 
       <nav className="menu__grid">
         {SECTIONS.map((s) => (
@@ -32,6 +37,8 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
         <Logo height={28} />
         <VisuallyHidden>Studio LXD (se abre en una pestaña nueva)</VisuallyHidden>
       </Link>
+
+      <div className={`menu__overlay${ready ? ' is-hidden' : ''}`} aria-hidden="true" />
     </div>
   )
 }

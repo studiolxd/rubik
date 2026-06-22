@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Quaternion, Vector3 } from 'three'
 import { CubeView } from './three/cube/CubeView'
@@ -9,8 +9,7 @@ const TILT = (17 * Math.PI) / 180
 
 /**
  * Avisa una sola vez cuando el Canvas ha pintado su primer frame (el cubo WebGL
- * ya está dibujado). Sirve para desvanecer la silueta SVG sin que se vea el hueco
- * mientras WebGL arranca.
+ * ya está dibujado). La portada lo usa para desvanecer el overlay de carga.
  */
 function FirstFrameSignal({ onReady }: { onReady: () => void }) {
   const fired = useRef(false)
@@ -32,10 +31,8 @@ function FirstFrameSignal({ onReady }: { onReady: () => void }) {
  * (táctil) ejecuta el siguiente grupo de 3-4 giros de la solución; el último
  * grupo recoge el saldo. Resuelto, una pulsación lo vuelve a mezclar.
  */
-export function MenuCube() {
+export function MenuCube({ onReady }: { onReady?: () => void }) {
   const controller = useMenuCube()
-  // La silueta SVG se ve al instante; se desvanece al pintar el primer frame WebGL.
-  const [painted, setPainted] = useState(false)
 
   // Cámara isométrica desde el rincón (+,+,+): vemos las caras +x (derecha),
   // +y (arriba) y +z (izquierda). El cubo, sin girar, mostraría blanco/rojo/verde.
@@ -57,13 +54,6 @@ export function MenuCube() {
       }}
       onClick={() => controller.interact('tap')}
     >
-      {/* Silueta instantánea: se ve mientras WebGL arranca y se desvanece al pintar. */}
-      <img
-        src={`${import.meta.env.BASE_URL}cube-solved-corner-blank.svg`}
-        alt=""
-        aria-hidden="true"
-        className={`menu__cube-placeholder${painted ? ' is-hidden' : ''}`}
-      />
       <Canvas camera={{ position: [5, 5, 5], fov: 40 }} dpr={[1, 2]}>
         <ambientLight intensity={0.9} />
         <directionalLight position={[6, 9, 6]} intensity={1.1} />
@@ -75,7 +65,7 @@ export function MenuCube() {
             <CubeView controller={controller} />
           </group>
         </group>
-        <FirstFrameSignal onReady={() => setPainted(true)} />
+        {onReady && <FirstFrameSignal onReady={onReady} />}
       </Canvas>
     </div>
   )
