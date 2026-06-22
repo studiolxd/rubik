@@ -8,7 +8,7 @@
   font-family: var(--font-family-sans, system-ui, sans-serif);
   line-height: 1.5;
   color: var(--color-text-on-light, #111e30);
-  background-color: var(--color-grey-lightest, #f2f2f2);
+  background-color: var(--color-white, #ffffff);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

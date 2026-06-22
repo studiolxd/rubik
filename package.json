@@ -14,6 +14,8 @@
     "preview": "vite preview",
     "verify:cube": "tsx src/three/cube/engine.verify.ts",
     "verify:lbl": "tsx src/three/cube/lbl.verify.ts",
+    "verify:facelets": "tsx src/three/cube/facelets.verify.ts",
+    "verify:colors": "tsx src/three/cube/colors.verify.ts",
     "gen:cube-svgs": "node scripts/generate-cube-svgs.mjs",
     "prepare": "husky"
   },
