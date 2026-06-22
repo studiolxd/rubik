@@ -5,11 +5,15 @@ import type { Cubie as CubieData, Mat3, Vec3 } from './engine'
 
 /** Separación entre centros de cubies (las posiciones lógicas son -1, 0, 1). */
 const SPACING = 1.0
-/** Tamaño del cuerpo del cubie (deja un pequeño hueco entre piezas). */
-const BODY = 0.95
+/** Tamaño del cuerpo del cubie. Casi igual a SPACING: las piezas se tocan
+ *  dejando solo una ranura fina (gap 0.02), como un cubo real. */
+const BODY = 0.98
+/** Radio de las esquinas redondeadas (sutil, para que las piezas se vean unidas). */
+const BODY_RADIUS = 0.03
 /** Distancia del plano de pegatina al centro del cubie. */
-const STICKER_OFFSET = BODY / 2 + 0.001
-const STICKER_SIZE = BODY * 0.86
+const STICKER_OFFSET = BODY / 2 + 0.002
+/** Pegatina grande (cubre casi toda la cara) para un borde negro fino. */
+const STICKER_SIZE = 0.91
 
 /** Colores clásicos por cara (en el estado resuelto). */
 const COLORS = {
@@ -63,7 +67,7 @@ export function Cubie({ cubie }: { cubie: CubieData }) {
 
   return (
     <group position={position} quaternion={quaternion}>
-      <RoundedBox args={[BODY, BODY, BODY]} radius={0.08} smoothness={3}>
+      <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
         <meshStandardMaterial color="#0a0a0a" roughness={0.55} metalness={0.05} />
       </RoundedBox>
       {stickers.map((s, i) => (
