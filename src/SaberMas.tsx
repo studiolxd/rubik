@@ -98,9 +98,9 @@ export function SaberMas() {
         </Heading>
         <Paragraph>
           Lo que hace mágico al cubo no se ve: un <strong>mecanismo interior</strong> articula sus
-          piezas para que las capas giren sin que nada se desmonte. Avanza paso a paso para sacar
-          una esquina, una arista y, por fin, llegar al núcleo con su tornillo y su muelle. Puedes{' '}
-          <strong>tocar cada pieza</strong> para saber qué es.
+          piezas para que las capas giren sin que nada se desmonte. Avanza paso a paso: el cubo se
+          abre, aparece el <strong>núcleo</strong> y, al final, se despieza una de sus piezas en{' '}
+          <strong>pegatina, tapa, tornillo y muelle</strong>.
         </Paragraph>
         <Despiece />
       </section>

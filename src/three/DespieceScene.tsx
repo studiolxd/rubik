@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { RoundedBox, TrackballControls } from '@react-three/drei'
 import {
   CatmullRomCurve3,
@@ -12,26 +12,19 @@ import {
 import { createSolved, type Cubie, type Vec3 } from './cube/engine'
 
 /**
- * Escena 3D de despiece para "Saber más": muestra de qué está hecho un cubo de
- * Rubik por dentro, en 3 pasos:
+ * Escena 3D de despiece para "Saber más". Recorrido lineal por pasos (no hay
+ * interacción de toque):
  *   0) el cubo montado,
- *   1) las piezas externas desaparecen y queda a la vista el mecanismo interior
- *      (núcleo de 3 brazos + centros), y
- *   2) se despieza un centro en pegatina, tapa, tornillo y muelle.
+ *   1) las piezas externas desaparecen y los centros se separan para dejar ver
+ *      el mecanismo interior (núcleo de 3 brazos + tornillos/muelles), y
+ *   2..5) se despieza un centro y se va iluminando cada parte —pegatina, tapa,
+ *      tornillo y muelle— con su explicación.
  *
- * Toda la geometría es procedural (no hay modelos importados) y la animación es
- * interpolación por frame. No depende del motor de juego (`useCube`).
+ * Toda la geometría es procedural y la animación es interpolación por frame.
  */
 
-export type PartId =
-  | 'centro'
-  | 'arista'
-  | 'esquina'
-  | 'nucleo'
-  | 'tornillo'
-  | 'muelle'
-  | 'tapa'
-  | 'pegatina'
+/** Partes del centro que se iluminan, una por sub-paso del despiece. */
+export type HighlightId = 'pegatina' | 'tapa' | 'tornillo' | 'muelle'
 
 // --- Tokens y constantes (espejo de Cubie.tsx para no acoplar ambos) --------
 
@@ -60,6 +53,8 @@ const H = Math.PI / 2
 
 /** Velocidad de interpolación (lerp) común a todas las animaciones por frame. */
 const EASE = 0.16
+/** Opacidad de las piezas que no están iluminadas durante el despiece. */
+const DIM = 0.35
 
 /** Centro protagonista del despiece (la cara frontal, verde). */
 const FEATURED_CENTER: Vec3 = [0, 0, 1]
@@ -74,44 +69,8 @@ function typeOf(home: Vec3): PieceType {
   return n === 1 ? 'centro' : n === 2 ? 'arista' : 'esquina'
 }
 
-// --- Selección por "tap" (robusta en ratón y táctil) ------------------------
-
-/**
- * Manejadores para detectar una pulsación real sobre una pieza. En táctil, el
- * `onClick` de R3F se pierde porque el control de rotación captura el gesto;
- * por eso medimos el desplazamiento entre pointerdown y pointerup y solo
- * disparamos la selección si apenas se ha movido (un toque, no un arrastre).
- */
-function useTap(onTap: () => void, active = true) {
-  const down = useRef<{ x: number; y: number } | null>(null)
-  if (!active) return {}
-  return {
-    onPointerDown: (e: ThreeEvent<PointerEvent>) => {
-      e.stopPropagation()
-      down.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY }
-    },
-    onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-      const d = down.current
-      down.current = null
-      if (!d) return
-      const moved = Math.hypot(e.nativeEvent.clientX - d.x, e.nativeEvent.clientY - d.y)
-      if (moved < 8) {
-        e.stopPropagation()
-        onTap()
-      }
-    },
-    onPointerOver: (e: ThreeEvent<PointerEvent>) => {
-      e.stopPropagation()
-      document.body.style.cursor = 'pointer'
-    },
-    onPointerOut: () => {
-      document.body.style.cursor = 'default'
-    },
-  }
-}
-
-/** Recorre un subárbol aplicando lerp de opacidad y resaltado a sus materiales. */
-function animateMaterials(root: Object3D, opacity: number, selected: boolean) {
+/** Recorre un subárbol aplicando lerp de opacidad e iluminación a sus materiales. */
+function animateMaterials(root: Object3D, opacity: number, glow: boolean) {
   root.traverse((o) => {
     if (!(o instanceof Mesh)) return
     const mats = Array.isArray(o.material) ? o.material : [o.material]
@@ -121,7 +80,7 @@ function animateMaterials(root: Object3D, opacity: number, selected: boolean) {
       mm.opacity += (opacity - mm.opacity) * EASE
       mm.depthWrite = mm.opacity > 0.9
       if (mm.emissive) {
-        const target = selected ? 0.32 : 0
+        const target = glow ? 0.34 : 0
         mm.emissiveIntensity += (target - mm.emissiveIntensity) * 0.2
       }
     }
@@ -157,16 +116,10 @@ function AnimatedCubie({
   cubie,
   offset,
   opacity,
-  selected,
-  active,
-  onPick,
 }: {
   cubie: Cubie
   offset: Vec3
   opacity: number
-  selected: boolean
-  active: boolean
-  onPick: () => void
 }) {
   const ref = useRef<Object3D>(null)
   const stickers = useMemo(() => stickersFor(cubie.home), [cubie.home])
@@ -184,38 +137,21 @@ function AnimatedCubie({
     const g = ref.current
     if (!g) return
     g.position.lerp(target, EASE)
-    const s = selected ? 1.12 : 1
-    g.scale.x += (s - g.scale.x) * 0.2
-    g.scale.y = g.scale.x
-    g.scale.z = g.scale.x
-    animateMaterials(g, opacity, selected)
+    animateMaterials(g, opacity, false)
   })
 
   return (
     <group
       ref={ref}
       position={[cubie.pos[0] * SPACING, cubie.pos[1] * SPACING, cubie.pos[2] * SPACING]}
-      {...useTap(onPick, active)}
     >
       <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
-        <meshStandardMaterial
-          color={BODY_COLOR}
-          roughness={0.55}
-          metalness={0.05}
-          emissive="#ffffff"
-          emissiveIntensity={0}
-        />
+        <meshStandardMaterial color={BODY_COLOR} roughness={0.55} metalness={0.05} />
       </RoundedBox>
       {stickers.map((s, i) => (
         <mesh key={i} position={s.position} rotation={s.rotation}>
           <planeGeometry args={[STICKER_SIZE, STICKER_SIZE]} />
-          <meshStandardMaterial
-            color={s.color}
-            roughness={0.4}
-            metalness={0}
-            emissive="#ffffff"
-            emissiveIntensity={0}
-          />
+          <meshStandardMaterial color={s.color} roughness={0.4} metalness={0} />
         </mesh>
       ))}
     </group>
@@ -253,77 +189,39 @@ function quatToAxis(dir: Vec3): Quaternion {
 }
 
 /** Tornillo + muelle de un centro (montado), orientado a lo largo de su eje. */
-function Spindle({
-  dir,
-  active,
-  onSelect,
-}: {
-  dir: Vec3
-  active: boolean
-  onSelect: (p: PartId) => void
-}) {
+function Spindle({ dir }: { dir: Vec3 }) {
   const quat = useMemo(() => quatToAxis(dir), [dir])
   const curve = useMemo(() => helixCurve(), [])
   return (
     <group quaternion={quat}>
-      <group {...useTap(() => onSelect('tornillo'), active)}>
-        <mesh position={[0, 0.62, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 0.72, 16]} />
-          <meshStandardMaterial
-            color="#9aa0a6"
-            roughness={0.3}
-            metalness={0.7}
-            emissive="#ffffff"
-            emissiveIntensity={0}
-            transparent
-          />
-        </mesh>
-        <mesh position={[0, 0.28, 0]}>
-          <cylinderGeometry args={[0.09, 0.09, 0.09, 16]} />
-          <meshStandardMaterial color="#777d83" roughness={0.3} metalness={0.7} transparent />
-        </mesh>
-      </group>
-      <mesh {...useTap(() => onSelect('muelle'), active)}>
+      <mesh position={[0, 0.62, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 0.72, 16]} />
+        <meshStandardMaterial color="#9aa0a6" roughness={0.3} metalness={0.7} transparent />
+      </mesh>
+      <mesh position={[0, 0.28, 0]}>
+        <cylinderGeometry args={[0.09, 0.09, 0.09, 16]} />
+        <meshStandardMaterial color="#777d83" roughness={0.3} metalness={0.7} transparent />
+      </mesh>
+      <mesh>
         <tubeGeometry args={[curve, 90, 0.022, 6, false]} />
-        <meshStandardMaterial
-          color="#c8ccd0"
-          roughness={0.35}
-          metalness={0.6}
-          emissive="#ffffff"
-          emissiveIntensity={0}
-          transparent
-        />
+        <meshStandardMaterial color="#c8ccd0" roughness={0.35} metalness={0.6} transparent />
       </mesh>
     </group>
   )
 }
 
 /** Núcleo: esfera central + 3 brazos perpendiculares (el eje de giro). */
-function Core({ active, onSelect }: { active: boolean; onSelect: (p: PartId) => void }) {
+function Core() {
   return (
-    <group {...useTap(() => onSelect('nucleo'), active)}>
+    <group>
       <mesh>
         <sphereGeometry args={[0.32, 20, 20]} />
-        <meshStandardMaterial
-          color="#2c2f33"
-          roughness={0.6}
-          metalness={0.2}
-          emissive="#ffffff"
-          emissiveIntensity={0}
-          transparent
-        />
+        <meshStandardMaterial color="#6f757b" roughness={0.5} metalness={0.25} transparent />
       </mesh>
       {[[0, 0, 0] as Vec3, [0, 0, H] as Vec3, [H, 0, 0] as Vec3].map((rot, i) => (
         <mesh key={i} rotation={rot}>
           <cylinderGeometry args={[0.16, 0.16, 1.7, 16]} />
-          <meshStandardMaterial
-            color="#34383d"
-            roughness={0.6}
-            metalness={0.2}
-            emissive="#ffffff"
-            emissiveIntensity={0}
-            transparent
-          />
+          <meshStandardMaterial color="#878d93" roughness={0.5} metalness={0.25} transparent />
         </mesh>
       ))}
     </group>
@@ -331,17 +229,17 @@ function Core({ active, onSelect }: { active: boolean; onSelect: (p: PartId) => 
 }
 
 /** Núcleo + los 5 tornillos/muelles que no son el del centro protagonista. */
-function Mechanism({ visible, onSelect }: { visible: boolean; onSelect: (p: PartId) => void }) {
+function Mechanism({ visible, dim }: { visible: boolean; dim: boolean }) {
   const ref = useRef<Object3D>(null)
   useFrame(() => {
-    if (ref.current) animateMaterials(ref.current, visible ? 1 : 0, false)
+    if (ref.current) animateMaterials(ref.current, visible ? (dim ? DIM : 1) : 0, false)
   })
   const dirs = useMemo(() => CENTER_DIRS.filter((d) => !eq(d, FEATURED_CENTER)), [])
   return (
     <group ref={ref}>
-      <Core active={visible} onSelect={onSelect} />
+      <Core />
       {dirs.map((d, i) => (
-        <Spindle key={i} dir={d} active={visible} onSelect={onSelect} />
+        <Spindle key={i} dir={d} />
       ))}
     </group>
   )
@@ -349,24 +247,23 @@ function Mechanism({ visible, onSelect }: { visible: boolean; onSelect: (p: Part
 
 // --- Despiece de un centro: pegatina + tapa + tornillo + muelle -------------
 
-/** Distancias a lo largo del eje [montado, explosionado] de cada subpieza. */
+/** Distancia de cada subpieza a lo largo del eje en [paso 0, paso 1, paso 2+].
+ *  En despiece, el muelle queda fuera del brazo del núcleo (~0.85) para verse. */
 const LAYOUT = {
-  muelle: [0.62, 0.55],
-  tornillo: [0.62, 1.2],
-  tapa: [1.0, 2.05],
-  pegatina: [1.52, 2.7],
+  muelle: [0.62, 0.62, 1.2],
+  tornillo: [0.62, 0.62, 1.95],
+  tapa: [1.0, 1.5, 2.85],
+  pegatina: [1.52, 2.02, 3.5],
 } as const
 
 function CenterDespiece({
   dir,
   stage,
-  selected,
-  onSelect,
+  highlight,
 }: {
   dir: Vec3
   stage: number
-  selected: PartId | null
-  onSelect: (p: PartId) => void
+  highlight: HighlightId | null
 }) {
   const quat = useMemo(() => quatToAxis(dir), [dir])
   const curve = useMemo(() => helixCurve(), [])
@@ -375,21 +272,25 @@ function CenterDespiece({
   const tapaRef = useRef<Object3D>(null)
   const pegatinaRef = useRef<Object3D>(null)
   const capRef = useRef<Object3D>(null)
-  const spread = useRef(0)
+  // Distancia actual de cada subpieza, que interpolamos hacia el paso actual.
+  const cur = useRef({ muelle: 0.62, tornillo: 0.62, tapa: 1.0, pegatina: 1.52 })
 
-  const exploded = stage === 2
+  const exploded = stage >= 2
   const mechVisible = stage >= 1
   const spinning = stage === 1
 
   useFrame((_, delta) => {
-    spread.current += ((exploded ? 1 : 0) - spread.current) * EASE
-    const s = spread.current
-    const lp = (a: number, b: number) => a + (b - a) * s
+    const c = cur.current
+    const i = stage >= 2 ? 2 : stage // del paso 2 en adelante, la pieza queda despiezada
+    c.muelle += (LAYOUT.muelle[i] - c.muelle) * EASE
+    c.tornillo += (LAYOUT.tornillo[i] - c.tornillo) * EASE
+    c.tapa += (LAYOUT.tapa[i] - c.tapa) * EASE
+    c.pegatina += (LAYOUT.pegatina[i] - c.pegatina) * EASE
 
-    if (muelleRef.current) muelleRef.current.position.y = lp(...LAYOUT.muelle) - 0.62
-    if (tornilloRef.current) tornilloRef.current.position.y = lp(...LAYOUT.tornillo) - 0.62
-    if (tapaRef.current) tapaRef.current.position.y = lp(...LAYOUT.tapa)
-    if (pegatinaRef.current) pegatinaRef.current.position.y = lp(...LAYOUT.pegatina)
+    if (muelleRef.current) muelleRef.current.position.y = c.muelle - 0.62
+    if (tornilloRef.current) tornilloRef.current.position.y = c.tornillo - 0.62
+    if (tapaRef.current) tapaRef.current.position.y = c.tapa
+    if (pegatinaRef.current) pegatinaRef.current.position.y = c.pegatina
 
     // "Giro de 360 grados": el centro gira sobre su eje en el paso del mecanismo.
     if (capRef.current) {
@@ -397,25 +298,24 @@ function CenterDespiece({
       else capRef.current.rotation.y *= 0.9
     }
 
-    // Tornillo y muelle solo se ven cuando el mecanismo está a la vista.
+    // Iluminación: en el despiece, solo brilla la parte explicada; el resto se
+    // atenúa. El tornillo y el muelle solo existen una vez visible el mecanismo.
+    const op = (part: HighlightId, alwaysVisible: boolean) =>
+      exploded ? (highlight === part ? 1 : DIM) : alwaysVisible ? 1 : mechVisible ? 1 : 0
     if (muelleRef.current)
-      animateMaterials(muelleRef.current, mechVisible ? 1 : 0, selected === 'muelle')
+      animateMaterials(muelleRef.current, op('muelle', false), highlight === 'muelle')
     if (tornilloRef.current)
-      animateMaterials(tornilloRef.current, mechVisible ? 1 : 0, selected === 'tornillo')
-    if (tapaRef.current) animateMaterials(tapaRef.current, 1, selected === 'tapa')
-    if (pegatinaRef.current) animateMaterials(pegatinaRef.current, 1, selected === 'pegatina')
+      animateMaterials(tornilloRef.current, op('tornillo', false), highlight === 'tornillo')
+    if (tapaRef.current) animateMaterials(tapaRef.current, op('tapa', true), highlight === 'tapa')
+    if (pegatinaRef.current)
+      animateMaterials(pegatinaRef.current, op('pegatina', true), highlight === 'pegatina')
   })
-
-  // En los pasos 0-1 la pieza es "un centro"; solo al despiezar (paso 2) tiene
-  // sentido nombrar la tapa y la pegatina por separado.
-  const tapaId: PartId = exploded ? 'tapa' : 'centro'
-  const pegatinaId: PartId = exploded ? 'pegatina' : 'centro'
 
   return (
     <group quaternion={quat}>
       {/* Muelle */}
       <group ref={muelleRef}>
-        <mesh {...useTap(() => onSelect('muelle'), mechVisible)}>
+        <mesh>
           <tubeGeometry args={[curve, 90, 0.022, 6, false]} />
           <meshStandardMaterial
             color="#c8ccd0"
@@ -429,7 +329,7 @@ function CenterDespiece({
       </group>
 
       {/* Tornillo */}
-      <group ref={tornilloRef} {...useTap(() => onSelect('tornillo'), mechVisible)}>
+      <group ref={tornilloRef}>
         <mesh position={[0, 0.62, 0]}>
           <cylinderGeometry args={[0.05, 0.05, 0.72, 16]} />
           <meshStandardMaterial
@@ -449,7 +349,7 @@ function CenterDespiece({
 
       {/* Tapa + pegatina (giran juntas como el centro) */}
       <group ref={capRef}>
-        <group ref={tapaRef} {...useTap(() => onSelect(tapaId), true)}>
+        <group ref={tapaRef}>
           <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
             <meshStandardMaterial
               color={BODY_COLOR}
@@ -461,7 +361,7 @@ function CenterDespiece({
             />
           </RoundedBox>
         </group>
-        <group ref={pegatinaRef} {...useTap(() => onSelect(pegatinaId), true)}>
+        <group ref={pegatinaRef}>
           <mesh>
             <boxGeometry args={[STICKER_SIZE, 0.04, STICKER_SIZE]} />
             <meshStandardMaterial
@@ -483,12 +383,10 @@ function CenterDespiece({
 
 export function DespieceScene({
   stage,
-  selected,
-  onSelect,
+  highlight,
 }: {
   stage: number
-  selected: PartId | null
-  onSelect: (p: PartId) => void
+  highlight: HighlightId | null
 }) {
   const cubies = useMemo(() => createSolved(), [])
   // El centro protagonista se dibuja aparte (CenterDespiece); el resto de
@@ -498,32 +396,23 @@ export function DespieceScene({
   return (
     <Canvas camera={{ position: [5, 5, 6], fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#ffffff']} />
-      <ambientLight intensity={0.9} />
+      <ambientLight intensity={1.05} />
       <directionalLight position={[6, 9, 6]} intensity={1.1} />
-      <directionalLight position={[-6, -2, -6]} intensity={0.4} />
+      <directionalLight position={[-6, -2, -6]} intensity={0.5} />
 
       {pieces.map((c) => {
-        const t = typeOf(c.home)
-        const external = t !== 'centro'
-        // Las piezas externas desaparecen (y se apartan un poco) a partir del paso 1.
-        const offset: Vec3 = external && stage >= 1 ? scale(c.home, 0.6) : [0, 0, 0]
-        const opacity = external && stage >= 1 ? 0 : 1
-        const active = !external || stage === 0
-        return (
-          <AnimatedCubie
-            key={c.id}
-            cubie={c}
-            offset={offset}
-            opacity={opacity}
-            selected={selected === t}
-            active={active}
-            onPick={() => onSelect(t)}
-          />
-        )
+        const external = typeOf(c.home) !== 'centro'
+        // Aristas y esquinas: desaparecen (apartándose un poco) desde el paso 1.
+        // Centros: se separan hacia fuera para dejar ver el núcleo y sus
+        // tornillos/muelles; en el despiece final se retiran.
+        const out = external ? 0.6 : 0.5
+        const offset: Vec3 = stage >= 1 ? scale(c.home, out) : [0, 0, 0]
+        const opacity = (external ? stage >= 1 : stage >= 2) ? 0 : 1
+        return <AnimatedCubie key={c.id} cubie={c} offset={offset} opacity={opacity} />
       })}
 
-      <Mechanism visible={stage >= 1} onSelect={onSelect} />
-      <CenterDespiece dir={FEATURED_CENTER} stage={stage} selected={selected} onSelect={onSelect} />
+      <Mechanism visible={stage >= 1} dim={stage >= 2} />
+      <CenterDespiece dir={FEATURED_CENTER} stage={stage} highlight={highlight} />
 
       <TrackballControls noPan rotateSpeed={3} minDistance={5} maxDistance={16} />
     </Canvas>
