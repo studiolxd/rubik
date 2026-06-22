@@ -1,6 +1,5 @@
 /** Secciones de la aplicación, en el orden del menú inicial. */
 export type SectionId =
-  | 'sobre'
   | 'saber-mas'
   | 'introduccion'
   | 'guia'
@@ -16,7 +15,6 @@ export interface Section {
 }
 
 export const SECTIONS: Section[] = [
-  { id: 'sobre', title: 'Sobre Studio LXD' },
   { id: 'saber-mas', title: 'Saber más' },
   { id: 'introduccion', title: 'Introducción al cubo' },
   { id: 'guia', title: 'Guía paso a paso' },

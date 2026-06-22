@@ -1,0 +1,418 @@
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+} from 'react'
+import { Quaternion, Vector3 } from 'three'
+import { Modal } from '@studiolxd/brand/modal'
+
+/** Subconjunto de la API de TrackballControls que usamos desde los botones. */
+export interface ViewControlsHandle {
+  object: { position: Vector3; up: Vector3 }
+  target: Vector3
+  position0: Vector3
+  target0: Vector3
+  up0: Vector3
+  minDistance: number
+  maxDistance: number
+  reset: () => void
+  update: () => void
+  addEventListener: (type: 'change', listener: () => void) => void
+  removeEventListener: (type: 'change', listener: () => void) => void
+}
+
+const EPS = 1e-3
+
+const PlusIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+)
+
+const MinusIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+)
+
+const ResetIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="1 4 1 10 7 10" />
+    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+  </svg>
+)
+
+const HelpIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+)
+
+/** Filas de la leyenda de teclas (cara → tecla → nombre). */
+const KEY_ROWS: { key: string; label: string }[] = [
+  { key: 'U', label: 'Arriba' },
+  { key: 'D', label: 'Abajo' },
+  { key: 'L', label: 'Izquierda' },
+  { key: 'R', label: 'Derecha' },
+  { key: 'F', label: 'Frente' },
+  { key: 'B', label: 'Atrás' },
+]
+
+/** Radio máximo (px) que recorre la bolita desde el centro. */
+const JOY_RADIUS = 26
+
+/** Velocidad de orbitación de la vista (radianes por segundo a tope de entrada). */
+const ROT_SPEED = 2.4
+
+/**
+ * Joystick virtual (una "bolita" dentro de una base circular). Devuelve por
+ * `onVector` un vector normalizado en [-1,1] (x derecha+, y arriba+); (0,0) al soltar.
+ */
+function Joystick({ onVector }: { onVector: (x: number, y: number) => void }) {
+  const baseRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+  const [knob, setKnob] = useState({ x: 0, y: 0 })
+
+  const moveTo = useCallback(
+    (clientX: number, clientY: number) => {
+      const base = baseRef.current
+      if (!base) return
+      const r = base.getBoundingClientRect()
+      let dx = clientX - (r.left + r.width / 2)
+      let dy = clientY - (r.top + r.height / 2)
+      const dist = Math.hypot(dx, dy)
+      if (dist > JOY_RADIUS) {
+        dx = (dx / dist) * JOY_RADIUS
+        dy = (dy / dist) * JOY_RADIUS
+      }
+      setKnob({ x: dx, y: dy })
+      onVector(dx / JOY_RADIUS, -dy / JOY_RADIUS) // y de pantalla es hacia abajo → invertimos
+    },
+    [onVector],
+  )
+
+  const onPointerDown = (e: ReactPointerEvent) => {
+    dragging.current = true
+    e.currentTarget.setPointerCapture(e.pointerId)
+    moveTo(e.clientX, e.clientY)
+  }
+  const onPointerMove = (e: ReactPointerEvent) => {
+    if (dragging.current) moveTo(e.clientX, e.clientY)
+  }
+  const release = () => {
+    dragging.current = false
+    setKnob({ x: 0, y: 0 })
+    onVector(0, 0)
+  }
+
+  return (
+    <div
+      ref={baseRef}
+      className="joystick"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={release}
+      onPointerCancel={release}
+      role="presentation"
+      aria-label="Joystick para girar la vista"
+      title="Arrastra para girar la vista"
+    >
+      <div
+        className="joystick__knob"
+        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Controles flotantes de cámara (esquina inferior izquierda del viewport):
+ *  - Acercar / Alejar el zoom (desactivados en los topes de zoom).
+ *  - Restaurar la vista inicial (desactivado si ya está en la vista inicial).
+ */
+export function ViewControls({
+  controlsRef,
+  mode,
+}: {
+  controlsRef: RefObject<ViewControlsHandle | null>
+  /** Modo activo: decide qué atajos propios del modo se muestran en la ayuda.
+   *  `view` = solo se gira la vista (sin teclas de giro de caras). */
+  mode: 'free' | 'step' | 'practice' | 'timed' | 'view'
+}) {
+  // Estado de los botones, derivado de la cámara (se recalcula al moverla).
+  const [{ atInitial, atMin, atMax }, setState] = useState({
+    atInitial: true,
+    atMin: false,
+    atMax: false,
+  })
+  const [helpOpen, setHelpOpen] = useState(false)
+
+  // --- Giro de la vista con flechas del teclado y joystick ------------------
+  const keysRef = useRef(new Set<string>()) // flechas pulsadas
+  const joyRef = useRef({ x: 0, y: 0 }) // vector del joystick (-1..1)
+  const rafRef = useRef(0)
+  const lastRef = useRef(0)
+
+  // Orbita la cámara alrededor del objetivo: `yaw` sobre el eje vertical (up) y
+  // `pitch` sobre el eje horizontal de pantalla. Estilo trackball (gira también el up).
+  const orbit = useCallback(
+    (yaw: number, pitch: number) => {
+      const c = controlsRef.current
+      if (!c) return
+      const offset = c.object.position.clone().sub(c.target)
+      const up = c.object.up.clone().normalize()
+      const viewDir = offset.clone().multiplyScalar(-1).normalize()
+      const right = new Vector3().crossVectors(viewDir, up).normalize()
+      const q = new Quaternion()
+        .setFromAxisAngle(up, yaw)
+        .multiply(new Quaternion().setFromAxisAngle(right, pitch))
+      offset.applyQuaternion(q)
+      up.applyQuaternion(q)
+      c.object.position.copy(c.target).add(offset)
+      c.object.up.copy(up)
+      c.update()
+    },
+    [controlsRef],
+  )
+
+  // Bucle de animación: mientras haya entrada (flechas o joystick), orbita cada frame.
+  const tick = useCallback(
+    (now: number) => {
+      const dt = lastRef.current ? Math.min((now - lastRef.current) / 1000, 0.05) : 0
+      lastRef.current = now
+
+      const keys = keysRef.current
+      let ix = joyRef.current.x
+      let iy = joyRef.current.y
+      if (keys.has('ArrowLeft')) ix -= 1
+      if (keys.has('ArrowRight')) ix += 1
+      if (keys.has('ArrowUp')) iy += 1
+      if (keys.has('ArrowDown')) iy -= 1
+      ix = Math.max(-1, Math.min(1, ix))
+      iy = Math.max(-1, Math.min(1, iy))
+
+      if (dt > 0 && (ix !== 0 || iy !== 0)) {
+        // Empujar a la derecha/arriba gira el cubo en ese sentido (sensación de arrastre).
+        orbit(-ix * ROT_SPEED * dt, iy * ROT_SPEED * dt)
+      }
+
+      const active = keys.size > 0 || joyRef.current.x !== 0 || joyRef.current.y !== 0
+      if (active) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        rafRef.current = 0
+        lastRef.current = 0
+      }
+    },
+    [orbit],
+  )
+
+  const ensureLoop = useCallback(() => {
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(tick)
+  }, [tick])
+
+  const setJoy = useCallback(
+    (x: number, y: number) => {
+      joyRef.current = { x, y }
+      ensureLoop()
+    },
+    [ensureLoop],
+  )
+
+  // Flechas del cursor: orbitan la vista (no hacen giros de cara).
+  useEffect(() => {
+    const ARROWS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
+    const onDown = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null
+      if (t && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName)) return
+
+      // Enter: restaura la vista inicial (igual que el botón "Restablecer").
+      // No actúa si hay una modal abierta (p. ej. la ayuda).
+      if (e.key === 'Enter') {
+        if (e.repeat || document.querySelector('.modal__overlay')) return
+        e.preventDefault()
+        controlsRef.current?.reset()
+        return
+      }
+
+      if (!ARROWS.includes(e.key)) return
+      e.preventDefault() // evita el scroll de la página
+      keysRef.current.add(e.key)
+      ensureLoop()
+    }
+    const onUp = (e: KeyboardEvent) => {
+      if (ARROWS.includes(e.key)) keysRef.current.delete(e.key)
+    }
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', onUp)
+    return () => {
+      window.removeEventListener('keydown', onDown)
+      window.removeEventListener('keyup', onUp)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [ensureLoop, controlsRef])
+
+  useEffect(() => {
+    let raf = 0
+    let controls: ViewControlsHandle | null = null
+
+    const recompute = () => {
+      const c = controlsRef.current
+      if (!c) return
+      const dist = c.object.position.distanceTo(c.target)
+      const next = {
+        atMin: dist <= c.minDistance + EPS, // zoom máximo (más cerca)
+        atMax: dist >= c.maxDistance - EPS, // zoom mínimo (más lejos)
+        atInitial:
+          c.object.position.distanceTo(c.position0) < EPS &&
+          c.target.distanceTo(c.target0) < EPS &&
+          c.object.up.distanceTo(c.up0) < EPS,
+      }
+      setState((s) =>
+        s.atInitial === next.atInitial && s.atMin === next.atMin && s.atMax === next.atMax
+          ? s
+          : next,
+      )
+    }
+
+    // Los controles se montan dentro del <Canvas>; esperamos a que existan.
+    const attach = () => {
+      const c = controlsRef.current
+      if (!c) {
+        raf = requestAnimationFrame(attach)
+        return
+      }
+      controls = c
+      c.addEventListener('change', recompute)
+      recompute()
+    }
+    attach()
+
+    return () => {
+      cancelAnimationFrame(raf)
+      controls?.removeEventListener('change', recompute)
+    }
+  }, [controlsRef])
+
+  // Acerca/aleja la cámara escalando su distancia al objetivo (respeta los límites).
+  const dolly = useCallback(
+    (factor: number) => {
+      const c = controlsRef.current
+      if (!c) return
+      const offset = c.object.position.clone().sub(c.target)
+      const dist = Math.min(c.maxDistance, Math.max(c.minDistance, offset.length() * factor))
+      offset.setLength(dist)
+      c.object.position.copy(c.target).add(offset)
+      c.update()
+    },
+    [controlsRef],
+  )
+
+  const resetView = useCallback(() => controlsRef.current?.reset(), [controlsRef])
+
+  return (
+    <>
+      <div className="view-controls">
+        <button
+          className="view-controls__btn"
+          onClick={() => setHelpOpen(true)}
+          aria-label="Ayuda: teclas"
+          title="Ayuda: teclas"
+        >
+          <HelpIcon />
+        </button>
+        <button
+          className="view-controls__btn"
+          onClick={() => dolly(0.8)}
+          disabled={atMin}
+          aria-label="Acercar"
+          title="Acercar"
+        >
+          <PlusIcon />
+        </button>
+        <button
+          className="view-controls__btn"
+          onClick={() => dolly(1.25)}
+          disabled={atMax}
+          aria-label="Alejar"
+          title="Alejar"
+        >
+          <MinusIcon />
+        </button>
+        <button
+          className="view-controls__btn"
+          onClick={resetView}
+          disabled={atInitial}
+          aria-label="Restaurar vista inicial"
+          title="Restaurar vista inicial"
+        >
+          <ResetIcon />
+        </button>
+
+        <Modal open={helpOpen} onClose={() => setHelpOpen(false)} title="Teclas">
+          <div className="help-keys">
+            {mode !== 'view' && (
+              <>
+                <p className="help-keys__intro">Gira las caras del cubo con el teclado:</p>
+                <ul className="help-keys__list">
+                  {KEY_ROWS.map(({ key, label }) => (
+                    <li key={key}>
+                      <kbd>{key}</kbd>
+                      <span>{label}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="help-keys__note">
+                  Mantén <kbd>Shift</kbd> a la vez para hacer el giro inverso.
+                </p>
+              </>
+            )}
+            <p className="help-keys__note">
+              Gira la <strong>vista</strong> con las flechas <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd>{' '}
+              <kbd>↓</kbd>, con el joystick o arrastrando con el ratón.
+            </p>
+            {(mode === 'free' || mode === 'timed') && (
+              <p className="help-keys__note">
+                <kbd>Esc</kbd> reinicia el cubo.
+              </p>
+            )}
+            {mode === 'practice' && (
+              <p className="help-keys__note">
+                <kbd>Espacio</kbd> muestra una pista.
+              </p>
+            )}
+            {mode === 'timed' && (
+              <p className="help-keys__note">
+                <kbd>Espacio</kbd> comienza la partida.
+              </p>
+            )}
+          </div>
+        </Modal>
+      </div>
+
+      <div className="view-joystick">
+        <Joystick onVector={setJoy} />
+      </div>
+    </>
+  )
+}

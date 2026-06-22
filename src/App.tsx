@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { Menu } from './Menu'
 import { Screen } from './Screen'
 import { CubeExperience } from './CubeExperience'
+import { SaberMas } from './SaberMas'
+import { Introduccion } from './Introduccion'
+import { Guia } from './Guia'
 import { SECTIONS, type SectionId } from './sections'
 import './App.css'
 
@@ -19,8 +22,13 @@ function App() {
   return (
     <Screen title={section.title} onBack={() => setScreen('menu')}>
       {/* Secciones con contenido. El resto quedan vacías (solo el título). */}
+      {screen === 'saber-mas' && <SaberMas />}
+      {screen === 'introduccion' && <Introduccion />}
+      {screen === 'guia' && <Guia />}
       {screen === 'libre' && <CubeExperience mode="free" />}
       {screen === 'guiado' && <CubeExperience mode="step" />}
+      {screen === 'practica' && <CubeExperience mode="practice" />}
+      {screen === 'cronometrado' && <CubeExperience mode="timed" />}
     </Screen>
   )
 }
