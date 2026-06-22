@@ -5,15 +5,16 @@ import type { Cubie as CubieData, Mat3, Vec3 } from './engine'
 
 /** Separación entre centros de cubies (las posiciones lógicas son -1, 0, 1). */
 const SPACING = 1.0
-/** Tamaño del cuerpo del cubie. Casi igual a SPACING: las piezas se tocan
- *  dejando solo una ranura fina (gap 0.02), como un cubo real. */
-const BODY = 0.98
-/** Radio de las esquinas redondeadas (sutil, para que las piezas se vean unidas). */
-const BODY_RADIUS = 0.03
+/** Tamaño del cuerpo del cubie. Prácticamente igual a SPACING: las piezas se
+ *  tocan (hueco 0.005, invisible pero evita z-fighting). Como los giros son sobre
+ *  un eje, las capas nunca se solapan al animar. */
+const BODY = 0.995
+/** Radio de las esquinas redondeadas (mínimo, solo un leve bisel). */
+const BODY_RADIUS = 0.02
 /** Distancia del plano de pegatina al centro del cubie. */
 const STICKER_OFFSET = BODY / 2 + 0.002
-/** Pegatina grande (cubre casi toda la cara) para un borde negro fino. */
-const STICKER_SIZE = 0.91
+/** Pegatina que cubre casi toda la cara: línea de rejilla negra muy fina (~0.05). */
+const STICKER_SIZE = 0.95
 
 /** Colores clásicos por cara (en el estado resuelto). */
 const COLORS = {
