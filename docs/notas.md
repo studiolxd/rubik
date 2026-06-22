@@ -1,99 +1,40 @@
 # Notas de producto — Rubik
 
-> Documento de trabajo para recoger información y decidir más adelante cómo
-> reflejarla en la aplicación. **No implementado todavía** salvo donde se indique.
+> Documento de trabajo. Solo recoge lo que queda **pendiente**.
+> Lo ya implementado se ha eliminado de este documento.
 > Última actualización: 2026-06-22.
 
-## Identidad
+## Pendientes
 
-- **Slogan:** _Gira. Aprende. Resuelve. Compite._
+### 1. Modo guiado — estado inicial real → virtual ✅ implementado (falta prueba en dispositivo)
 
-## Navegación
+Escaneo del cubo físico con la cámara: al entrar en Modo guiado se elige entre
+"Escanear mi cubo" o "Cubo de ejemplo". El escáner pide las 6 caras una a una,
+clasifica los colores (calibrado con los centros del propio cubo), valida que el
+cubo sea resoluble y carga ese estado en el cubo 3D para guiar su resolución.
 
-- **Sin menú persistente** durante toda la aplicación.
-- Habrá un **menú inicial** (pantalla de inicio) desde el que se entra a cada sección.
-- En cada pantalla/sección habrá un **botón "Volver al menú"** que **siempre vuelve
-  al menú inicial** (no al paso/pantalla anterior).
+Piezas: `colors.ts` (clasificación), `facelets.ts` (ensamblado + validación +
+`buildFromFacelets`), `CubeScan.tsx` (UI cámara), `Guiado.tsx` (flujo). Tests:
+`pnpm verify:facelets` y `pnpm verify:colors`.
 
-## Estructura general
+- **PENDIENTE de prueba en dispositivo real:** la orientación de la rejilla por
+  cara (`CELL_ORDER` en `CubeScan.tsx`) se asume identidad; si alguna cara sale
+  girada/espejada en el móvil, se ajusta ahí. Una orientación mal mapeada NO
+  engaña: la validación rechaza el cubo (no resoluble).
+- Sin cámara (permiso denegado) no hay alternativa manual: callejón sin salida
+  aceptado.
 
-La aplicación tendrá **varias secciones**, accesibles desde el menú inicial.
-Listado y detalle de cada una:
+### 2. Modo cronometrado — persistencia de usuario y tiempo
 
----
+El temporizador ya funciona, pero al resolver el tiempo **solo se muestra, no se
+guarda**. Falta decidir dónde y cómo se guardan **usuario y tiempo**
+(¿local?, ¿backend?) — alimenta el ranking.
 
-### 1. Sobre Studio LXD
+### 3. Ranking
 
-- Breve descripción de Studio LXD.
-- Enlace a nuestra web.
+Sección aún **vacía** (sin ruta ni contenido). Falta:
 
-### 2. Saber más
-
-- **Historia** del cubo de Rubik.
-- **Curiosidades**.
-
-### 3. Introducción al cubo
-
-- **Partes** del cubo (piezas: centros, aristas, esquinas…).
-- **Algoritmos**.
-- **Consejos**.
-
-### 4. Guía paso a paso
-
-- Un **tutorial** que explica cómo montar el cubo.
-
-### 5. Modo guiado
-
-- Es el **paso a paso actual** (ya implementado): te indica qué tecla pulsar
-  para ir haciendo cada giro en tu cubo de Rubik físico.
-- **PENDIENTE:** cómo establecer el **estado inicial** del cubo virtual a partir
-  del **estado actual del cubo real** (que el usuario introduzca/lea la
-  configuración real de su cubo para resolver justo ese).
-
-### 6. Modo práctica ✅ implementado
-
-- Parte del modo paso a paso actual, **pero modificado**:
-  - Se comporta como el **modo libre** (mueves las caras tú libremente).
-  - Botón **Pista**:
-    - 1ª pulsación → te dice **qué cara** tienes que girar.
-    - 2ª pulsación → te dice **en qué sentido**.
-  - Si giras **lo que no es** → se hace el efecto de girar y **vuelve atrás**,
-    avisando de que **no es correcto**.
-  - Si giras **bien** → te dice **OK**.
-
-### 7. Modo libre
-
-- El **modo libre actual** tal cual (ya implementado).
-
-### 8. Modo cronometrado ⏳ parcial
-
-- Un **temporizador**. ✅ Implementado: arranca con el primer giro y se detiene
-  al resolver, mostrando el tiempo final (mm:ss.cs). Botón "Reiniciar / Nueva partida".
-- Al **completarlo** (resolver el cubo): guardar **usuario y tiempo**.
-- **PENDIENTE:** cómo guardamos usuario y tiempo (persistencia, ranking…).
-  De momento **solo se muestra** el tiempo, no se guarda.
-
-### 9. Ranking
-
-- Sección que muestra el **ranking** de tiempos (alimentado por el modo cronometrado).
-- **PENDIENTE:** definir alcance (local vs global/backend), qué se muestra
-  (usuario, tiempo, fecha…) y orden.
-
----
-
-## Pendientes / preguntas abiertas
-
-1. **Estado inicial real → virtual** (modo guiado): mecanismo para capturar la
-   configuración del cubo físico del usuario y reflejarla en el cubo 3D.
-2. **Persistencia de tiempos** (modo cronometrado): dónde y cómo se guarda el
-   usuario y su tiempo (¿ranking?, ¿local?, ¿backend?).
-
-## Estado actual (ya en la app)
-
-- **Navegación**: menú inicial con el slogan y las 9 secciones; botón "Volver al
-  menú" en cada pantalla (siempre al inicio).
-- Secciones **con contenido**: **Modo libre**, **Modo guiado** (paso a paso),
-  **Modo práctica** (libre + pistas + corrección) y **Modo cronometrado**
-  (temporizador), todas conectadas al cubo 3D.
-- Resto de secciones: **vacías, solo con el título** (pendientes de contenido):
-  Sobre Studio LXD, Saber más, Introducción al cubo, Guía paso a paso, Ranking.
+- Definir alcance: **local** vs **global/backend**.
+- Qué se muestra: usuario, tiempo, fecha…
+- Orden del listado.
+- Implementarla y conectarla con la persistencia del modo cronometrado (ver #2).

@@ -17,6 +17,7 @@ import {
   type Vec3,
 } from './engine'
 import { ensureSolver } from './solver'
+import { buildFromFacelets } from './facelets'
 import { currentStep as lblCurrentStep, solveLBL } from './lbl'
 import type { StepGroup, StepId } from './lbl'
 
@@ -146,13 +147,15 @@ function buildScrambled(): { cubies: Cubie[]; cube: Cube } {
  *    y la que resuelve.
  * Ambos reciben exactamente los mismos movimientos, así que nunca se desincronizan.
  *
- * El cubo arranca SIEMPRE mezclado (mezcla fuerte de 30 movimientos, aplicada
- * de forma instantánea).
+ * El cubo arranca mezclado (mezcla fuerte de 30 movimientos, instantánea), salvo
+ * que se pase `initialFacelets` (un cubo escaneado ya validado), en cuyo caso
+ * arranca con ESE estado.
  */
-export function useCube(): CubeController {
-  // Estado inicial mezclado, calculado una sola vez.
+export function useCube(initialFacelets?: string): CubeController {
+  // Estado inicial, calculado una sola vez: escaneado si se pasa, si no mezclado.
   const initRef = useRef<{ cubies: Cubie[]; cube: Cube } | null>(null)
-  if (!initRef.current) initRef.current = buildScrambled()
+  if (!initRef.current)
+    initRef.current = initialFacelets ? buildFromFacelets(initialFacelets) : buildScrambled()
 
   const [cubies, setCubies] = useState<Cubie[]>(initRef.current.cubies)
   const [anim, setAnim] = useState<AnimState | null>(null)

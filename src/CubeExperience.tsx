@@ -15,10 +15,17 @@ export type ExperienceMode = 'free' | 'step' | 'practice' | 'timed'
  *  - "step"      → resolución guiada (indica qué tecla pulsar).
  *  - "practice"  → libre, pero comprobando cada giro y con pistas.
  *  - "timed"     → libre con cronómetro.
- * Cada montaje arranca con un cubo recién mezclado.
+ * Cada montaje arranca con un cubo recién mezclado, salvo que se pase
+ * `initialFacelets` (un cubo escaneado ya validado), que se usa como estado inicial.
  */
-export function CubeExperience({ mode }: { mode: ExperienceMode }) {
-  const controller = useCube()
+export function CubeExperience({
+  mode,
+  initialFacelets,
+}: {
+  mode: ExperienceMode
+  initialFacelets?: string
+}) {
+  const controller = useCube(initialFacelets)
   const { setMode, doMove, pressStep, practiceMove, revealHint, reset, solved } = controller
   const controlsRef = useRef<ViewControlsHandle | null>(null)
 
