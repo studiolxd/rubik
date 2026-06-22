@@ -10,12 +10,13 @@ import type { CubeController } from './cube/useCube'
 export function Scene({ controller }: { controller: CubeController }) {
   return (
     <Canvas camera={{ position: [5, 5, 6], fov: 42 }} dpr={[1, 2]}>
-      <color attach="background" args={['#0f1115']} />
+      {/* Fondo claro (gris-más-claro de la marca, --color-grey-lightest). */}
+      <color attach="background" args={['#f2f2f2']} />
 
-      {/* Iluminación */}
-      <ambientLight intensity={0.75} />
-      <directionalLight position={[6, 9, 6]} intensity={1.3} />
-      <directionalLight position={[-6, -2, -6]} intensity={0.35} />
+      {/* Iluminación ajustada para fondo claro */}
+      <ambientLight intensity={0.9} />
+      <directionalLight position={[6, 9, 6]} intensity={1.1} />
+      <directionalLight position={[-6, -2, -6]} intensity={0.4} />
 
       <CubeView controller={controller} />
 

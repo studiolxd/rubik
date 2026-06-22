@@ -37,6 +37,7 @@ solución; el panel te indica cuál pulsar.
 - [Vite](https://vite.dev/) + React 19 + TypeScript
 - [React Three Fiber](https://r3f.docs.pmnd.rs/) + [drei](https://github.com/pmndrs/drei) sobre [three.js](https://threejs.org/)
 - [`cubejs`](https://www.npmjs.com/package/cubejs) — modelo y solucionador del cubo
+- **`@studiolxd/brand`** — sistema de diseño de la marca (componentes + tokens); toda la interfaz (salvo el visor 3D) usa sus componentes y variables
 - Gestor de paquetes: **pnpm**
 
 ## Desarrollo

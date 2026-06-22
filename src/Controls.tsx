@@ -1,4 +1,9 @@
-import type { CubeController } from './three/cube/useCube'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@studiolxd/brand/tabs'
+import { Button } from '@studiolxd/brand/button'
+import { Tag } from '@studiolxd/brand/tag'
+import { Heading } from '@studiolxd/brand/heading'
+import { Paragraph } from '@studiolxd/brand/paragraph'
+import type { CubeController, Mode } from './three/cube/useCube'
 import { moveToString, type Face, type Move } from './three/cube/engine'
 
 const FACE_BUTTONS: { face: Face; label: string }[] = [
@@ -41,80 +46,76 @@ export function Controls({ controller }: { controller: CubeController }) {
 
   return (
     <aside className="panel">
-      <div className="panel__modes">
-        <button
-          className={`tab ${mode === 'free' ? 'tab--active' : ''}`}
-          onClick={() => setMode('free')}
-          disabled={busy && mode !== 'free'}
-        >
-          Libre
-        </button>
-        <button
-          className={`tab ${mode === 'step' ? 'tab--active' : ''}`}
-          onClick={() => setMode('step')}
-          disabled={busy && mode !== 'step'}
-        >
-          Paso a paso
-        </button>
-      </div>
+      <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
+        <TabsList variant="pill">
+          <TabsTrigger value="free" disabled={busy && mode !== 'free'}>
+            Libre
+          </TabsTrigger>
+          <TabsTrigger value="step" disabled={busy && mode !== 'step'}>
+            Paso a paso
+          </TabsTrigger>
+        </TabsList>
 
-      {solved && <div className="badge badge--solved">✓ Resuelto</div>}
+        {solved && (
+          <div className="panel__badge">
+            <Tag variant="success">✓ Resuelto</Tag>
+          </div>
+        )}
 
-      {mode === 'free' ? (
-        <section className="panel__section">
-          <h2 className="panel__heading">Giros</h2>
-          <p className="panel__hint">
-            Teclas <kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> ·
-            con <kbd>Shift</kbd> giro inverso.
-          </p>
+        <TabsContent value="free" className="panel__section">
+          <Heading level={2} size={3} weight="semibold">
+            Giros
+          </Heading>
+          <Paragraph size="small">
+            Teclas U D L R F B · con Shift, giro inverso.
+          </Paragraph>
           <div className="moves">
             {FACE_BUTTONS.map(({ face, label }) => (
               <div className="moves__row" key={face}>
                 <span className="moves__label">{label}</span>
-                <button className="move-btn" onClick={() => doMove(face, false)}>
+                <Button variant="outline" size="sm" onClick={() => doMove(face, false)}>
                   {moveToString({ face, power: 1 })}
-                </button>
-                <button className="move-btn move-btn--prime" onClick={() => doMove(face, true)}>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => doMove(face, true)}>
                   {moveToString({ face, power: 3 })}
-                </button>
+                </Button>
               </div>
             ))}
           </div>
-          <button className="action" onClick={doScramble} disabled={busy}>
+          <Button variant="primary" block onClick={doScramble} disabled={busy}>
             Mezclar
-          </button>
-        </section>
-      ) : (
-        <section className="panel__section">
-          <h2 className="panel__heading">Resolución guiada</h2>
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="step" className="panel__section">
+          <Heading level={2} size={3} weight="semibold">
+            Resolución guiada
+          </Heading>
           {solving ? (
-            <p className="panel__hint">Calculando solución…</p>
+            <Paragraph size="small">Calculando solución…</Paragraph>
           ) : solutionLength === 0 ? (
-            <p className="panel__hint">El cubo ya está resuelto.</p>
+            <Paragraph size="small">El cubo ya está resuelto.</Paragraph>
           ) : (
             <>
-              <p className="step-progress">
-                Paso <strong>{stepIndex}</strong> de <strong>{solutionLength}</strong>
-              </p>
+              <Paragraph size="small">
+                Paso {stepIndex} de {solutionLength}
+              </Paragraph>
               {nextMove ? (
                 <div className="step-key">
                   <span className="step-key__caption">Pulsa</span>
                   <KeyHint move={nextMove} />
-                  <span className="step-key__move">
-                    movimiento <strong>{moveToString(nextMove)}</strong>
-                  </span>
+                  <Paragraph size="small">movimiento {moveToString(nextMove)}</Paragraph>
                 </div>
               ) : (
                 <div className="step-key step-key--done">¡Resuelto! 🎉</div>
               )}
-              <p className="panel__hint">
-                Pulsa la tecla indicada para hacer el giro. La interfaz avanza sola al
-                siguiente paso.
-              </p>
+              <Paragraph size="small">
+                Pulsa la tecla indicada para hacer el giro. La interfaz avanza sola.
+              </Paragraph>
             </>
           )}
-        </section>
-      )}
+        </TabsContent>
+      </Tabs>
     </aside>
   )
 }

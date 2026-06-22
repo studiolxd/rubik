@@ -1,4 +1,6 @@
 import { useEffect } from 'react'
+import { Heading } from '@studiolxd/brand/heading'
+import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Scene } from './three/Scene'
 import { Controls } from './Controls'
 import { useCube } from './three/cube/useCube'
@@ -29,8 +31,10 @@ function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1 className="app__title">Rubrik</h1>
-        <span className="app__subtitle">Cubo de Rubik 3D</span>
+        <Heading level={1} size={5} weight="bold">
+          Rubrik
+        </Heading>
+        <Paragraph size="small">Cubo de Rubik 3D</Paragraph>
       </header>
 
       <main className="app__main">
