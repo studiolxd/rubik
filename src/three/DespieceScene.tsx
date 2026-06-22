@@ -277,7 +277,7 @@ function CenterDespiece({
   const mechVisible = stage >= 1
   const spinning = stage === 1
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     const c = cur.current
     const i = stage >= 2 ? 2 : stage // del paso 2 en adelante, la pieza queda despiezada
     c.muelle += (LAYOUT.muelle[i] - c.muelle) * EASE
@@ -296,16 +296,15 @@ function CenterDespiece({
       else capRef.current.rotation.y *= 0.9
     }
 
-    // Iluminación: en el despiece, la parte explicada brilla con un latido y
-    // crece un poco; el resto se atenúa con fuerza para que destaque. El
-    // tornillo y el muelle solo existen una vez visible el mecanismo.
-    const pulse = 0.55 + 0.3 * Math.sin(state.clock.elapsedTime * 5)
+    // Iluminación: en el despiece, la parte explicada brilla (fijo) y crece un
+    // poco; el resto se atenúa con fuerza para que destaque. El tornillo y el
+    // muelle solo existen una vez visible el mecanismo.
     const part = (ref: { current: Object3D | null }, id: HighlightId, alwaysVisible: boolean) => {
       const g = ref.current
       if (!g) return
       const on = highlight === id
       const opacity = exploded ? (on ? 1 : DIM) : alwaysVisible ? 1 : mechVisible ? 1 : 0
-      animateMaterials(g, opacity, on ? pulse : 0)
+      animateMaterials(g, opacity, on ? 0.6 : 0)
       const s = on ? 1.16 : 1
       g.scale.x += (s - g.scale.x) * 0.2
       g.scale.y = g.scale.x
