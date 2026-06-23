@@ -17,9 +17,9 @@ export interface Section {
 }
 
 export const SECTIONS: Section[] = [
-  { id: 'history', title: 'Historia' },
-  { id: 'inside', title: '¿Cómo es por dentro?' },
-  { id: 'introduction', title: 'Introducción al cubo' },
+  { id: 'history', title: 'Origen' },
+  { id: 'inside', title: 'El cubo por dentro' },
+  { id: 'introduction', title: 'Partes y movimientos' },
   { id: 'guide', title: 'Guía paso a paso' },
   { id: 'guided', title: 'Modo guiado' },
   { id: 'practice', title: 'Modo práctica' },
@@ -37,7 +37,7 @@ export interface MenuGroup {
 }
 
 export const MENU_GROUPS: MenuGroup[] = [
-  { title: 'Aprende', ids: ['history', 'trivia', 'inside', 'introduction', 'guide'] },
+  { title: 'Aprende', ids: ['history', 'introduction', 'inside', 'guide', 'trivia'] },
   { title: 'Juega', ids: ['guided', 'practice', 'free'] },
   { title: 'Compite', ids: ['timed', 'ranking'] },
 ]

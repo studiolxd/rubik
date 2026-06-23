@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
-import { Paragraph } from '@studiolxd/brand/paragraph'
 import { List } from '@studiolxd/brand/list'
 import { Card } from '@studiolxd/brand/card'
 
@@ -74,10 +73,9 @@ export function TriviaPage() {
   return (
     <article className="article">
       <header className="article__intro">
-        <Heading level={2} size={7} weight="bold">
+        <Heading level={2} size={7}>
           Curiosidades
         </Heading>
-        <Paragraph size="large">Datos sorprendentes del cubo de Rubik.</Paragraph>
       </header>
 
       <section className="article__block">

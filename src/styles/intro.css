@@ -1,13 +1,28 @@
 /* --- Introducción al cubo (cubo + explicación, por pantallas) --- */
+/* Móvil/tablet (<1280): cubo arriba (60%) y la explicación abajo (40%) con
+   scroll propio —como "El cubo por dentro", pero con su panel más largo—.
+   Desde 1280px el panel pasa a un aside lateral (ver media query al final). */
 .intro {
   height: 100%;
+  position: relative;
   display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
+/* Columna del cubo: lienzo (arriba) + chevrons (debajo). Así los chevrons
+   quedan siempre por debajo del canvas (y del joystick), sin superponerse. */
+.intro__main {
+  flex: 1 1 60%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
 .intro__stage {
   flex: 1;
-  min-width: 0;
+  min-height: 0;
   position: relative;
 }
 /* El Canvas ocupa todo el escenario; los overlays flotantes se posicionan solos. */
@@ -18,61 +33,114 @@
   height: 100% !important;
 }
 
+/* Navegación por pasos: en flujo, debajo del canvas y alineados a la derecha
+   (quedan por debajo del joystick), con algo de separación arriba y abajo. */
+.intro__arrows {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  padding-inline: var(--spacing-3);
+  margin-block: var(--spacing-2) var(--spacing-3);
+}
+.intro__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+.intro__chevron:hover:not(:disabled) {
+  color: var(--color-grey-darkest);
+}
+.intro__chevron:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: default;
+}
+/* El chevron de marca apunta a la derecha; lo giramos para "anterior". */
+.intro__chevron-icon--prev {
+  transform: rotate(180deg);
+}
+
 .intro__panel {
-  width: 360px;
-  flex-shrink: 0;
+  flex: 0 0 40%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-5);
   padding-block: var(--section-padding-block-md)
     max(var(--section-padding-block-md), var(--safe-bottom));
-  padding-inline: var(--section-padding-inline)
+  padding-inline: max(var(--section-padding-inline), var(--safe-left))
     max(var(--section-padding-inline), var(--safe-right));
-  border-left: 1px solid var(--color-grey-light);
+  border-top: 1px solid var(--color-grey-light);
   background: var(--color-white);
   overflow-y: auto;
 }
 
-/* Índice de pasos (salto directo). El reset de lista lo aporta <List type="plain">. */
-.intro__index-list {
-  padding: 0 0 var(--spacing-4);
-  border-bottom: 1px solid var(--color-grey-light);
-  gap: var(--spacing-1);
+/* Escritorio (≥1280): el cubo ocupa el resto y la explicación va en el aside. */
+@media (min-width: 1280px) {
+  .intro {
+    flex-direction: row;
+  }
+  .intro__main {
+    flex: 1;
+  }
+  .intro__panel {
+    flex: 0 0 360px;
+    border-top: none;
+    padding-inline: var(--section-padding-inline)
+      max(var(--section-padding-inline), var(--safe-right));
+  }
+  /* Las flechas se superponen al lienzo, centradas en cada lateral del cubo. */
+  .intro__arrows {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: 0;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none; /* deja pasar el arrastre del cubo */
+  }
 }
-.intro__index-item {
-  display: block;
+
+/* Navegador de pasos (Select). El mismo selector se pinta dos veces y se
+   muestra uno u otro según el ancho:
+   - <1280: arriba, sobre el cubo (intro__select--top).
+   - ≥1280: al inicio del aside (intro__select--aside). */
+.intro__select :where(button, [role='combobox']) {
   width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  padding: var(--spacing-2);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  color: var(--color-text-muted-on-light);
-  font-size: var(--font-size-2);
 }
-.intro__index-item:hover {
-  background: var(--color-grey-lightest);
-  color: var(--color-text-on-light);
+.intro__select--top {
+  flex: none;
+  padding: var(--spacing-3) max(var(--section-padding-inline), var(--safe-left)) var(--spacing-2)
+    max(var(--section-padding-inline), var(--safe-right));
 }
-.intro__index-item.is-active {
-  background: var(--color-grey-lightest);
-  color: var(--color-text-on-light);
-  font-weight: 700;
+.intro__select--aside {
+  display: none;
+  flex: none;
+}
+@media (min-width: 1280px) {
+  .intro__select--top {
+    display: none;
+  }
+  .intro__select--aside {
+    display: block;
+  }
 }
 
 .intro__content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
-}
-
-.intro__group {
-  margin: 0;
-  font-size: var(--font-size-1);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted-on-light);
 }
 
 /* Reset de lista lo aporta <List type="plain">. */
@@ -88,19 +156,10 @@
   gap: var(--spacing-1) var(--spacing-2);
 }
 
-/* La navegación Anterior/Siguiente queda anclada abajo. */
-.intro__nav {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-3);
-  border-top: 1px solid var(--color-grey-light);
-  padding-top: var(--spacing-4);
-}
-
-.intro__count {
+/* Indicador "Paso X / N" sobre el título (igual que en "El cubo por dentro"). */
+.intro__step {
   font-size: var(--font-size-1);
+  letter-spacing: 0.06em;
   color: var(--color-text-muted-on-light);
   font-variant-numeric: tabular-nums;
 }

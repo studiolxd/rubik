@@ -1,40 +1,48 @@
-/* --- Despiece 3D: "cómo es por dentro" --- */
+/* --- El cubo por dentro (despiece 3D) ---
+   Mismo patrón que "Partes y movimientos" (intro.css):
+   <1280: cubo arriba (60%) + explicación abajo (40%) con scroll.
+   ≥1280: cubo + aside lateral. */
 .disassembly {
-  --stage-h: 360px;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3);
-  margin-top: var(--spacing-2);
+  min-height: 0;
+}
+
+/* Columna del cubo: lienzo (arriba) + chevrons (debajo), para que los chevrons
+   queden siempre por debajo del canvas (y del joystick), sin superponerse. */
+.disassembly__main {
+  flex: 1 1 60%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .disassembly__stage {
+  flex: 1;
+  min-height: 0;
   position: relative;
-  height: var(--stage-h);
-  border-radius: var(--border-radius-md);
-  background: radial-gradient(circle at 50% 35%, var(--color-white), var(--color-grey-lightest));
-  overflow: hidden;
   touch-action: none; /* el lienzo gestiona el arrastre/zoom */
 }
-.disassembly__panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
+/* El Canvas ocupa todo el escenario; los overlays flotantes se posicionan solos. */
+.disassembly__stage > div:not(.view-controls):not(.view-joystick),
+.disassembly__stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
-.disassembly__caption {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-}
-.disassembly__step {
-  font-size: var(--font-size-1);
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted-on-light);
-}
-/* Móvil: las dos flechas, alineadas a la derecha, justo encima del "Paso". */
-.disassembly__nav {
+
+/* Navegación por pasos.
+   <1080: en flujo, debajo del cubo y a la derecha, con separación del panel. */
+.disassembly__arrows {
+  flex: none;
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-2);
+  padding-inline: var(--spacing-3);
+  margin-block: var(--spacing-2) var(--spacing-3);
 }
 .disassembly__chevron {
   display: inline-flex;
@@ -47,6 +55,7 @@
   background: transparent;
   color: var(--color-primary);
   cursor: pointer;
+  pointer-events: auto;
   transition:
     color 0.15s ease,
     opacity 0.15s ease;
@@ -63,56 +72,79 @@
   transform: rotate(180deg);
 }
 
-/* Desde 1280px: las flechas se superponen al lienzo, una a cada lado. */
-@media (min-width: 1280px) {
-  .disassembly__nav {
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: var(--stage-h);
-    justify-content: space-between;
-    align-items: center;
-    padding-inline: var(--spacing-3);
-    pointer-events: none; /* deja pasar el arrastre del cubo */
-  }
-  .disassembly__chevron {
-    pointer-events: auto;
-  }
-}
-.disassembly__info {
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--color-grey-lightest);
-  border-left: 4px solid var(--color-primary);
-  border-radius: var(--border-radius-md);
-  min-height: 4.5rem;
+.disassembly__panel {
+  flex: 0 0 40%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--spacing-1);
+  gap: var(--spacing-5);
+  padding-block: var(--section-padding-block-md)
+    max(var(--section-padding-block-md), var(--safe-bottom));
+  padding-inline: max(var(--section-padding-inline), var(--safe-left))
+    max(var(--section-padding-inline), var(--safe-right));
+  border-top: 1px solid var(--color-grey-light);
+  background: var(--color-white);
+  overflow-y: auto;
 }
-.disassembly__info-head {
+
+/* Escritorio (≥1280): el cubo ocupa el resto y la explicación va en el aside. */
+@media (min-width: 1280px) {
+  .disassembly {
+    flex-direction: row;
+  }
+  .disassembly__main {
+    flex: 1;
+  }
+  .disassembly__panel {
+    flex: 0 0 360px;
+    border-top: none;
+    padding-inline: var(--section-padding-inline)
+      max(var(--section-padding-inline), var(--safe-right));
+  }
+  /* Las flechas se superponen al lienzo, centradas en cada lateral del cubo. */
+  .disassembly__arrows {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: 0;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none; /* deja pasar el arrastre del cubo */
+  }
+}
+
+/* Navegador de pasos (Select). Se pinta dos veces y se muestra uno u otro:
+   <1280 arriba sobre el cubo; ≥1280 al inicio del aside. */
+.disassembly__select :where(button, [role='combobox']) {
+  width: 100%;
+}
+.disassembly__select--top {
+  flex: none;
+  padding: var(--spacing-3) max(var(--section-padding-inline), var(--safe-left)) var(--spacing-2)
+    max(var(--section-padding-inline), var(--safe-right));
+}
+.disassembly__select--aside {
+  display: none;
+  flex: none;
+}
+@media (min-width: 1280px) {
+  .disassembly__select--top {
+    display: none;
+  }
+  .disassembly__select--aside {
+    display: block;
+  }
+}
+
+.disassembly__content {
   display: flex;
-  align-items: baseline;
-  gap: var(--spacing-2);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--spacing-4);
 }
-.disassembly__info-head strong {
-  color: var(--color-primary);
-}
-.disassembly__info-meta {
+
+/* Eyebrow (nombre del paso) sobre el título del panel. */
+.disassembly__step {
   font-size: var(--font-size-1);
-  text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted-on-light);
-}
-.disassembly__info-desc {
-  margin: 0;
-  line-height: 1.5;
-}
-.disassembly__hint {
-  color: var(--color-text-muted-on-light);
-}
-@media (min-width: 768px) {
-  .disassembly {
-    --stage-h: 440px;
-  }
 }

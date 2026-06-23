@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
-import { Button } from '@studiolxd/brand/button'
+import { Icon } from '@studiolxd/brand/icon'
+import { Select } from '@studiolxd/brand/select'
 import { CheckboxField } from '@studiolxd/brand/checkbox-field'
 import { RadioField } from '@studiolxd/brand/radio-field'
 import { List } from '@studiolxd/brand/list'
@@ -73,12 +74,13 @@ const STEPS: IntroStep[] = [
     focus: isCenter,
     intro: (
       <>
-        <Paragraph size="large">
-          Los centros son <strong>inamovibles</strong> y definen el color de una cara.
+        <Paragraph>
+          El cubo tiene <strong>6 centros</strong>, uno por cara, y son su brújula: van fijos al
+          núcleo y nunca cambian de sitio, ni siquiera al girar.
         </Paragraph>
-        <Paragraph size="large">
-          Existen <strong>6 centros</strong> en el cubo. Pulsa un centro en el cubo para marcarlo, o
-          su check para girar la cámara hacia él.
+        <Paragraph>
+          Por eso el centro <strong>decide el color de toda su cara</strong>. Pulsa un centro para
+          marcarlo, o su casilla para girar la cámara hacia él.
         </Paragraph>
       </>
     ),
@@ -97,13 +99,14 @@ const STEPS: IntroStep[] = [
     focus: isEdge,
     intro: (
       <>
-        <Paragraph size="large">
-          Los laterales son <strong>movibles</strong> y pertenecen a{' '}
-          <strong>dos caras contiguas</strong>.
+        <Paragraph>
+          Las <strong>aristas</strong> son las piezas de los bordes: llevan{' '}
+          <strong>dos colores</strong> porque pertenecen a dos caras vecinas. Hay{' '}
+          <strong>12</strong> y, al contrario que los centros, sí se mueven.
         </Paragraph>
-        <Paragraph size="large">
-          Existen <strong>12 laterales</strong> en el cubo. Pulsa uno en el cubo para marcarlo, o su
-          check para girar la cámara hacia él.
+        <Paragraph>
+          Cada una tiene un único sitio: donde sus dos colores coinciden con los centros de ambas
+          caras. Pulsa una para marcarla, o su casilla para enfocarla.
         </Paragraph>
       </>
     ),
@@ -129,13 +132,13 @@ const STEPS: IntroStep[] = [
     focus: isCorner,
     intro: (
       <>
-        <Paragraph size="large">
-          Las esquinas son <strong>movibles</strong> y pertenecen a{' '}
-          <strong>tres caras contiguas</strong>.
+        <Paragraph>
+          Las <strong>esquinas</strong> son los vértices y llevan <strong>tres colores</strong>,
+          porque tocan tres caras a la vez. Hay <strong>8</strong> y también se mueven.
         </Paragraph>
-        <Paragraph size="large">
-          Existen <strong>8 esquinas</strong> en el cubo. Pulsa una en el cubo para marcarla, o su
-          check para girar la cámara hacia ella.
+        <Paragraph>
+          Como las aristas, cada esquina tiene un único hogar: donde sus tres colores casan con los
+          centros que la rodean. Pulsa una para marcarla, o su casilla para enfocarla.
         </Paragraph>
       </>
     ),
@@ -153,17 +156,17 @@ const STEPS: IntroStep[] = [
     ],
   },
   {
-    group: 'Los niveles',
+    group: 'Partes del cubo',
     title: '¿Qué es un nivel?',
     intro: (
       <>
-        <Paragraph size="large">
-          Un nivel es cada una de las <strong>tres capas horizontales</strong> que componen el cubo
-          cuando lo resolvemos por el método básico (capa por capa).
+        <Paragraph>
+          Para resolverlo, dividimos el cubo en <strong>tres niveles</strong> horizontales: arriba,
+          en medio y abajo.
         </Paragraph>
-        <Paragraph size="large">
-          El cubo 3×3 está formado por <strong>tres niveles</strong>. Pulsa un nivel para resaltarlo
-          (el resto se atenúa).
+        <Paragraph>
+          El método capa por capa los resuelve en orden, de arriba abajo, sin estropear lo ya hecho.
+          Pulsa un nivel para resaltarlo y ver qué piezas lo forman.
         </Paragraph>
       </>
     ),
@@ -174,33 +177,34 @@ const STEPS: IntroStep[] = [
     ],
   },
   {
-    group: 'Comprendiendo los movimientos',
+    group: 'Movimientos del cubo',
     title: 'Movimientos en sentido horario',
     intro: (
       <>
-        <Paragraph size="large">
-          Cada cara del cubo se puede girar. Un giro en <strong>sentido horario</strong> (visto
-          desde fuera de esa cara) se hace pulsando la <strong>tecla de la cara</strong>.
+        <Paragraph>
+          Cada cara gira por separado. Un giro en <strong>sentido horario</strong> —mirando esa cara
+          de frente— se hace pulsando la <strong>tecla de su cara</strong> (U, D, L, R, F, B).
         </Paragraph>
-        <Paragraph size="large">
-          Practica cada giro pulsando su tecla; el cubo girará. También puedes pulsar su check.
+        <Paragraph>
+          Pruébalo: pulsa una tecla y observa cómo gira solo esa capa. También puedes pulsar su
+          casilla.
         </Paragraph>
       </>
     ),
     moves: FACES.map((face) => ({ face, prime: false })),
   },
   {
-    group: 'Comprendiendo los movimientos',
+    group: 'Movimientos del cubo',
     title: 'Movimientos en sentido antihorario',
     intro: (
       <>
-        <Paragraph size="large">
-          Para girar en <strong>sentido antihorario</strong> (al revés), mantén{' '}
+        <Paragraph>
+          El mismo giro, al revés: para el <strong>sentido antihorario</strong> mantén{' '}
           <strong>Mayús (Shift)</strong> y pulsa la tecla de la cara.
         </Paragraph>
-        <Paragraph size="large">
-          Practica cada giro pulsando Shift + su tecla; el cubo girará. También puedes pulsar su
-          check.
+        <Paragraph>
+          Con estos dos gestos —tecla y Shift+tecla— ya puedes hacer cualquier movimiento. Practica
+          cada uno; también con su casilla.
         </Paragraph>
       </>
     ),
@@ -208,12 +212,20 @@ const STEPS: IntroStep[] = [
   },
 ]
 
+/** Etiqueta breve de cada paso (mismo orden que STEPS), sobre el título del panel. */
+const STEP_LABELS = [
+  'Centros',
+  'Laterales o aristas',
+  'Esquinas',
+  'Niveles',
+  'Movimientos en sentido horario',
+  'Movimientos en sentido antihorario',
+]
+
 /** Sección "Introducción al cubo": recorrido por pantallas con cubo + explicación. */
 export function Introduction() {
   const [index, setIndex] = useState(0)
   const [checked, setChecked] = useState<Set<string>>(new Set())
-  // Hoja de explicaciones (solo móvil): colapsada por defecto.
-  const [sheetExpanded, setSheetExpanded] = useState(false)
   const step = STEPS[index]
   const isFirst = index === 0
   const isLast = index === STEPS.length - 1
@@ -304,61 +316,82 @@ export function Introduction() {
     rafRef.current = requestAnimationFrame(tick)
   }
 
+  // Navegador de pasos (Select de marca). Se pinta en dos sitios y se muestra
+  // uno u otro por CSS: arriba sobre el cubo (<1280) o al inicio del aside
+  // (≥1280). El componente no reenvía className, así que va envuelto en un div.
+  const stepOptions = STEPS.map((s, i) => ({ value: String(i), label: `${i + 1}. ${s.title}` }))
+  const renderStepSelect = (className: string) => (
+    <div className={className}>
+      <Select
+        options={stepOptions}
+        value={String(index)}
+        onValueChange={(v: string) => goTo(Number(v))}
+        aria-label="Ir a un paso"
+      />
+    </div>
+  )
+
   return (
     <div className="intro">
-      <section className="intro__stage">
-        {step.moves ? (
-          <MovesCube controller={movesCtrl} controlsRef={controlsRef} onTurn={practiceTurn} />
-        ) : (
-          <IntroCube
-            focus={cubeFocus}
+      {renderStepSelect('intro__select intro__select--top')}
+      <div className="intro__main">
+        <section className="intro__stage">
+          {step.moves ? (
+            <MovesCube controller={movesCtrl} controlsRef={controlsRef} onTurn={practiceTurn} />
+          ) : (
+            <IntroCube
+              focus={cubeFocus}
+              controlsRef={controlsRef}
+              onPick={
+                step.items
+                  ? (c) => {
+                      const item = step.items!.find((it) => sameVec(it.pos, c.home))
+                      if (item) markChecked(keyOf(item.pos))
+                    }
+                  : undefined
+              }
+            />
+          )}
+          {/* Solo giro de vista: ayuda, zoom y restaurar. El `key` lo remonta al
+            cambiar de cubo (estático ↔ interactivo) para re-enlazar los controles. */}
+          <ViewControls
+            key={step.moves ? 'moves' : 'static'}
             controlsRef={controlsRef}
-            onPick={
-              step.items
-                ? (c) => {
-                    const item = step.items!.find((it) => sameVec(it.pos, c.home))
-                    if (item) markChecked(keyOf(item.pos))
-                  }
-                : undefined
-            }
+            mode="view"
           />
-        )}
-        {/* Solo giro de vista: zoom, restaurar y ayuda (la del giro).
-            El `key` lo remonta al cambiar de cubo (estático ↔ interactivo) para
-            que se re-enlace a los TrackballControls nuevos. */}
-        <ViewControls key={step.moves ? 'moves' : 'static'} controlsRef={controlsRef} mode="view" />
-      </section>
+        </section>
 
-      <aside className={`intro__panel${sheetExpanded ? ' is-expanded' : ''}`}>
-        <button
-          type="button"
-          className="panel__handle"
-          onClick={() => setSheetExpanded((v) => !v)}
-          aria-expanded={sheetExpanded}
-          aria-label={sheetExpanded ? 'Colapsar explicación' : 'Expandir explicación'}
-        />
-        <nav className="intro__index" aria-label="Índice de pasos">
-          <List type="plain" className="intro__index-list">
-            {STEPS.map((s, i) => (
-              <li key={i}>
-                <button
-                  type="button"
-                  className={`intro__index-item${i === index ? ' is-active' : ''}`}
-                  aria-current={i === index ? 'step' : undefined}
-                  onClick={() => goTo(i)}
-                >
-                  {i + 1}. {s.title}
-                </button>
-              </li>
-            ))}
-          </List>
-        </nav>
+        {/* Navegación por pasos (como en "El cubo por dentro"): debajo del cubo y
+          alineados a la derecha por debajo de 1080px; superpuestos al cubo, uno
+          a cada lado, a partir de 1080px. */}
+        <div className="intro__arrows">
+          <button
+            type="button"
+            className="intro__chevron"
+            onClick={() => goTo(index - 1)}
+            disabled={isFirst}
+            aria-label="Paso anterior"
+          >
+            <Icon name="chevron" size="lg" className="intro__chevron-icon--prev" />
+          </button>
+          <button
+            type="button"
+            className="intro__chevron"
+            onClick={() => goTo(index + 1)}
+            disabled={isLast}
+            aria-label="Paso siguiente"
+          >
+            <Icon name="chevron" size="lg" />
+          </button>
+        </div>
+      </div>
+
+      <aside className="intro__panel">
+        {renderStepSelect('intro__select intro__select--aside')}
 
         <div className="intro__content">
-          <p className="intro__group">{step.group}</p>
-          <Heading level={2} size={6} weight="bold">
-            {step.title}
-          </Heading>
+          <span className="intro__step">{STEP_LABELS[index]}</span>
+          <Heading level={1}>{step.group}</Heading>
           {step.intro}
           {step.items && (
             <List type="plain" className="intro__checks">
@@ -427,18 +460,6 @@ export function Introduction() {
             </List>
           )}
         </div>
-
-        <nav className="intro__nav">
-          <Button variant="text" disabled={isFirst} onClick={() => goTo(index - 1)}>
-            ← Anterior
-          </Button>
-          <span className="intro__count">
-            {index + 1} / {STEPS.length}
-          </span>
-          <Button variant="outline" disabled={isLast} onClick={() => goTo(index + 1)}>
-            Siguiente →
-          </Button>
-        </nav>
       </aside>
     </div>
   )

@@ -17,7 +17,7 @@ type ScreenId = SectionId | 'menu'
 /** Secciones que son experiencias 3D a pantalla completa: el header queda fijo y el
  *  cuerpo llena el viewport. El resto son páginas de contenido que hacen scroll.
  *  'guided' es mixta: contenido (elegir/escanear) → fill solo al jugar (ver abajo). */
-const FILL_SCREENS: ScreenId[] = ['introduction', 'guide', 'free', 'practice', 'timed']
+const FILL_SCREENS: ScreenId[] = ['inside', 'introduction', 'guide', 'free', 'practice', 'timed']
 
 /** Lee la sección desde el hash de la URL (#free → 'free'). Un hash vacío,
  *  un '#' suelto o un id desconocido se tratan como el menú: así un enlace roto

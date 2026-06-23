@@ -26,7 +26,7 @@ export function IntroCube({
   const cubies = useMemo(() => createSolved(), [])
 
   return (
-    <Canvas camera={{ position: [5, 5, 5], fov: 40 }} dpr={[1, 2]}>
+    <Canvas camera={{ position: [6, 6, 8.3], fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#ffffff']} />
       <ambientLight intensity={0.9} />
       <directionalLight position={[6, 9, 6]} intensity={1.1} />
@@ -46,13 +46,15 @@ export function IntroCube({
         })}
       </group>
 
-      {/* Giro libre 360° + zoom, sin desplazamiento lateral (igual que la escena principal). */}
+      {/* Giro libre 360° + zoom, sin desplazamiento lateral. Encuadre igual que
+          "El cubo por dentro" (mismo target y distancia). */}
       <TrackballControls
         ref={controlsRef as never}
         noPan
+        target={[0, 0, 1.2]}
         rotateSpeed={3}
         minDistance={5}
-        maxDistance={16}
+        maxDistance={18}
       />
     </Canvas>
   )

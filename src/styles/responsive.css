@@ -21,21 +21,19 @@
 }
 
 @media (max-width: 767px) {
-  /* Modos de juego (.cube: libre/práctica/cronometrado/paso a paso + guía) e
-     introducción (.intro): visor a pantalla completa, panel como hoja inferior. */
-  .cube,
-  .intro {
+  /* Modos de juego (.cube: libre/práctica/cronometrado/paso a paso + guía):
+     visor a pantalla completa, panel como hoja inferior colapsable.
+     (La introducción tiene su propio layout 60/40 en intro.css.) */
+  .cube {
     display: block;
     position: relative;
   }
-  .viewport,
-  .intro__stage {
+  .viewport {
     position: absolute;
     inset: 0;
   }
 
-  .panel,
-  .intro__panel {
+  .panel {
     position: absolute;
     left: 0;
     right: 0;
@@ -53,8 +51,7 @@
     padding-top: 0;
     transition: max-height 0.28s ease;
   }
-  .panel.is-expanded,
-  .intro__panel.is-expanded {
+  .panel.is-expanded {
     max-height: 86vh;
     overflow-y: auto;
   }
@@ -119,4 +116,22 @@
     top: auto;
     bottom: max(var(--spacing-3), var(--safe-bottom));
   }
+}
+
+/* "Partes y movimientos", "El cubo por dentro" y "Guía paso a paso": controles
+   abajo-izquierda y joystick abajo-derecha en TODOS los anchos (los chevrons van
+   debajo del canvas, así que no se pisan). La especificidad (0,2,0) gana sobre
+   las reglas base y las de <768. */
+.intro .view-controls,
+.disassembly .view-controls,
+.guide .view-controls {
+  top: auto;
+  bottom: max(var(--spacing-3), var(--safe-bottom));
+  flex-direction: column;
+}
+.intro .view-joystick,
+.disassembly .view-joystick,
+.guide .view-joystick {
+  top: auto;
+  bottom: max(var(--spacing-3), var(--safe-bottom));
 }

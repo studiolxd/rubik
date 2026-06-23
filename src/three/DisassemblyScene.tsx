@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, type RefObject } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { RoundedBox, TrackballControls } from '@react-three/drei'
 import {
@@ -10,6 +10,7 @@ import {
   Vector3,
 } from 'three'
 import { createSolved, type Cubie, type Vec3 } from './cube/engine'
+import type { ViewControlsHandle } from '../ViewControls'
 
 /**
  * Escena 3D de despiece para "Saber más". Recorrido lineal por pasos (no hay
@@ -394,9 +395,12 @@ function CenterDisassembly({
 export function DisassemblyScene({
   stage,
   highlight,
+  controlsRef,
 }: {
   stage: number
   highlight: HighlightId | null
+  /** Expone los TrackballControls para los botones de zoom/restaurar/ayuda. */
+  controlsRef?: RefObject<ViewControlsHandle | null>
 }) {
   const cubies = useMemo(() => createSolved(), [])
   // El centro protagonista se dibuja aparte (CenterDisassembly); el resto de
@@ -404,7 +408,7 @@ export function DisassemblyScene({
   const pieces = useMemo(() => cubies.filter((c) => !eq(c.home, FEATURED_CENTER)), [cubies])
 
   return (
-    <Canvas camera={{ position: [5, 5, 6], fov: 42 }} dpr={[1, 2]}>
+    <Canvas camera={{ position: [6, 6, 8.3], fov: 42 }} dpr={[1, 2]}>
       <color attach="background" args={['#ffffff']} />
       <ambientLight intensity={1.05} />
       <directionalLight position={[6, 9, 6]} intensity={1.1} />
@@ -435,7 +439,17 @@ export function DisassemblyScene({
       <Mechanism visible={stage >= 1} dim={stage >= 2} />
       <CenterDisassembly dir={FEATURED_CENTER} stage={stage} highlight={highlight} />
 
-      <TrackballControls noPan rotateSpeed={3} minDistance={5} maxDistance={16} />
+      {/* El target se desplaza por el eje del despiece (+z) para encuadrar el
+          conjunto: aleja un poco el zoom y deja el cubo a la derecha, con sitio
+          a la izquierda para que las piezas desglosadas se vean en móvil. */}
+      <TrackballControls
+        ref={controlsRef as never}
+        noPan
+        target={[0, 0, 1.2]}
+        rotateSpeed={3}
+        minDistance={5}
+        maxDistance={18}
+      />
     </Canvas>
   )
 }

@@ -22,10 +22,10 @@ export function Screen({
   return (
     <div className={`screen${fill ? ' screen--fill' : ''}`}>
       <header className="screen__header">
-        {/* Botón de volver: solo el chevron (punta a la izquierda); la etiqueta
+        {/* Botón de volver: solo la flecha (punta a la izquierda); la etiqueta
             accesible va con VisuallyHidden dentro del propio Button. */}
         <Button variant="text" onClick={onBack}>
-          <Icon name="chevron" size="lg" className="screen__back-icon" />
+          <Icon name="arrow" size="lg" className="screen__back-icon" />
           <VisuallyHidden>Volver al menú</VisuallyHidden>
         </Button>
       </header>

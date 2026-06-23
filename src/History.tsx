@@ -9,7 +9,7 @@ export function History() {
   return (
     <article className="article article--narrow">
       <header className="article__intro">
-        <Heading level={2} size={7} weight="bold">
+        <Heading level={2} size={7}>
           Origen del cubo de Rubik
         </Heading>
         <Paragraph size="large">
@@ -18,7 +18,7 @@ export function History() {
       </header>
 
       <section className="article__block">
-        <Heading level={3} size={5} weight="bold">
+        <Heading level={3} size={5}>
           De aula de arquitectura a fenómeno mundial
         </Heading>
         <Paragraph>
@@ -48,7 +48,7 @@ export function History() {
       </section>
 
       <section className="article__block">
-        <Heading level={3} size={5} weight="bold">
+        <Heading level={3} size={5}>
           ¿Por qué se convirtió en uno de los rompecabezas más famosos del mundo?
         </Heading>
         <Paragraph>
@@ -71,7 +71,7 @@ export function History() {
       </section>
 
       <section className="article__block">
-        <Heading level={3} size={5} weight="bold">
+        <Heading level={3} size={5}>
           El cubo hoy: un clásico que no envejece
         </Heading>
         <Paragraph>
@@ -91,7 +91,7 @@ export function History() {
       </section>
 
       <section className="article__block">
-        <Heading level={3} size={5} weight="bold">
+        <Heading level={3} size={5}>
           ¿Qué es el algoritmo de Kociemba?
         </Heading>
         <Paragraph>

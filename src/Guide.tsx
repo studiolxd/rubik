@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
+import { Icon } from '@studiolxd/brand/icon'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Tag } from '@studiolxd/brand/tag'
 import { CheckboxField } from '@studiolxd/brand/checkbox-field'
@@ -61,6 +62,9 @@ const turnSense = (power: number) => (power === 3 ? 'antihorario (con Shift)' : 
  * mover libremente todas las caras (a ver si lo resuelves tú); tras cada giro, el
  * solver por capas recalcula la solución y te dice en qué paso estás y cuál sería
  * el siguiente movimiento. Al completar cada paso, lanza confeti.
+ *
+ * Mismo patrón de layout que "Partes y movimientos" y "El cubo por dentro":
+ * cubo + panel (hoja inferior en móvil, aside en escritorio) y flechas de paso.
  */
 export function Guide() {
   const controller = useCube()
@@ -79,8 +83,6 @@ export function Guide() {
   const controlsRef = useRef<ViewControlsHandle | null>(null)
   // El movimiento a pulsar va oculto por defecto; se revela con el check.
   const [showMove, setShowMove] = useState(false)
-  // Hoja de controles (solo móvil): colapsada por defecto.
-  const [sheetExpanded, setSheetExpanded] = useState(false)
 
   // Mantiene el modo guía: al montar y tras "Reiniciar" (que vuelve a 'free'),
   // reentra en 'guide'. En este modo se mueve libre y la solución se recalcula sola.
@@ -129,100 +131,110 @@ export function Guide() {
     prevIdx.current = preparing ? -1 : currentIdx
   }, [currentIdx, preparing, solved])
 
-  return (
-    <div className="cube">
-      <section className="viewport">
-        <Scene controller={controller} controlsRef={controlsRef} onTurn={doMove} />
-        <ViewControls controlsRef={controlsRef} mode="free" />
-      </section>
+  // Eyebrow del panel: el nombre del paso actual (o estado).
+  const eyebrow = solved ? '¡Resuelto!' : currentStepId ? STEP_INFO[currentStepId].title : ''
+  const canPrev = !busy && currentIdx > 0
+  const canNext = !busy && currentIdx >= 0 && currentIdx < STEPS.length - 1
 
-      <aside className={`panel${sheetExpanded ? ' is-expanded' : ''}`}>
-        <button
-          type="button"
-          className="panel__handle"
-          onClick={() => setSheetExpanded((v) => !v)}
-          aria-expanded={sheetExpanded}
-          aria-label={sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'}
-        />
-        <section className="panel__section">
-          <Heading level={2} size={3} weight="semibold">
-            Guía paso a paso
-          </Heading>
+  return (
+    <div className="guide">
+      <div className="guide__main">
+        <section className="guide__stage">
+          <Scene controller={controller} controlsRef={controlsRef} onTurn={doMove} />
+          {/* Solo giro de vista: ayuda, zoom y restaurar. */}
+          <ViewControls controlsRef={controlsRef} mode="free" />
+        </section>
+
+        {/* Flechas de paso: llevan el cubo al inicio del paso anterior/siguiente. */}
+        <div className="guide__arrows">
+          <button
+            type="button"
+            className="guide__chevron"
+            onClick={() => canPrev && playToStep(STEPS[currentIdx - 1])}
+            disabled={!canPrev}
+            aria-label="Paso anterior"
+          >
+            <Icon name="chevron" size="lg" className="guide__chevron-icon--prev" />
+          </button>
+          <button
+            type="button"
+            className="guide__chevron"
+            onClick={() => canNext && playToStep(STEPS[currentIdx + 1])}
+            disabled={!canNext}
+            aria-label="Paso siguiente"
+          >
+            <Icon name="chevron" size="lg" />
+          </button>
+        </div>
+      </div>
+
+      <aside className="guide__panel">
+        {/* Progreso por los 7 pasos. Pulsa uno para llevar el cubo al inicio de ese paso. */}
+        {!preparing && (
+          <List type="plain" className="guide-steps">
+            {STEPS.map((id, i) => {
+              const state = i < currentIdx ? 'done' : i === currentIdx ? 'current' : 'todo'
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    className={`guide-steps__item is-${state}`}
+                    aria-current={i === currentIdx ? 'step' : undefined}
+                    onClick={() => playToStep(id)}
+                    disabled={busy}
+                    title={`Llevar el cubo al inicio de: ${STEP_INFO[id].title}`}
+                  >
+                    <span className="guide-steps__marker">{state === 'done' ? '✓' : i + 1}</span>
+                    <span className="guide-steps__label">{STEP_INFO[id].title}</span>
+                  </button>
+                </li>
+              )
+            })}
+          </List>
+        )}
+
+        <div className="guide__content">
+          {eyebrow && <span className="guide__step">{eyebrow}</span>}
+          <Heading level={1}>Guía paso a paso</Heading>
 
           {preparing ? (
             <Paragraph size="small">Preparando la guía para tu cubo…</Paragraph>
-          ) : (
+          ) : solved ? (
             <>
-              {/* Progreso por los 7 pasos. Pulsa uno para llevar el cubo al inicio de ese paso. */}
-              <List type="plain" className="guide-steps">
-                {STEPS.map((id, i) => {
-                  const state = i < currentIdx ? 'done' : i === currentIdx ? 'current' : 'todo'
-                  return (
-                    <li key={id}>
-                      <button
-                        type="button"
-                        className={`guide-steps__item is-${state}`}
-                        aria-current={i === currentIdx ? 'step' : undefined}
-                        onClick={() => playToStep(id)}
-                        disabled={busy}
-                        title={`Llevar el cubo al inicio de: ${STEP_INFO[id].title}`}
-                      >
-                        <span className="guide-steps__marker">
-                          {state === 'done' ? '✓' : i + 1}
-                        </span>
-                        <span className="guide-steps__label">{STEP_INFO[id].title}</span>
-                      </button>
-                    </li>
-                  )
-                })}
-              </List>
+              <div className="step-key step-key--done">¡Cubo resuelto! 🎉</div>
+              <Paragraph size="small">
+                Ya dominas los pasos. Practícalos en el <strong>Modo práctica</strong> o vuelve a
+                intentarlo con una mezcla nueva.
+              </Paragraph>
+            </>
+          ) : currentStepId ? (
+            <>
+              <Paragraph size="small">{STEP_INFO[currentStepId].what}</Paragraph>
+              <Paragraph size="small">
+                <span className="guide-how">Cómo: </span>
+                {STEP_INFO[currentStepId].how}
+              </Paragraph>
 
-              {solved ? (
+              {nextMove && (
                 <>
-                  <div className="step-key step-key--done">¡Cubo resuelto! 🎉</div>
-                  <Paragraph size="small">
-                    Ya dominas los pasos. Practícalos en el <strong>Modo práctica</strong> o vuelve
-                    a intentarlo con una mezcla nueva.
-                  </Paragraph>
+                  <CheckboxField
+                    label="Mostrar movimiento"
+                    checked={showMove}
+                    onCheckedChange={(v) => setShowMove(v === true)}
+                  />
+                  {showMove && (
+                    <div className="step-key">
+                      <span className="step-key__caption">Pulsa</span>
+                      <KeyHint move={nextMove} />
+                      <Paragraph size="small">
+                        giro {moveToString(nextMove)} ({turnSense(nextMove.power)})
+                      </Paragraph>
+                    </div>
+                  )}
                 </>
-              ) : (
-                currentStepId && (
-                  <div className="guide-current">
-                    <p className="intro__group">
-                      Paso {currentIdx + 1} de {STEPS.length}
-                    </p>
-                    <Heading level={3} size={4} weight="bold">
-                      {STEP_INFO[currentStepId].title}
-                    </Heading>
-                    <Paragraph size="small">{STEP_INFO[currentStepId].what}</Paragraph>
-                    <Paragraph size="small">
-                      <span className="guide-how">Cómo: </span>
-                      {STEP_INFO[currentStepId].how}
-                    </Paragraph>
-
-                    {nextMove && (
-                      <>
-                        <CheckboxField
-                          label="Mostrar movimiento"
-                          checked={showMove}
-                          onCheckedChange={(v) => setShowMove(v === true)}
-                        />
-                        {showMove && (
-                          <div className="step-key">
-                            <span className="step-key__caption">Pulsa</span>
-                            <KeyHint move={nextMove} />
-                            <Paragraph size="small">
-                              giro {moveToString(nextMove)} ({turnSense(nextMove.power)})
-                            </Paragraph>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )
               )}
             </>
-          )}
+          ) : null}
 
           <Button variant="outline" block onClick={reset} disabled={controller.busy}>
             Reiniciar
@@ -233,7 +245,7 @@ export function Guide() {
               movimientos
             </Tag>
           )}
-        </section>
+        </div>
       </aside>
     </div>
   )
