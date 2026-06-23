@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@studiolxd/brand/button'
-import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Tag } from '@studiolxd/brand/tag'
 import { Modal } from '@studiolxd/brand/modal'
@@ -38,9 +37,6 @@ export function FreeControls({ controller }: { controller: CubeController }) {
   const [kociembaInfo, setKociembaInfo] = useState(false)
   return (
     <section className="panel__section">
-      <Heading level={2} size={3} weight="semibold">
-        Modo libre
-      </Heading>
       <Button variant="primary" block onClick={reset} disabled={busy}>
         Reiniciar
       </Button>
@@ -91,9 +87,6 @@ export function StepControls({ controller }: { controller: CubeController }) {
 
   return (
     <section className="panel__section">
-      <Heading level={2} size={3} weight="semibold">
-        Resolución guiada
-      </Heading>
       {preparing ? (
         <Paragraph size="small">Calculando solución…</Paragraph>
       ) : solutionLength === 0 ? (
@@ -146,10 +139,6 @@ export function PracticeControls({ controller }: { controller: CubeController })
 
   return (
     <section className="panel__section">
-      <Heading level={2} size={3} weight="semibold">
-        Práctica
-      </Heading>
-
       {preparing ? (
         <Paragraph size="small">Calculando solución…</Paragraph>
       ) : solved ? (
@@ -255,10 +244,6 @@ export function TimedControls({
 
   return (
     <section className="panel__section">
-      <Heading level={2} size={3} weight="semibold">
-        Cronometrado
-      </Heading>
-
       <div className="timer" data-state={solved ? 'done' : running ? 'running' : 'idle'}>
         <span className="timer__value">{formatTime(elapsed)}</span>
       </div>

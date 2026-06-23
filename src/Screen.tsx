@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
+import { Icon } from '@studiolxd/brand/icon'
 
 /**
  * Envoltorio de cada pantalla de sección: cabecera con "Volver al menú"
@@ -18,8 +19,13 @@ export function Screen({
   return (
     <div className="screen">
       <header className="screen__header">
-        <Button variant="text" onClick={onBack}>
-          ← Volver al menú
+        {/* Botón de volver: solo el chevron (punta a la izquierda); el texto va en
+            el aria-label. asChild deja poner el aria-label en el <button> real, que
+            el Button de marca no reenvía por sí mismo. */}
+        <Button variant="text" asChild onClick={onBack}>
+          <button type="button" aria-label="Volver al menú">
+            <Icon name="chevron" className="screen__back-icon" />
+          </button>
         </Button>
         <Heading level={1} size={5} weight="bold">
           {title}

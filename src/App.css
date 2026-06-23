@@ -188,6 +188,12 @@
   min-height: 0;
 }
 
+/* El chevron de marca apunta a la derecha por defecto; lo giramos para que la
+   punta estrecha quede a la izquierda (volver). */
+.screen__back-icon {
+  transform: rotate(180deg);
+}
+
 /* --- Pantalla del cubo (viewport + panel) --- */
 .cube {
   height: 100%;

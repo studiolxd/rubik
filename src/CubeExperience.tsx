@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Tag } from '@studiolxd/brand/tag'
 import { Scene } from './three/Scene'
 import { FreeControls, StepControls, PracticeControls, TimedControls } from './Controls'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
@@ -130,12 +129,6 @@ export function CubeExperience({
           aria-expanded={sheetExpanded}
           aria-label={sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'}
         />
-        {/* El badge de "Resuelto" lo gestiona internamente cada modo cuando aplica. */}
-        {solved && mode !== 'timed' && mode !== 'practice' && (
-          <div className="panel__badge">
-            <Tag variant="success">✓ Resuelto</Tag>
-          </div>
-        )}
         {mode === 'free' && <FreeControls controller={controller} />}
         {mode === 'step' && <StepControls controller={controller} />}
         {mode === 'practice' && <PracticeControls controller={controller} />}
