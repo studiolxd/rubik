@@ -33,34 +33,6 @@ export interface ViewControlsHandle {
 
 const EPS = 1e-3
 
-const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-)
-
-const MinusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-)
-
-const HelpIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </svg>
-)
-
 /** Filas de la leyenda de teclas (cara → tecla → nombre). */
 const KEY_ROWS: { key: string; label: string }[] = [
   { key: 'U', label: 'Arriba' },
@@ -327,15 +299,15 @@ export function ViewControls({
     <>
       <div className="view-controls">
         <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>
-          <HelpIcon />
+          <Icon name="lifebuoy" size="sm" />
           <VisuallyHidden>Ayuda: teclas</VisuallyHidden>
         </Button>
         <Button variant="outline" size="sm" onClick={() => dolly(0.8)} disabled={atMin}>
-          <PlusIcon />
+          <Icon name="zoom-in" size="sm" />
           <VisuallyHidden>Acercar</VisuallyHidden>
         </Button>
         <Button variant="outline" size="sm" onClick={() => dolly(1.25)} disabled={atMax}>
-          <MinusIcon />
+          <Icon name="zoom-out" size="sm" />
           <VisuallyHidden>Alejar</VisuallyHidden>
         </Button>
         <Button variant="outline" size="sm" onClick={resetView} disabled={atInitial}>
