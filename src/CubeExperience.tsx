@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Tag } from '@studiolxd/brand/tag'
 import { Scene } from './three/Scene'
 import { FreeControls, StepControls, PracticeControls, TimedControls } from './Controls'
@@ -35,11 +35,27 @@ export function CubeExperience({
   // El cubo se oculta solo en cronometrado y mientras no se ha comenzado.
   const hideColors = mode === 'timed' && !started
 
+  // Hoja de controles (solo móvil): colapsada por defecto, se expande con el tirador.
+  const [sheetExpanded, setSheetExpanded] = useState(false)
+
   // Reinicia el cronometrado: mezcla nueva, oculta el cubo y resetea "started".
   const handleRestart = () => {
     reset()
     setStarted(false)
   }
+
+  // Enruta un giro (de teclado o de arrastre) según el modo. Mismo criterio que
+  // antes tenía el teclado: en step/practice valida; en timed respeta la guardia.
+  const handleTurn = useCallback(
+    (face: Face, prime: boolean) => {
+      if (mode === 'step') pressStep(face, prime)
+      else if (mode === 'practice') practiceMove(face, prime)
+      else if (mode === 'timed' && (!started || solved))
+        return // aún no empezado o ya parado
+      else doMove(face, prime) // free + timed
+    },
+    [mode, pressStep, practiceMove, doMove, started, solved],
+  )
 
   // Fija el modo al entrar. "timed" usa el motor libre, así que no cambia de modo.
   useEffect(() => {
@@ -89,23 +105,31 @@ export function CubeExperience({
       const face = e.key.toUpperCase() as Face
       if (!FACES.includes(face) || e.repeat) return
       e.preventDefault()
-      if (mode === 'step') pressStep(face, e.shiftKey)
-      else if (mode === 'practice') practiceMove(face, e.shiftKey)
-      else if (mode === 'timed' && (!started || solved))
-        return // aún no empezado o ya parado
-      else doMove(face, e.shiftKey) // free + timed
+      handleTurn(face, e.shiftKey)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [mode, doMove, pressStep, practiceMove, revealHint, reset, started, solved])
+  }, [mode, handleTurn, revealHint, reset, started, solved])
 
   return (
     <div className="cube">
       <section className="viewport">
-        <Scene controller={controller} controlsRef={controlsRef} hideColors={hideColors} />
+        <Scene
+          controller={controller}
+          controlsRef={controlsRef}
+          hideColors={hideColors}
+          onTurn={handleTurn}
+        />
         <ViewControls controlsRef={controlsRef} mode={mode} />
       </section>
-      <aside className="panel">
+      <aside className={`panel${sheetExpanded ? ' is-expanded' : ''}`}>
+        <button
+          type="button"
+          className="panel__handle"
+          onClick={() => setSheetExpanded((v) => !v)}
+          aria-expanded={sheetExpanded}
+          aria-label={sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'}
+        />
         {/* El badge de "Resuelto" lo gestiona internamente cada modo cuando aplica. */}
         {solved && mode !== 'timed' && mode !== 'practice' && (
           <div className="panel__badge">

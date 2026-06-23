@@ -110,6 +110,7 @@ export function Cubie({
   hideColors = false,
   dim = false,
   onPick,
+  onTurnStart,
 }: {
   cubie: CubieData
   hideColors?: boolean
@@ -117,6 +118,11 @@ export function Cubie({
   dim?: boolean
   /** Si se pasa, la pieza es clicable (y muestra cursor de mano al pasar por encima). */
   onPick?: () => void
+  /**
+   * Si se pasa, al iniciar un arrastre sobre la pieza se notifica la cara tocada
+   * (normal en mundo, redondeada a ±eje) y el cubie, para girar esa capa.
+   */
+  onTurnStart?: (cubie: CubieData, normal: Vec3, e: ThreeEvent<PointerEvent>) => void
 }) {
   const position = useMemo<[number, number, number]>(
     () => [cubie.pos[0] * SPACING, cubie.pos[1] * SPACING, cubie.pos[2] * SPACING],
@@ -125,24 +131,34 @@ export function Cubie({
   const quaternion = useMemo(() => mat3ToQuaternion(cubie.rot), [cubie.rot])
   const stickers = useMemo(() => stickersFor(cubie.home), [cubie.home])
 
-  const pickHandlers = onPick
-    ? {
-        onClick: (e: ThreeEvent<MouseEvent>) => {
-          e.stopPropagation() // solo la pieza más cercana al puntero
-          onPick()
-        },
-        onPointerOver: (e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation()
-          document.body.style.cursor = 'pointer'
-        },
-        onPointerOut: () => {
-          document.body.style.cursor = 'default'
-        },
-      }
-    : {}
+  const handlers: Record<string, unknown> = {}
+  if (onPick) {
+    handlers.onClick = (e: ThreeEvent<MouseEvent>) => {
+      e.stopPropagation() // solo la pieza más cercana al puntero
+      onPick()
+    }
+    handlers.onPointerOver = (e: ThreeEvent<PointerEvent>) => {
+      e.stopPropagation()
+      document.body.style.cursor = 'pointer'
+    }
+    handlers.onPointerOut = () => {
+      document.body.style.cursor = 'default'
+    }
+  }
+  if (onTurnStart) {
+    handlers.onPointerDown = (e: ThreeEvent<PointerEvent>) => {
+      if (!e.face) return
+      e.stopPropagation() // solo la pieza más cercana
+      // Normal de la cara tocada en mundo; redondeada da uno de ±X/±Y/±Z porque
+      // el cubo está alineado con los ejes del mundo.
+      const n = e.face.normal.clone().transformDirection(e.object.matrixWorld)
+      const normal: Vec3 = [Math.round(n.x), Math.round(n.y), Math.round(n.z)]
+      onTurnStart(cubie, normal, e)
+    }
+  }
 
   return (
-    <group position={position} quaternion={quaternion} {...pickHandlers}>
+    <group position={position} quaternion={quaternion} {...handlers}>
       <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
         <meshStandardMaterial color={BODY_COLOR} roughness={0.55} metalness={0.05} />
       </RoundedBox>

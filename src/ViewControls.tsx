@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { Modal } from '@studiolxd/brand/modal'
+import { Kbd } from '@studiolxd/brand/kbd'
 import { Button } from '@studiolxd/brand/button'
 import { Icon } from '@studiolxd/brand/icon'
 import { List } from '@studiolxd/brand/list'
@@ -15,6 +16,8 @@ import { VisuallyHidden } from '@studiolxd/brand/visually-hidden'
 
 /** Subconjunto de la API de TrackballControls que usamos desde los botones. */
 export interface ViewControlsHandle {
+  /** Activar/desactivar el orbitado (se apaga mientras se arrastra un giro de capa). */
+  enabled: boolean
   object: { position: Vector3; up: Vector3 }
   target: Vector3
   position0: Vector3
@@ -348,33 +351,34 @@ export function ViewControls({
                 <List type="plain" className="help-keys__list">
                   {KEY_ROWS.map(({ key, label }) => (
                     <li key={key}>
-                      <kbd>{key}</kbd>
+                      <Kbd size="sm">{key}</Kbd>
                       <span>{label}</span>
                     </li>
                   ))}
                 </List>
                 <p className="help-keys__note">
-                  Mantén <kbd>Shift</kbd> a la vez para hacer el giro inverso.
+                  Mantén <Kbd size="sm">Shift</Kbd> a la vez para hacer el giro inverso.
                 </p>
               </>
             )}
             <p className="help-keys__note">
-              Gira la <strong>vista</strong> con las flechas <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd>{' '}
-              <kbd>↓</kbd>, con el joystick o arrastrando con el ratón.
+              Gira la <strong>vista</strong> con las flechas <Kbd size="sm">←</Kbd>{' '}
+              <Kbd size="sm">→</Kbd> <Kbd size="sm">↑</Kbd> <Kbd size="sm">↓</Kbd>, con el joystick
+              o arrastrando con el ratón.
             </p>
             {(mode === 'free' || mode === 'timed') && (
               <p className="help-keys__note">
-                <kbd>Esc</kbd> reinicia el cubo.
+                <Kbd size="sm">Esc</Kbd> reinicia el cubo.
               </p>
             )}
             {mode === 'practice' && (
               <p className="help-keys__note">
-                <kbd>Espacio</kbd> muestra una pista.
+                <Kbd size="sm">Espacio</Kbd> muestra una pista.
               </p>
             )}
             {mode === 'timed' && (
               <p className="help-keys__note">
-                <kbd>Espacio</kbd> comienza la partida.
+                <Kbd size="sm">Espacio</Kbd> comienza la partida.
               </p>
             )}
           </div>

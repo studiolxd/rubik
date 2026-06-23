@@ -79,6 +79,8 @@ export function Guia() {
   const controlsRef = useRef<ViewControlsHandle | null>(null)
   // El movimiento a pulsar va oculto por defecto; se revela con el check.
   const [showMove, setShowMove] = useState(false)
+  // Hoja de controles (solo móvil): colapsada por defecto.
+  const [sheetExpanded, setSheetExpanded] = useState(false)
 
   // Mantiene el modo guía: al montar y tras "Reiniciar" (que vuelve a 'free'),
   // reentra en 'guide'. En este modo se mueve libre y la solución se recalcula sola.
@@ -130,11 +132,18 @@ export function Guia() {
   return (
     <div className="cube">
       <section className="viewport">
-        <Scene controller={controller} controlsRef={controlsRef} />
+        <Scene controller={controller} controlsRef={controlsRef} onTurn={doMove} />
         <ViewControls controlsRef={controlsRef} mode="free" />
       </section>
 
-      <aside className="panel">
+      <aside className={`panel${sheetExpanded ? ' is-expanded' : ''}`}>
+        <button
+          type="button"
+          className="panel__handle"
+          onClick={() => setSheetExpanded((v) => !v)}
+          aria-expanded={sheetExpanded}
+          aria-label={sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'}
+        />
         <section className="panel__section">
           <Heading level={2} size={3} weight="semibold">
             Guía paso a paso

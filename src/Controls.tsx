@@ -4,6 +4,7 @@ import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Tag } from '@studiolxd/brand/tag'
 import { Modal } from '@studiolxd/brand/modal'
+import { Kbd } from '@studiolxd/brand/kbd'
 import type { CubeController } from './three/cube/useCube'
 import { moveToString, type Face, type Move } from './three/cube/engine'
 
@@ -22,11 +23,11 @@ export function KeyHint({ move }: { move: Move }) {
     <span className="keyhint">
       {move.power === 3 && (
         <>
-          <kbd>Shift</kbd>
+          <Kbd size="sm">Shift</Kbd>
           <span className="keyhint__plus">+</span>
         </>
       )}
-      <kbd className="kbd--big">{move.face}</kbd>
+      <Kbd size="lg">{move.face}</Kbd>
     </span>
   )
 }

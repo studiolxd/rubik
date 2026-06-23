@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
@@ -6,6 +6,7 @@ import { Button } from '@studiolxd/brand/button'
 import { CheckboxField } from '@studiolxd/brand/checkbox-field'
 import { RadioField } from '@studiolxd/brand/radio-field'
 import { List } from '@studiolxd/brand/list'
+import { Kbd } from '@studiolxd/brand/kbd'
 import { IntroCube, type CubieFocus } from './IntroCube'
 import { MovesCube } from './MovesCube'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
@@ -211,39 +212,50 @@ const STEPS: IntroStep[] = [
 export function Introduccion() {
   const [index, setIndex] = useState(0)
   const [checked, setChecked] = useState<Set<string>>(new Set())
+  // Hoja de explicaciones (solo móvil): colapsada por defecto.
+  const [sheetExpanded, setSheetExpanded] = useState(false)
   const step = STEPS[index]
   const isFirst = index === 0
   const isLast = index === STEPS.length - 1
   const controlsRef = useRef<ViewControlsHandle | null>(null)
   const rafRef = useRef(0)
   const movesCtrl = useMovesCube()
+  // `doMove` es estable (useCallback): se usa como dependencia de practiceTurn.
+  const moveCube = movesCtrl.doMove
 
   // Cancela cualquier animación de cámara en curso al desmontar.
   useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
 
   const markChecked = (key: string) => setChecked((prev) => new Set(prev).add(key))
 
+  // Practica un giro (de teclado o de arrastre): lo anima y, si está en la lista
+  // del paso, lo marca como practicado. Estable por paso (mismo callback para
+  // teclado y para el gesto de arrastre del cubo).
+  const practiceTurn = useCallback(
+    (face: Face, prime: boolean) => {
+      moveCube(face, prime)
+      if (step.moves?.some((m) => m.face === face && m.prime === prime)) {
+        setChecked((prev) => new Set(prev).add(moveNotation(face, prime)))
+      }
+    },
+    [step, moveCube],
+  )
+
   // Practicar giros con el teclado (solo en pasos de movimientos): tecla de cara
-  // → giro horario; con Shift → antihorario. Marca el movimiento al practicarlo.
+  // → giro horario; con Shift → antihorario.
   useEffect(() => {
-    const list = step.moves
-    if (!list) return
+    if (!step.moves) return
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null
       if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return
       const face = e.key.toUpperCase() as Face
       if (!FACES.includes(face) || e.repeat) return
       e.preventDefault()
-      const prime = e.shiftKey
-      movesCtrl.doMove(face, prime)
-      if (list.some((m) => m.face === face && m.prime === prime)) {
-        markChecked(moveNotation(face, prime))
-      }
+      practiceTurn(face, e.shiftKey)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step])
+  }, [step.moves, practiceTurn])
 
   // Cambiar de pantalla limpia las marcas y devuelve el cubo de práctica a resuelto.
   const goTo = (next: number) => {
@@ -296,7 +308,7 @@ export function Introduccion() {
     <div className="intro">
       <section className="intro__stage">
         {step.moves ? (
-          <MovesCube controller={movesCtrl} controlsRef={controlsRef} />
+          <MovesCube controller={movesCtrl} controlsRef={controlsRef} onTurn={practiceTurn} />
         ) : (
           <IntroCube
             focus={cubeFocus}
@@ -317,7 +329,14 @@ export function Introduccion() {
         <ViewControls key={step.moves ? 'moves' : 'static'} controlsRef={controlsRef} mode="view" />
       </section>
 
-      <aside className="intro__panel">
+      <aside className={`intro__panel${sheetExpanded ? ' is-expanded' : ''}`}>
+        <button
+          type="button"
+          className="panel__handle"
+          onClick={() => setSheetExpanded((v) => !v)}
+          aria-expanded={sheetExpanded}
+          aria-label={sheetExpanded ? 'Colapsar explicación' : 'Expandir explicación'}
+        />
         <nav className="intro__index" aria-label="Índice de pasos">
           <List type="plain" className="intro__index-list">
             {STEPS.map((s, i) => (
@@ -388,11 +407,11 @@ export function Introduccion() {
                           <span className="keyhint">
                             {m.prime && (
                               <>
-                                <kbd>Shift</kbd>
+                                <Kbd size="sm">Shift</Kbd>
                                 <span className="keyhint__plus">+</span>
                               </>
                             )}
-                            <kbd>{m.face}</kbd>
+                            <Kbd size="sm">{m.face}</Kbd>
                           </span>
                         </span>
                       }

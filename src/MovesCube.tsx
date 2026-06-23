@@ -1,7 +1,8 @@
-import { type Ref } from 'react'
+import { type RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { TrackballControls } from '@react-three/drei'
 import { CubeView } from './three/cube/CubeView'
+import type { Face } from './three/cube/engine'
 import type { MovesCubeController } from './three/cube/useMovesCube'
 import type { ViewControlsHandle } from './ViewControls'
 
@@ -12,9 +13,12 @@ import type { ViewControlsHandle } from './ViewControls'
 export function MovesCube({
   controller,
   controlsRef,
+  onTurn,
 }: {
   controller: MovesCubeController
-  controlsRef?: Ref<ViewControlsHandle>
+  controlsRef?: RefObject<ViewControlsHandle | null>
+  /** Girar una capa arrastrando sobre el cubo (ratón/táctil). */
+  onTurn?: (face: Face, prime: boolean) => void
 }) {
   return (
     <Canvas camera={{ position: [5, 5, 5], fov: 40 }} dpr={[1, 2]}>
@@ -23,7 +27,7 @@ export function MovesCube({
       <directionalLight position={[6, 9, 6]} intensity={1.1} />
       <directionalLight position={[-6, -2, -6]} intensity={0.4} />
 
-      <CubeView controller={controller} />
+      <CubeView controller={controller} onTurn={onTurn} controlsRef={controlsRef} />
 
       <TrackballControls
         ref={controlsRef as never}

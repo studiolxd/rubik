@@ -110,6 +110,73 @@ export function moveAngle(move: Move): number {
   return def.cwAngleSign * (Math.PI / 2) * turns
 }
 
+/** Cara cuya capa vive en (eje, valor). Inverso de `axisIndex`/`layer` de FACE_DEFS. */
+function faceFor(axisIndex: 0 | 1 | 2, layer: 1 | -1): Face {
+  for (const f of FACES) {
+    const d = FACE_DEFS[f]
+    if (d.axisIndex === axisIndex && d.layer === layer) return f
+  }
+  // Inalcanzable: axisIndex∈{0,1,2} × layer∈{-1,1} cubren las 6 caras.
+  throw new Error(`faceFor(${axisIndex},${layer}) sin cara`)
+}
+
+/**
+ * Traduce un arrastre 2D sobre una cara del cubo a un giro de capa (cara + sentido).
+ *
+ * Aprovecha que el cubo está alineado con los ejes del mundo (los TrackballControls
+ * mueven la cámara, no el cubo): toda la geometría es álgebra vectorial directa.
+ *
+ * @param normal    Normal (en mundo, ±eje) de la cara tocada, redondeada a {-1,0,1}.
+ * @param pos       Posición de rejilla del cubie tocado (componentes en {-1,0,1}).
+ * @param dx, dy    Desplazamiento del puntero en píxeles (dy de pantalla: +hacia abajo).
+ * @param camRight  Eje X de la cámara en mundo (columna 0 de su `matrixWorld`).
+ * @param camUp     Eje Y de la cámara en mundo (columna 1 de su `matrixWorld`).
+ * @returns `{ face, prime }`, o `null` si el gesto cae sobre una capa central
+ *          (un slice M/E/S, que el motor de 6 caras no representa).
+ */
+export function dragToMove(
+  normal: Vec3,
+  pos: Vec3,
+  dx: number,
+  dy: number,
+  camRight: Vec3,
+  camUp: Vec3,
+): { face: Face; prime: boolean } | null {
+  // 1) Arrastre 2D → vector en mundo (la Y de pantalla baja, por eso −dy),
+  //    proyectado sobre el plano de la cara tocada (quitamos la parte normal).
+  let drag: Vec3 = [
+    camRight[0] * dx - camUp[0] * dy,
+    camRight[1] * dx - camUp[1] * dy,
+    camRight[2] * dx - camUp[2] * dy,
+  ]
+  const dn = drag[0] * normal[0] + drag[1] * normal[1] + drag[2] * normal[2]
+  drag = [drag[0] - dn * normal[0], drag[1] - dn * normal[1], drag[2] - dn * normal[2]]
+
+  // 2) Eje de giro = normal × arrastre. Cuantizado a su eje dominante (±X/±Y/±Z),
+  //    da el eje de la capa y el signo del giro percibido (el dedo "arrastra" la cara).
+  const rot: Vec3 = [
+    normal[1] * drag[2] - normal[2] * drag[1],
+    normal[2] * drag[0] - normal[0] * drag[2],
+    normal[0] * drag[1] - normal[1] * drag[0],
+  ]
+  const ax = Math.abs(rot[0])
+  const ay = Math.abs(rot[1])
+  const az = Math.abs(rot[2])
+  const axisIndex: 0 | 1 | 2 = ax >= ay && ax >= az ? 0 : ay >= az ? 1 : 2
+  const sign = Math.sign(rot[axisIndex])
+  if (sign === 0) return null // arrastre nulo o paralelo a la normal
+
+  // 3) La capa la fija la coordenada del cubie tocado en ese eje (0 = slice → nada).
+  const layer = Math.sign(pos[axisIndex])
+  if (layer === 0) return null
+  const face = faceFor(axisIndex, layer as 1 | -1)
+
+  // 4) Sentido: el horario gira `cwAngleSign` alrededor del eje positivo; nuestro
+  //    `sign` está expresado sobre ese mismo eje positivo. Coinciden → horario.
+  const prime = sign !== FACE_DEFS[face].cwAngleSign
+  return { face, prime }
+}
+
 // --- Estado y movimientos ---------------------------------------------------
 
 /** Construye el cubo resuelto: 26 cubies (sin el núcleo invisible). */

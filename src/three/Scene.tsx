@@ -1,8 +1,9 @@
-import { type Ref } from 'react'
+import { type RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { TrackballControls } from '@react-three/drei'
 import { CubeView } from './cube/CubeView'
 import type { CubeController } from './cube/useCube'
+import type { Face } from './cube/engine'
 import type { ViewControlsHandle } from '../ViewControls'
 
 /**
@@ -13,10 +14,13 @@ export function Scene({
   controller,
   controlsRef,
   hideColors = false,
+  onTurn,
 }: {
   controller: CubeController
-  controlsRef?: Ref<ViewControlsHandle>
+  controlsRef?: RefObject<ViewControlsHandle | null>
   hideColors?: boolean
+  /** Si se pasa, se gira una capa arrastrando sobre el cubo (ratón/táctil). */
+  onTurn?: (face: Face, prime: boolean) => void
 }) {
   return (
     <Canvas camera={{ position: [5, 5, 6], fov: 42 }} dpr={[1, 2]}>
@@ -28,7 +32,12 @@ export function Scene({
       <directionalLight position={[6, 9, 6]} intensity={1.1} />
       <directionalLight position={[-6, -2, -6]} intensity={0.4} />
 
-      <CubeView controller={controller} hideColors={hideColors} />
+      <CubeView
+        controller={controller}
+        hideColors={hideColors}
+        onTurn={onTurn}
+        controlsRef={controlsRef}
+      />
 
       {/* Rotación libre 360° en cualquier eje (incluido el vertical) + zoom, sin
           desplazamiento lateral. TrackballControls no fija un "arriba", así que el

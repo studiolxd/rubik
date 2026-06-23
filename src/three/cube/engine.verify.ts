@@ -12,6 +12,7 @@ declare const process: { exit(code: number): never }
 import {
   applyMove,
   createSolved,
+  dragToMove,
   isSolved,
   IDENTITY,
   matMul,
@@ -21,7 +22,9 @@ import {
   scramble,
   FACES,
   type Cubie,
+  type Face,
   type Move,
+  type Vec3,
 } from './engine'
 
 let failures = 0
@@ -88,6 +91,84 @@ for (let i = 0; i < TRIALS; i++) {
 console.log(
   `   ${TRIALS} mezclas probadas · media ${(totalSolutionMoves / TRIALS).toFixed(1)} mov/solución`,
 )
+
+// 4) Gesto de arrastre → giro de capa (dragToMove).
+// Con la base de cámara igual a los ejes de mundo (camRight=+X, camUp=+Y), un
+// arrastre 2D (dx,dy) se vuelve world [dx,-dy,0]. Los (face,prime) esperados se
+// derivaron a mano y se contrastan con la intuición física del cubo.
+console.log('4) Gesto de arrastre (dragToMove)')
+const CAM_R: Vec3 = [1, 0, 0]
+const CAM_U: Vec3 = [0, 1, 0]
+const drags: {
+  desc: string
+  normal: Vec3
+  pos: Vec3
+  dx: number
+  dy: number
+  expect: { face: Face; prime: boolean } | null
+}[] = [
+  // Cara de arriba (U), arista frontal (z=+1): arrastrar a los lados gira F.
+  {
+    desc: 'U front, →',
+    normal: [0, 1, 0],
+    pos: [0, 1, 1],
+    dx: 50,
+    dy: 0,
+    expect: { face: 'F', prime: false },
+  },
+  {
+    desc: 'U front, ←',
+    normal: [0, 1, 0],
+    pos: [0, 1, 1],
+    dx: -50,
+    dy: 0,
+    expect: { face: 'F', prime: true },
+  },
+  // Cara de arriba, arista trasera (z=-1): gira B (sentido opuesto al frontal).
+  {
+    desc: 'U back, →',
+    normal: [0, 1, 0],
+    pos: [0, 1, -1],
+    dx: 50,
+    dy: 0,
+    expect: { face: 'B', prime: true },
+  },
+  // Cara frontal (F), columna derecha (x=+1): arrastrar arriba gira R.
+  {
+    desc: 'F right, ↑',
+    normal: [0, 0, 1],
+    pos: [1, 0, 1],
+    dx: 0,
+    dy: -50,
+    expect: { face: 'R', prime: false },
+  },
+  // Cara derecha (R), franja frontal (z=+1): arrastrar arriba gira F'.
+  {
+    desc: 'R front, ↑',
+    normal: [1, 0, 0],
+    pos: [1, 0, 1],
+    dx: 0,
+    dy: -50,
+    expect: { face: 'F', prime: true },
+  },
+  // Tocar el centro de U (z=0) y arrastrar a los lados sería un slice → null.
+  { desc: 'U centro (slice)', normal: [0, 1, 0], pos: [0, 1, 0], dx: 50, dy: 0, expect: null },
+]
+for (const d of drags) {
+  const got = dragToMove(d.normal, d.pos, d.dx, d.dy, CAM_R, CAM_U)
+  const ok =
+    (got === null && d.expect === null) ||
+    (got !== null &&
+      d.expect !== null &&
+      got.face === d.expect.face &&
+      got.prime === d.expect.prime)
+  check(
+    ok,
+    `${d.desc}: esperado ${d.expect ? d.expect.face + (d.expect.prime ? "'" : '') : 'null'}, got ${
+      got ? got.face + (got.prime ? "'" : '') : 'null'
+    }`,
+  )
+}
 
 if (failures === 0) {
   console.log('\n✓ TODO OK — el motor coincide con cubejs.')
