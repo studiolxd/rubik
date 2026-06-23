@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Scene } from './three/Scene'
-import { FreeControls, StepControls, PracticeControls, TimedControls } from './Controls'
+import { StepControls, PracticeHud } from './Controls'
+import { useTimer, formatTime } from './useTimer'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
 import { useCube } from './three/cube/useCube'
 import { FACES, type Face } from './three/cube/engine'
@@ -33,6 +34,9 @@ export function CubeExperience({
   const [started, setStarted] = useState(false)
   // El cubo se oculta solo en cronometrado y mientras no se ha comenzado.
   const hideColors = mode === 'timed' && !started
+
+  // Cronómetro (solo cuenta en modo cronometrado). Se pinta como HUD del visor.
+  const elapsed = useTimer(started, solved)
 
   // Hoja de controles (solo móvil): colapsada por defecto, se expande con el tirador.
   const [sheetExpanded, setSheetExpanded] = useState(false)
@@ -111,7 +115,7 @@ export function CubeExperience({
   }, [mode, handleTurn, revealHint, reset, started, solved])
 
   return (
-    <div className="cube">
+    <div className={`cube cube--${mode}`}>
       <section className="viewport">
         <Scene
           controller={controller}
@@ -119,28 +123,69 @@ export function CubeExperience({
           hideColors={hideColors}
           onTurn={handleTurn}
         />
-        <ViewControls controlsRef={controlsRef} mode={mode} />
-      </section>
-      <aside className={`panel${sheetExpanded ? ' is-expanded' : ''}`}>
-        <button
-          type="button"
-          className="panel__handle"
-          onClick={() => setSheetExpanded((v) => !v)}
-          aria-expanded={sheetExpanded}
-          aria-label={sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'}
+        <ViewControls
+          controlsRef={controlsRef}
+          mode={mode}
+          timed={
+            mode === 'timed'
+              ? {
+                  started,
+                  solved,
+                  busy: controller.busy,
+                  onStart: () => setStarted(true),
+                  onRestart: handleRestart,
+                }
+              : undefined
+          }
+          free={
+            mode === 'free'
+              ? {
+                  busy: controller.busy,
+                  solved,
+                  lblLength: controller.lblLength,
+                  kociembaLength: controller.kociembaLength,
+                  onScramble: reset,
+                  onSolveStep: controller.doSolve,
+                  onSolveKociemba: controller.doSolveKociemba,
+                }
+              : undefined
+          }
+          practice={
+            mode === 'practice'
+              ? {
+                  canHint: controller.hintLevel < 2 && controller.nextMove !== null,
+                  hintLevel: controller.hintLevel,
+                  onHint: revealHint,
+                }
+              : undefined
+          }
         />
-        {mode === 'free' && <FreeControls controller={controller} />}
-        {mode === 'step' && <StepControls controller={controller} />}
-        {mode === 'practice' && <PracticeControls controller={controller} />}
+        {/* Cronómetro: HUD flotante arriba a la derecha de la página, en todas las
+            vistas (móvil y escritorio). */}
         {mode === 'timed' && (
-          <TimedControls
-            controller={controller}
-            started={started}
-            onStart={() => setStarted(true)}
-            onRestart={handleRestart}
-          />
+          <div className="timer-hud" data-state={solved ? 'done' : started ? 'running' : 'idle'}>
+            <span className="timer__value">{formatTime(elapsed)}</span>
+          </div>
         )}
-      </aside>
+        {/* Práctica: caja (borde primary) arriba con la pista / feedback. */}
+        {mode === 'practice' && <PracticeHud controller={controller} />}
+      </section>
+      {/* Solo paso a paso usa la hoja/panel: libre, cronometrado y práctica tienen
+          sus acciones en los controles de cámara (y su texto como HUD del visor). */}
+      {mode === 'step' && (
+        <aside className={`panel${sheetExpanded ? ' is-expanded' : ''}`}>
+          <button
+            type="button"
+            className="panel__handle"
+            onClick={() => setSheetExpanded((v) => !v)}
+            aria-expanded={sheetExpanded}
+            aria-label={
+              sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'
+            }
+          />
+          <StepControls controller={controller} />
+        </aside>
+      )}
     </div>
   )
 }

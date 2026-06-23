@@ -303,11 +303,12 @@
   }
 }
 
-/* En móvil, al abrir un grupo sus enlaces ocupan toda la pantalla (overlay): en
-   la portada apilada el panel quedaría colgando bajo el cubo (que mide 100dvh).
-   `.menu__section` solo existe en el DOM con un grupo abierto, así que basta con
-   apuntarlo aquí. Va por encima de la cabecera (5) y el overlay de carga (10). */
-@media (max-width: 767px) {
+/* Por debajo de 1280px (donde la portada va apilada, no en grid de escritorio), al
+   abrir un grupo sus enlaces ocupan toda la pantalla (overlay): si no, el panel
+   quedaría colgando bajo el cubo (que mide 100dvh). `.menu__section` solo existe en
+   el DOM con un grupo abierto, así que basta con apuntarlo aquí. Va por encima de la
+   cabecera (5) y el overlay de carga (10). */
+@media (max-width: 1279px) {
   .menu__section {
     position: fixed;
     inset: 0;

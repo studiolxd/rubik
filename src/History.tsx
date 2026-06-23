@@ -89,6 +89,29 @@ export function History() {
           <strong>comunidad global organizada, con eventos y rankings</strong>.
         </Paragraph>
       </section>
+
+      <section className="article__block">
+        <Heading level={3} size={5} weight="bold">
+          ¿Qué es el algoritmo de Kociemba?
+        </Heading>
+        <Paragraph>
+          El <strong>algoritmo de Kociemba</strong> (o «algoritmo de dos fases») es un método que
+          encuentra una solución muy corta para cualquier estado del cubo: normalmente{' '}
+          <strong>20 movimientos o menos</strong>.
+        </Paragraph>
+        <Paragraph>
+          Lo ideó Herbert Kociemba en 1992. Resuelve el cubo en dos fases: primero lleva el cubo a
+          un subconjunto especial de estados usando solo ciertos giros, y después lo termina dentro
+          de ese subconjunto. Apoyándose en grandes tablas precalculadas, explora millones de
+          combinaciones en un instante para dar con una solución casi óptima.
+        </Paragraph>
+        <Paragraph>
+          Es rapidísimo y eficiente, pero sus soluciones <strong>no son humanas</strong>: mezclan
+          todas las caras a la vez y no siguen pasos reconocibles. Por eso, para aprender, usamos el
+          método <strong>por capas</strong> («Resolver paso a paso»): hace más movimientos, pero
+          cada uno tiene una explicación.
+        </Paragraph>
+      </section>
     </article>
   )
 }

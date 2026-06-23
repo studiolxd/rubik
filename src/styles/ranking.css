@@ -1,7 +1,6 @@
 /* --- Ranking: tabla de tiempos paginada --- */
+/* Altura natural: el scroll lo hace `.screen` (header incluido), no este bloque. */
 .ranking {
-  height: 100%;
-  overflow-y: auto;
   padding-block: var(--section-padding-block-md)
     max(var(--section-padding-block-md), var(--safe-bottom));
   padding-inline: max(var(--section-padding-inline), var(--safe-left))

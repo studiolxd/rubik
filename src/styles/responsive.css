@@ -95,3 +95,25 @@
     bottom: auto;
   }
 }
+
+/* --- Modos sin panel (cronometrado, libre, práctica): controles en esquinas ------
+   Estos modos no tienen panel: sus acciones están en los controles de cámara (y su
+   texto en un HUD). El visor ocupa toda la pantalla (por las reglas generales a
+   <768 y, entre 768–1279, por el flex con un único hijo). Aquí solo devolvemos los
+   controles abajo-izquierda y el joystick abajo-derecha (en vez de la fila superior
+   que usa el modo paso a paso, que sí tiene hoja). */
+@media (max-width: 1279px) {
+  .cube--timed .view-controls,
+  .cube--free .view-controls,
+  .cube--practice .view-controls {
+    top: auto;
+    bottom: max(var(--spacing-3), var(--safe-bottom));
+    flex-direction: column;
+  }
+  .cube--timed .view-joystick,
+  .cube--free .view-joystick,
+  .cube--practice .view-joystick {
+    top: auto;
+    bottom: max(var(--spacing-3), var(--safe-bottom));
+  }
+}

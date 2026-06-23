@@ -118,11 +118,41 @@ function Joystick({ onVector }: { onVector: (x: number, y: number) => void }) {
 export function ViewControls({
   controlsRef,
   mode,
+  timed,
+  free,
+  practice,
 }: {
   controlsRef: RefObject<ViewControlsHandle | null>
   /** Modo activo: decide qué atajos propios del modo se muestran en la ayuda.
    *  `view` = solo se gira la vista (sin teclas de giro de caras). */
   mode: 'free' | 'step' | 'practice' | 'timed' | 'view'
+  /** Solo en cronometrado: estado y acciones del crono. Si se pasa, se muestra un
+   *  primer botón (play/stop) que sustituye a Comenzar/Reiniciar del antiguo panel. */
+  timed?: {
+    started: boolean
+    solved: boolean
+    busy: boolean
+    onStart: () => void
+    onRestart: () => void
+  }
+  /** Solo en modo libre: Mezclar + resolver (paso a paso / Kociemba), que antes
+   *  vivían en el panel. Los dos resolver muestran el nº de pasos de su solución. */
+  free?: {
+    busy: boolean
+    solved: boolean
+    lblLength: number
+    kociembaLength: number | null
+    onScramble: () => void
+    onSolveStep: () => void
+    onSolveKociemba: () => void
+  }
+  /** Solo en modo práctica: el botón de Pista (revela cara → sentido), que antes
+   *  vivía en el panel. El texto de la pista/feedback va en el HUD del visor. */
+  practice?: {
+    canHint: boolean
+    hintLevel: number
+    onHint: () => void
+  }
 }) {
   // Estado de los botones, derivado de la cámara (se recalcula al moverla).
   const [{ atInitial, atMin, atMax }, setState] = useState({
@@ -298,6 +328,63 @@ export function ViewControls({
   return (
     <>
       <div className="view-controls">
+        {/* Modo libre: Mezclar (primary) + resolver paso a paso / Kociemba. Los dos
+            resolver muestran el nº de pasos de su solución (en vez de un icono).
+            Los iconos son provisionales. */}
+        {free && (
+          <>
+            <Button variant="primary" size="sm" onClick={free.onScramble} disabled={free.busy}>
+              <Icon name="sparkles" size="sm" />
+              <VisuallyHidden>Mezclar</VisuallyHidden>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={free.onSolveStep}
+              disabled={free.busy || free.solved}
+            >
+              {free.lblLength}
+              <VisuallyHidden>Resolver paso a paso</VisuallyHidden>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={free.onSolveKociemba}
+              disabled={free.busy || free.solved}
+            >
+              {free.kociembaLength ?? '…'}
+              <VisuallyHidden>Resolver con Kociemba</VisuallyHidden>
+            </Button>
+          </>
+        )}
+        {/* Cronometrado: primer botón (primary) para comenzar (play) o reiniciar
+            (stop). Sustituye al Comenzar/Reiniciar del antiguo panel. */}
+        {timed &&
+          (timed.started ? (
+            <Button variant="primary" size="sm" onClick={timed.onRestart} disabled={timed.busy}>
+              <Icon name="stop" size="sm" />
+              <VisuallyHidden>{timed.solved ? 'Nueva partida' : 'Reiniciar'}</VisuallyHidden>
+            </Button>
+          ) : (
+            <Button variant="primary" size="sm" onClick={timed.onStart}>
+              <Icon name="play" size="sm" />
+              <VisuallyHidden>Comenzar</VisuallyHidden>
+            </Button>
+          ))}
+        {/* Práctica: primer botón (primary) para pedir pista (cara → sentido). */}
+        {practice && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={practice.onHint}
+            disabled={!practice.canHint}
+          >
+            <Icon name="eye" size="sm" />
+            <VisuallyHidden>
+              {practice.hintLevel === 0 ? 'Pista: ¿qué cara?' : 'Pista: ¿en qué sentido?'}
+            </VisuallyHidden>
+          </Button>
+        )}
         <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>
           <Icon name="lifebuoy" size="sm" />
           <VisuallyHidden>Ayuda: teclas</VisuallyHidden>
@@ -315,8 +402,75 @@ export function ViewControls({
           <VisuallyHidden>Restaurar vista inicial</VisuallyHidden>
         </Button>
 
-        <Modal open={helpOpen} onClose={() => setHelpOpen(false)} title="Teclas">
+        <Modal open={helpOpen} onClose={() => setHelpOpen(false)} title="Ayuda">
           <div className="help-keys">
+            {free && (
+              <>
+                <p className="help-keys__intro">Acciones del modo libre:</p>
+                <List type="plain" className="help-buttons">
+                  <li>
+                    <span className="help-buttons__icon">
+                      <Icon name="sparkles" size="sm" />
+                    </span>
+                    <span>
+                      <strong>Mezclar</strong> — desordena el cubo.
+                    </span>
+                  </li>
+                  <li>
+                    <span className="help-buttons__icon">{free.lblLength}</span>
+                    <span>
+                      <strong>Resolver paso a paso</strong> — por capas; el número son los
+                      movimientos que tomará.
+                    </span>
+                  </li>
+                  <li>
+                    <span className="help-buttons__icon">{free.kociembaLength ?? '…'}</span>
+                    <span>
+                      <strong>Resolver con Kociemba</strong> — solución corta; el número son los
+                      movimientos que tomará.
+                    </span>
+                  </li>
+                </List>
+              </>
+            )}
+            {timed && (
+              <>
+                <p className="help-keys__intro">Acciones del cronómetro:</p>
+                <List type="plain" className="help-buttons">
+                  <li>
+                    <span className="help-buttons__icon">
+                      <Icon name="play" size="sm" />
+                    </span>
+                    <span>
+                      <strong>Comenzar</strong> — revela el cubo y arranca el cronómetro.
+                    </span>
+                  </li>
+                  <li>
+                    <span className="help-buttons__icon">
+                      <Icon name="stop" size="sm" />
+                    </span>
+                    <span>
+                      <strong>Reiniciar</strong> — nueva mezcla y cronómetro a cero.
+                    </span>
+                  </li>
+                </List>
+              </>
+            )}
+            {practice && (
+              <>
+                <p className="help-keys__intro">Acción del modo práctica:</p>
+                <List type="plain" className="help-buttons">
+                  <li>
+                    <span className="help-buttons__icon">
+                      <Icon name="eye" size="sm" />
+                    </span>
+                    <span>
+                      <strong>Pista</strong> — revela primero la cara y luego el sentido del giro.
+                    </span>
+                  </li>
+                </List>
+              </>
+            )}
             {mode !== 'view' && (
               <>
                 <p className="help-keys__intro">Gira las caras del cubo con el teclado:</p>

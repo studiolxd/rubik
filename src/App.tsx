@@ -14,6 +14,10 @@ import './styles/index.css'
 
 type ScreenId = SectionId | 'menu'
 
+/** Secciones que son experiencias 3D a pantalla completa: el header queda fijo y el
+ *  cuerpo llena el viewport. El resto son páginas de contenido que hacen scroll. */
+const FILL_SCREENS: ScreenId[] = ['introduction', 'guide', 'free', 'guided', 'practice', 'timed']
+
 function App() {
   const [screen, setScreen] = useState<ScreenId>('menu')
 
@@ -22,7 +26,7 @@ function App() {
   }
 
   return (
-    <Screen onBack={() => setScreen('menu')}>
+    <Screen onBack={() => setScreen('menu')} fill={FILL_SCREENS.includes(screen)}>
       {/* Secciones con contenido. El resto quedan vacías (solo el título). */}
       {screen === 'history' && <History />}
       {screen === 'inside' && <Inside />}

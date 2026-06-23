@@ -85,6 +85,10 @@ export interface CubeController {
   doSolve: () => void
   /** Resuelve el cubo con el algoritmo de Kociemba (cubejs): solución corta (~20 mov). */
   doSolveKociemba: () => void
+  /** Nº de giros (expandidos) que tomaría resolver por capas desde el estado actual. */
+  lblLength: number
+  /** Nº de giros (expandidos) de la solución Kociemba; null mientras se calcula. */
+  kociembaLength: number | null
   /** Reinicia el cubo a una mezcla nueva e instantánea (para empezar de cero). */
   reset: () => void
 
@@ -169,6 +173,7 @@ export function useCube(initialFacelets?: string): CubeController {
   const [moveCount, setMoveCount] = useState(0)
   const [hintLevel, setHintLevel] = useState(0)
   const [practiceFeedback, setPracticeFeedback] = useState<PracticeFeedback | null>(null)
+  const [kociembaLength, setKociembaLength] = useState<number | null>(null)
 
   const cubeRef = useRef<Cube>(initRef.current.cube)
   const cubiesRef = useRef(cubies)
@@ -247,6 +252,34 @@ export function useCube(initialFacelets?: string): CubeController {
       setQueue((q) => [...q, ...sol.map((move) => ({ move, duration: ANIM_DURATION }))])
     }, 20)
   }, [mode, busy])
+
+  // Nº de pasos de la solución por capas (LBL) desde el estado actual. Barato (~6 ms).
+  const lblLength = useMemo(
+    () => (mode === 'free' && !solved ? lblGroups(cubies).flatMap((g) => g.moves).length : 0),
+    [mode, solved, cubies],
+  )
+
+  // Nº de pasos de la solución Kociemba. Requiere el solver (init ~0.7 s la 1ª vez),
+  // así que se calcula diferido y cancelable: se recalcula al asentarse cada giro y
+  // se descarta si el cubo cambia antes de terminar.
+  useEffect(() => {
+    if (mode !== 'free' || solved) {
+      setKociembaLength(solved ? 0 : null)
+      return
+    }
+    if (busy) return // mientras anima, se recalcula al terminar
+    let cancelled = false
+    setKociembaLength(null)
+    const id = setTimeout(() => {
+      ensureSolver()
+      const n = expandHalfTurns(parseMoves(cubeRef.current.clone().solve())).length
+      if (!cancelled) setKociembaLength(n)
+    }, 30)
+    return () => {
+      cancelled = true
+      clearTimeout(id)
+    }
+  }, [mode, solved, busy, cubies])
 
   const setMode = useCallback(
     (m: Mode) => {
@@ -385,6 +418,8 @@ export function useCube(initialFacelets?: string): CubeController {
     doScramble,
     doSolve,
     doSolveKociemba,
+    lblLength,
+    kociembaLength,
     reset,
     setMode,
     solutionLength: solution.length,

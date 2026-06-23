@@ -13,7 +13,7 @@
 
 /* El Canvas de R3F ocupa todo el viewport (excluye los overlays flotantes,
    que se posicionan ellos mismos). */
-.viewport > div:not(.view-controls):not(.view-joystick),
+.viewport > div:not(.view-controls):not(.view-joystick):not(.timer-hud):not(.practice-hud),
 .viewport canvas {
   width: 100% !important;
   height: 100% !important;
@@ -101,6 +101,36 @@
   gap: var(--spacing-4);
 }
 
+/* Práctica: HUD (caja con borde primary) arriba-centro del VISOR (no de la página,
+   para no taparse con el header) con la pista o el feedback del último intento.
+   Fondo blanco para legibilidad sobre el cubo; `pointer-events: none` para no
+   bloquear el arrastre. En correcto/incorrecto pasa a fondo+borde de color success/
+   error con texto blanco (mismos tokens que el Tag de marca). */
+.practice-hud {
+  position: absolute;
+  top: var(--spacing-3);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  max-width: calc(100% - 2 * var(--spacing-4));
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-primary);
+  text-align: center;
+  font-weight: var(--font-weight-bold, 700);
+  pointer-events: none;
+}
+.practice-hud--correct {
+  background: var(--color-success-on-light);
+  border-color: var(--color-success-on-light);
+  color: var(--color-white);
+}
+.practice-hud--wrong {
+  background: var(--color-error-on-light);
+  border-color: var(--color-error-on-light);
+  color: var(--color-white);
+}
+
 /* Paso a paso: pista de tecla */
 .step-key {
   display: flex;
@@ -156,12 +186,49 @@
   color: var(--color-text-muted-on-light);
 }
 
-/* Cronómetro */
-.timer {
+/* Modal de ayuda: leyenda de los botones de acción del modo (libre / cronometrado).
+   Reset de lista lo aporta <List type="plain">. */
+.help-buttons {
   display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-5);
+}
+.help-buttons li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+/* Réplica del botón de los controles: cuadrado con borde, icono o nº centrado. */
+.help-buttons__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  padding: var(--spacing-4);
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-grey-light);
+  border-radius: var(--border-radius-md);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-bold, 700);
+}
+.help-buttons__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Cronómetro: HUD flotante arriba a la derecha de TODA la página (no solo del
+   visor), en todas las vistas. `fixed` respecto a la ventana (ningún ancestro
+   tiene transform). `pointer-events: none` para no bloquear nada por debajo. */
+.timer-hud {
+  position: fixed;
+  top: max(var(--spacing-3), var(--safe-top));
+  right: max(var(--spacing-3), var(--safe-right));
+  z-index: 4;
+  display: flex;
+  padding: var(--spacing-2) var(--spacing-3);
   border: 1px solid var(--color-primary);
+  pointer-events: none;
 }
 .timer__value {
   /* El woff2 de @fontsource-variable/google-sans-code registra la familia como
@@ -173,9 +240,9 @@
   letter-spacing: 0.02em;
   color: var(--color-text-on-light);
 }
-.timer[data-state='running'] .timer__value {
+.timer-hud[data-state='running'] .timer__value {
   color: var(--color-primary);
 }
-.timer[data-state='done'] .timer__value {
+.timer-hud[data-state='done'] .timer__value {
   color: var(--color-success-on-light);
 }

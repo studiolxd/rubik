@@ -1,8 +1,11 @@
 /* --- Pantalla de sección --- */
+/* Por defecto (páginas de contenido): la pantalla entera hace scroll, así que el
+   header se desplaza junto con el contenido (no queda fijo). */
 .screen {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .screen__header {
@@ -10,7 +13,12 @@
   padding-inline: var(--section-padding-inline);
 }
 
-.screen__body {
+/* Experiencias 3D a pantalla completa (cubo/intro/guía): nada de scroll de página;
+   el header queda fijo arriba y el cuerpo ocupa el resto del viewport. */
+.screen--fill {
+  overflow: hidden;
+}
+.screen--fill .screen__body {
   flex: 1;
   min-height: 0;
 }
