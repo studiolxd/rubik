@@ -26,7 +26,7 @@ export const SECTIONS: Section[] = [
   { id: 'free', title: 'Modo libre' },
   { id: 'timed', title: 'Modo cronometrado' },
   { id: 'ranking', title: 'Ranking' },
-  // Se llega desde la tarjeta de curiosidad de la portada (no va en el menú).
+  // Va en el grupo "Aprende" y también se llega desde la tarjeta de curiosidad.
   { id: 'trivia', title: 'Curiosidades' },
 ]
 
@@ -37,7 +37,7 @@ export interface MenuGroup {
 }
 
 export const MENU_GROUPS: MenuGroup[] = [
-  { title: 'Aprende', ids: ['history', 'inside', 'introduction', 'guide'] },
+  { title: 'Aprende', ids: ['history', 'trivia', 'inside', 'introduction', 'guide'] },
   { title: 'Juega', ids: ['guided', 'practice', 'free'] },
   { title: 'Compite', ids: ['timed', 'ranking'] },
 ]

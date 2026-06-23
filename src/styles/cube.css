@@ -1,0 +1,181 @@
+/* --- Pantalla del cubo (viewport + panel) --- */
+.cube {
+  height: 100%;
+  display: flex;
+  min-height: 0;
+}
+
+.viewport {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+/* El Canvas de R3F ocupa todo el viewport (excluye los overlays flotantes,
+   que se posicionan ellos mismos). */
+.viewport > div:not(.view-controls):not(.view-joystick),
+.viewport canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Controles flotantes de cámara (esquina inferior izquierda). El contenedor no
+   captura el puntero; solo los botones de marca (que lo reactivan). */
+.view-controls {
+  position: absolute;
+  left: max(var(--spacing-3), var(--safe-left));
+  bottom: max(var(--spacing-3), var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.view-controls > button {
+  pointer-events: auto;
+}
+
+/* Dimensiona los SVG propios (zoom/ayuda) dentro de los botones de marca. */
+.view-controls svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Joystick virtual para girar la vista (esquina inferior derecha) */
+.view-joystick {
+  position: absolute;
+  right: max(var(--spacing-3), var(--safe-right));
+  bottom: max(var(--spacing-3), var(--safe-bottom));
+  z-index: 2;
+}
+.joystick {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, var(--color-white), var(--color-grey-lightest));
+  border: 1px solid var(--color-grey-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  touch-action: none; /* el puntero arrastra el joystick, no hace scroll */
+  cursor: grab;
+}
+.joystick:active {
+  cursor: grabbing;
+}
+.joystick__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px; /* centra la bolita */
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--color-white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: none; /* el arrastre lo captura la base */
+}
+
+/* --- Panel de controles del cubo --- */
+.panel {
+  width: 320px;
+  flex-shrink: 0;
+  /* Sin padding arriba; abajo el token block-sm; inline a los lados. El borde
+     derecho/inferior respeta el área de seguridad del dispositivo (notch). */
+  padding-block: 0 max(var(--section-padding-block-sm), var(--safe-bottom));
+  padding-inline: var(--section-padding-inline)
+    max(var(--section-padding-inline), var(--safe-right));
+  background: var(--color-white);
+  overflow-y: auto;
+}
+
+.panel__badge {
+  margin-bottom: var(--spacing-4);
+}
+
+.panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Paso a paso: pista de tecla */
+.step-key {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5) var(--spacing-4);
+  background: var(--color-grey-lightest);
+  border: 1px solid var(--color-grey-light);
+  border-radius: var(--border-radius-md);
+}
+.step-key--done {
+  font-size: var(--font-size-4);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-success-on-light);
+}
+.step-key__caption {
+  font-size: var(--font-size-1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted-on-light);
+}
+
+.keyhint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+.keyhint__plus {
+  color: var(--color-text-muted-on-light);
+  font-weight: 600;
+}
+
+/* Las teclas usan el componente <Kbd> de @studiolxd/brand (trae su propio CSS). */
+
+/* Modal de ayuda: leyenda de teclas */
+.help-keys__intro {
+  margin: 0 0 var(--spacing-3);
+}
+/* Reset de lista (list-style/margin/padding) lo aporta <List type="plain">. */
+.help-keys__list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2) var(--spacing-4);
+}
+.help-keys__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+.help-keys__note {
+  margin: var(--spacing-4) 0 0;
+  color: var(--color-text-muted-on-light);
+}
+
+/* Cronómetro */
+.timer {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-primary);
+}
+.timer__value {
+  /* El woff2 de @fontsource-variable/google-sans-code registra la familia como
+     'Google Sans Code Variable'. */
+  font-family: 'Google Sans Code Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-size-7);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--color-text-on-light);
+}
+.timer[data-state='running'] .timer__value {
+  color: var(--color-primary);
+}
+.timer[data-state='done'] .timer__value {
+  color: var(--color-success-on-light);
+}

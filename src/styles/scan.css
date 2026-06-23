@@ -1,0 +1,120 @@
+/* --- Escaneo con cámara --- */
+.scan {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding-block: var(--section-padding-block-md)
+    max(var(--section-padding-block-md), var(--safe-bottom));
+  padding-inline: max(var(--section-padding-inline), var(--safe-left))
+    max(var(--section-padding-inline), var(--safe-right));
+  overflow: auto;
+}
+
+.scan--message {
+  justify-content: center;
+  text-align: center;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.scan__head {
+  text-align: center;
+  max-width: 520px;
+}
+
+.scan__viewport {
+  position: relative;
+  width: min(80vw, 60vh, 420px);
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background: var(--color-grey-lightest);
+}
+
+.scan__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Canvas de muestreo: oculto, solo se usa para leer píxeles. */
+.scan__canvas {
+  display: none;
+}
+
+.scan__grid {
+  position: absolute;
+  inset: 10%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2%;
+}
+
+.scan__cell {
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--border-radius-sm, 6px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan__chip {
+  width: 26%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.scan__status {
+  min-height: 28px;
+}
+
+.scan__actions {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* --- Mapa desplegado (el "esquema") con los colores leídos --- */
+.scan--review {
+  justify-content: flex-start;
+}
+
+.net {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+.net__row {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.net__row--center {
+  justify-content: center;
+}
+
+.net__face {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-grey-light);
+  border-radius: var(--border-radius-sm, 6px);
+}
+
+.net__cell {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}

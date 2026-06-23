@@ -8,8 +8,9 @@ import { TriviaPage } from './Trivia'
 import { Introduction } from './Introduction'
 import { Guide } from './Guide'
 import { GuidedMode } from './GuidedMode'
-import { SECTIONS, type SectionId } from './sections'
-import './App.css'
+import { Ranking } from './Ranking'
+import { type SectionId } from './sections'
+import './styles/index.css'
 
 type ScreenId = SectionId | 'menu'
 
@@ -20,10 +21,8 @@ function App() {
     return <Menu onSelect={setScreen} />
   }
 
-  const section = SECTIONS.find((s) => s.id === screen)!
-
   return (
-    <Screen title={section.title} onBack={() => setScreen('menu')}>
+    <Screen onBack={() => setScreen('menu')}>
       {/* Secciones con contenido. El resto quedan vacías (solo el título). */}
       {screen === 'history' && <History />}
       {screen === 'inside' && <Inside />}
@@ -34,6 +33,7 @@ function App() {
       {screen === 'guided' && <GuidedMode />}
       {screen === 'practice' && <CubeExperience mode="practice" />}
       {screen === 'timed' && <CubeExperience mode="timed" />}
+      {screen === 'ranking' && <Ranking />}
     </Screen>
   )
 }

@@ -1,0 +1,26 @@
+/* Barrel de estilos: importa todas las hojas en orden controlado.
+   App.tsx importa solo este archivo.
+
+   El orden importa: los tokens van primero (definen variables) y `responsive`
+   va el último (sus media queries sobreescriben las bases de cube/intro/panel
+   por orden de fuente, ya que no aumentan la especificidad). El resto son
+   namespaces de clases disjuntos y su orden relativo es indiferente. */
+
+/* Tokens y variables globales (primero) */
+@import './tokens.css';
+
+/* Marco de aplicación y portada */
+@import './layout.css';
+@import './home.css';
+
+/* Secciones */
+@import './cube.css';
+@import './intro.css';
+@import './article.css';
+@import './ranking.css';
+@import './disassembly.css';
+@import './guide.css';
+@import './scan.css';
+
+/* Overrides responsive (DEBEN ir los últimos) */
+@import './responsive.css';

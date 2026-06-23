@@ -1,0 +1,66 @@
+/* --- Saber más (contenido de lectura) --- */
+.article {
+  height: 100%;
+  overflow-y: auto;
+  padding-block: var(--section-padding-block-md)
+    max(var(--section-padding-block-md), var(--safe-bottom));
+  padding-inline: max(var(--section-padding-inline), var(--safe-left))
+    max(var(--section-padding-inline), var(--safe-right));
+}
+
+.article > * {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.article__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
+}
+
+.article__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-5);
+  margin-top: var(--spacing-5);
+  border-top: 1px solid var(--color-grey-light);
+}
+
+.article__block:first-of-type {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.article__block h3 {
+  color: var(--color-primary);
+}
+
+/* Cifra destacada (nº de combinaciones) */
+.article__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-4);
+  background: var(--color-grey-lightest);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--border-radius-md);
+}
+.article__stat-num {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-size-4);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+  word-break: break-word;
+}
+.article__stat-label {
+  font-size: var(--font-size-1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted-on-light);
+}

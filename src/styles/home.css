@@ -1,0 +1,298 @@
+/* --- Menú inicial --- */
+/* Página de la portada: contenedor desplazable. El menú ocupa toda la pantalla
+   y el footer queda debajo, así que solo aparece al hacer scroll. */
+.menu-page {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.menu {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* `safe`: si el contenido no cabe (móvil/pantalla baja) se alinea al inicio en
+     vez de recortarse por arriba; el scroll del contenedor permite verlo todo. */
+  justify-content: safe center;
+  /* El gap y el padding solo se aplican a partir de 1280px (ver media query). */
+}
+
+/* Evita que los bloques se compriman: si no caben, se desplazan (no se aplastan). */
+.menu > * {
+  flex-shrink: 0;
+}
+
+/* Marca de la portada: logo en la esquina superior izquierda, superpuesto sobre
+   el menú (no afecta al layout de las columnas). Respeta el área de seguridad. */
+.menu__header {
+  position: absolute;
+  top: max(var(--section-padding-block-md), var(--safe-top));
+  left: max(var(--section-padding-inline), var(--safe-left));
+  z-index: 5;
+  display: inline-flex;
+}
+.menu__header svg {
+  height: 64px;
+  width: auto;
+}
+
+/* Footer oscuro de la portada: bajo el menú (a pantalla completa), aparece al
+   hacer scroll. El logo (en blanco, vía prop `dark`) va alineado a la izquierda. */
+.menu__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-text-on-light);
+  padding-block: var(--section-padding-block-sm)
+    max(var(--section-padding-block-sm), var(--safe-bottom));
+  padding-inline: max(var(--section-padding-inline), var(--safe-left))
+    max(var(--section-padding-inline), var(--safe-right));
+}
+
+/* Logo de Studio LXD → studiolxd.com (pestaña nueva). El color (blanco) lo da la
+   prop `dark` del componente Logo; aquí solo se dimensiona. */
+.menu__logo {
+  display: inline-flex;
+}
+
+/* El logo se muestra a 48px de alto (el ancho lo deduce del viewBox). */
+.menu__logo svg {
+  height: 48px;
+  width: auto;
+}
+
+.menu__brand {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+
+.menu__cube {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* El cubo va siempre encima del título (en el DOM va después). */
+  order: -1;
+}
+
+/* Indicador de scroll bajo el título: invita a bajar a las secciones. Solo se ve
+   por debajo de 1280px (a partir de ahí el menú es un grid sin scroll, ver media
+   query). El efecto "pulse" (solo opacidad) lo da la animación. */
+.menu__scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-block-start: var(--spacing-4);
+  padding: var(--spacing-2);
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: menu-scroll-pulse 1.6s ease-in-out infinite;
+}
+/* El tamaño lo da `size="lg"` del Icon (48px), igual que el chevron de volver del
+   header; no lo pisamos aquí. */
+/* El chevron de marca apunta a la derecha; lo giramos para que apunte abajo. */
+.menu__scroll-icon {
+  transform: rotate(90deg);
+}
+@keyframes menu-scroll-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* Respeta la preferencia de movimiento reducido. */
+@media (prefers-reduced-motion: reduce) {
+  .menu__scroll-hint {
+    animation: none;
+  }
+}
+
+/* Overlay blanco que cubre toda la portada mientras arranca el Canvas WebGL.
+   Se desvanece rápido en cuanto el cubo pinta su primer frame. */
+.menu__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: var(--color-white);
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.menu__overlay.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Las dos columnas de la portada. Cada una apila su contenido sin hueco y, en
+   escritorio, lo alinea abajo de forma independiente (ver media query). */
+.menu__left,
+.menu__right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+/* Por debajo de 1280px la columna izquierda ocupa todo el alto del dispositivo
+   (el cubo + título llenan la primera pantalla; las cards quedan debajo, al hacer
+   scroll). Además `.menu` no lleva padding aquí, así que lo aporta la columna
+   (block-md + inline) para que el cubo no quede pegado a los bordes. A partir de
+   1280 el alto y el padding los gestiona `.menu` y se quitan (ver media query). */
+.menu__left {
+  min-height: 100dvh;
+  /* Cubo + título anclados abajo, ocupando todo el alto de la pantalla. */
+  justify-content: flex-end;
+  padding-block: var(--section-padding-block-md);
+  padding-inline: var(--section-padding-inline);
+}
+
+/* Separación entre el bloque de cards y la curiosidad (las cards entre sí siguen
+   pegadas: van en `.menu__nav` con su propio `gap: 0`). */
+.menu__right {
+  gap: var(--section-padding-block-md);
+}
+
+/* Menú agrupado (Aprende / Juega / Compite): en móvil los grupos se apilan;
+   en escritorio van en fila (ver media query). */
+.menu__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  /* `.menu__right` centra sus hijos (align-items: center), así que sin esto el nav
+     solo crecería hasta el ancho natural de las cards (~974px) y quedaría centrado
+     con huecos a los lados. `stretch` lo lleva al ancho completo de la columna. */
+  align-self: stretch;
+}
+
+/* Envoltorio clicable de cada card de grupo (intercepta el click del <a href="#">).
+   El card de marca lo llena: ancho por `flex`, alto por el `align-items: stretch`
+   del nav (así las 3 cards quedan a la misma altura). */
+.menu__group-card {
+  display: flex;
+  min-width: 0;
+  cursor: pointer;
+}
+.menu__group-card > .card {
+  flex: 1;
+}
+
+/* Vista de opciones de un grupo: reutiliza la superficie de la card de marca
+   (.card .card--*) para conservar el color del grupo. El color del texto de los
+   Button lo da `surface-dark` (en primary) o sus tokens por defecto (en accent).
+   La lista ocupa todo el ancho (la .card alinea sus hijos a la izquierda) y deja
+   el mismo aire bajo ella que la descripción de una card. */
+.menu__section .list {
+  align-self: stretch;
+  width: 100%;
+  margin-block-end: var(--card-description-margin-block-end);
+}
+
+/* La superficie .card empuja su flecha CTA con `margin-block-start: auto`; aquí no
+   queremos ese empuje en las flechas de volver/opciones. */
+.menu__section.card .arrow {
+  margin-block-start: 0;
+}
+
+/* La flecha de marca apunta a la derecha; la giramos para "volver" (a la izq.). */
+.menu__back-icon {
+  transform: rotate(180deg);
+}
+
+/* Cada opción es un Button text de marca dentro de la lista. */
+.menu__section .list .button {
+  text-decoration: none;
+  font-size: var(--font-size-5);
+}
+
+/* Tarjeta de curiosidad de la portada: envoltorio del <Card> de marca (accent-2),
+   que lleva a la página de Curiosidades. El estilo lo aporta el propio Card.
+   `max-width: 100%` evita que su texto desborde el contenedor (sobre todo en móvil). */
+.menu__curio {
+  max-width: 100%;
+  /* Solo se muestra a partir de 1280px (ver media query). */
+  display: none;
+}
+
+/* Página de Curiosidades: lista de datos (la List ya aporta gap/viñetas). */
+.trivia__list li {
+  line-height: 1.6;
+}
+
+/* Entre sm (480px) y xl (1280px): el cubo de la portada pasa a ancho completo
+   (más grande que el cuadrado base de 240px) y con un aspect-ratio más ancho. */
+@media (min-width: 480px) and (max-width: 1279px) {
+  .menu__cube {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+  }
+}
+
+/* A partir de 1280px se activa la estructura de escritorio: columna izquierda con
+   cubo → título; a la derecha, el menú (Aprende/Juega/Compite) con la tarjeta de
+   curiosidad debajo, y las 3 cards en fila. Por debajo todo va apilado.
+   Va después de las reglas base del menú para ganar por orden (las media queries
+   no aumentan la especificidad). */
+@media (min-width: 1280px) {
+  .menu {
+    display: grid;
+    /* Izquierda al tamaño de su contenido (lo delimita el h1); la derecha crece
+       y ocupa el ancho disponible. */
+    grid-template-columns: auto 1fr;
+    column-gap: var(--section-padding-block-xl);
+    /* Las columnas (wrappers) ocupan todo el alto para poder alinear su contenido
+       abajo de forma independiente. */
+    align-items: stretch;
+    gap: var(--section-padding-block-xl);
+    padding-block: var(--section-padding-block-md);
+    padding-inline: var(--section-padding-inline);
+  }
+  /* Cada columna alinea su contenido abajo y lo estira al ancho de la columna. */
+  .menu__left,
+  .menu__right {
+    justify-content: flex-end;
+    align-items: stretch;
+  }
+  /* A partir de aquí el alto y el padding los gestiona `.menu`; se quitan de la columna. */
+  .menu__left {
+    min-height: auto;
+    padding-block: 0;
+    padding-inline: 0;
+  }
+  /* El cubo va arriba del título (orden) y a ancho completo de la columna.
+     El tamaño del cubo depende del alto del contenedor (fov vertical de la
+     cámara): lo hacemos cuadrado (alto = ancho de columna) para que crezca y
+     aproveche el espacio disponible en vez de dejar aire a los lados. */
+  .menu__cube {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 4;
+  }
+  /* El indicador de scroll no tiene sentido en el grid de escritorio. */
+  .menu__scroll-hint {
+    display: none;
+  }
+  .menu__nav {
+    flex-direction: row;
+  }
+  /* Reparten el ancho a partes iguales (el item flex del nav es el wrapper). */
+  .menu__group-card {
+    flex: 1 1 0;
+  }
+  /* La card de Curiosidades solo se muestra a partir de este ancho. */
+  .menu__curio {
+    display: block;
+  }
+}

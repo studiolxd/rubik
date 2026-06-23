@@ -1,0 +1,97 @@
+/* --- Móvil: visor a pantalla completa + controles en hoja inferior --------
+   En escritorio el visor 3D y el panel van lado a lado; en móvil el panel
+   ahogaba al cubo. Aquí el visor pasa a ocupar toda la pantalla y el panel se
+   convierte en una "hoja" inferior colapsable (se toca/arrastra el tirador).
+   Además, el lienzo captura el arrastre para girar capas u orbitar la vista.
+
+   Esta hoja se importa la última en el barrel (styles/index.css): sus reglas
+   sobreescriben las bases de .cube/.intro/.panel/.view-* y las media queries no
+   aumentan la especificidad, así que deben ganar por orden de fuente. */
+
+/* El tirador de la hoja solo aparece en móvil (se activa en la media query). */
+.panel__handle {
+  display: none;
+}
+
+/* El lienzo gestiona el gesto (girar capa / orbitar); evita el scroll/zoom del
+   navegador al arrastrar con el dedo sobre el cubo. */
+.viewport,
+.intro__stage {
+  touch-action: none;
+}
+
+@media (max-width: 767px) {
+  /* Modos de juego (.cube: libre/práctica/cronometrado/paso a paso + guía) e
+     introducción (.intro): visor a pantalla completa, panel como hoja inferior. */
+  .cube,
+  .intro {
+    display: block;
+    position: relative;
+  }
+  .viewport,
+  .intro__stage {
+    position: absolute;
+    inset: 0;
+  }
+
+  .panel,
+  .intro__panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    z-index: 3;
+    border-left: none;
+    border-top: 1px solid var(--color-grey-light);
+    border-radius: var(--border-radius-lg, 16px) var(--border-radius-lg, 16px) 0 0;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.14);
+    /* Colapsada: solo asoman el tirador + cabecera (peek). Debe ser MENOR que el
+       contenido para que colapsar libere espacio del cubo en todos los modos. */
+    max-height: 7.5rem;
+    overflow: hidden;
+    padding-top: 0;
+    transition: max-height 0.28s ease;
+  }
+  .panel.is-expanded,
+  .intro__panel.is-expanded {
+    max-height: 86vh;
+    overflow-y: auto;
+  }
+
+  /* Tirador: barra superior fija para tocar/arrastrar y colapsar la hoja. */
+  .panel__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    height: 28px;
+    margin-bottom: var(--spacing-2);
+    padding: 0;
+    border: none;
+    background: var(--color-white);
+    border-radius: inherit;
+    cursor: pointer;
+  }
+  .panel__handle::before {
+    content: '';
+    width: 42px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--color-grey-light);
+  }
+
+  /* Controles flotantes de cámara: arriba, para no quedar tapados por la hoja. */
+  .view-controls {
+    top: var(--spacing-3);
+    bottom: auto;
+    flex-direction: row;
+  }
+  .view-joystick {
+    top: var(--spacing-3);
+    bottom: auto;
+  }
+}

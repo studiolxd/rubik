@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/google-sans-code':
+        specifier: ^5.2.4
+        version: 5.2.4
       '@fontsource-variable/google-sans-flex':
         specifier: ^5.2.3
         version: 5.2.3
@@ -554,6 +557,9 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@fontsource-variable/google-sans-code@5.2.4':
+    resolution: {integrity: sha512-70i7eS9B7VYT1sJcpU+bYnCrKwWOh8+RCTZNLgzE3crUaDwAqx0hRhd2Hr0ZyStJq88f+CF8/r+YUK0A3gMsPA==}
 
   '@fontsource-variable/google-sans-flex@5.2.3':
     resolution: {integrity: sha512-g5z9WANJW56gZTWJvu7mIHOiHJaffkk/dhOKqEiK4Nxnsk8lnGnijvGt4vF4KD2KWzscXBOB9XR2sfvTPSi5hA==}
@@ -2673,6 +2679,8 @@ snapshots:
       react-dom: 19.2.7(react@19.2.7)
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@fontsource-variable/google-sans-code@5.2.4': {}
 
   '@fontsource-variable/google-sans-flex@5.2.3': {}
 

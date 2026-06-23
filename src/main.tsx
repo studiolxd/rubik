@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/google-sans-flex'
+import '@fontsource-variable/google-sans-code'
 import '@studiolxd/brand/brand.css'
 import './index.css'
 import App from './App.tsx'

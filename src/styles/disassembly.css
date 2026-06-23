@@ -1,0 +1,75 @@
+/* --- Despiece 3D: "cómo es por dentro" --- */
+.disassembly {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
+}
+.disassembly__stage {
+  position: relative;
+  height: 360px;
+  border: 1px solid var(--color-grey-light);
+  border-radius: var(--border-radius-md);
+  background: radial-gradient(circle at 50% 35%, var(--color-white), var(--color-grey-lightest));
+  overflow: hidden;
+  touch-action: none; /* el lienzo gestiona el arrastre/zoom */
+}
+.disassembly__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+.disassembly__caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+.disassembly__step {
+  font-size: var(--font-size-1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted-on-light);
+}
+.disassembly__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+.disassembly__info {
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-grey-lightest);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--border-radius-md);
+  min-height: 4.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-1);
+}
+.disassembly__info-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+.disassembly__info-head strong {
+  color: var(--color-primary);
+}
+.disassembly__info-meta {
+  font-size: var(--font-size-1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted-on-light);
+}
+.disassembly__info-desc {
+  margin: 0;
+  line-height: 1.5;
+}
+.disassembly__hint {
+  color: var(--color-text-muted-on-light);
+}
+@media (min-width: 768px) {
+  .disassembly__stage {
+    height: 440px;
+  }
+}

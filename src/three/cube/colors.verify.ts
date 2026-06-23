@@ -24,7 +24,7 @@ function hex(h: string): RGB {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 
-// Esquema de colores de la app (tokens --cube-face-* en App.css / Cubie.tsx).
+// Esquema de colores de la app (tokens --cube-face-* en styles/tokens.css / Cubie.tsx).
 const REFS: Refs = {
   U: hex('#ffffff'), // blanco
   R: hex('#b71234'), // rojo

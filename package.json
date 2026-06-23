@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "@fontsource-variable/google-sans-code": "^5.2.4",
     "@fontsource-variable/google-sans-flex": "^5.2.3",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",

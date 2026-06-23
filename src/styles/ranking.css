@@ -1,0 +1,31 @@
+/* --- Ranking: tabla de tiempos paginada --- */
+.ranking {
+  height: 100%;
+  overflow-y: auto;
+  padding-block: var(--section-padding-block-md)
+    max(var(--section-padding-block-md), var(--safe-bottom));
+  padding-inline: max(var(--section-padding-inline), var(--safe-left))
+    max(var(--section-padding-inline), var(--safe-right));
+}
+
+.ranking > * {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ranking__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-5);
+}
+
+/* Tiempos en cifras tabulares para que las columnas no "bailen". */
+.ranking table {
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking__pagination {
+  margin-top: var(--spacing-5);
+}

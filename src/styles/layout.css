@@ -1,0 +1,22 @@
+/* --- Pantalla de sección --- */
+.screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen__header {
+  padding-block: var(--section-padding-block-md);
+  padding-inline: var(--section-padding-inline);
+}
+
+.screen__body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* El chevron de marca apunta a la derecha por defecto; lo giramos para que la
+   punta estrecha quede a la izquierda (volver). */
+.screen__back-icon {
+  transform: rotate(180deg);
+}

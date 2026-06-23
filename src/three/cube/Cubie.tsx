@@ -17,7 +17,7 @@ const STICKER_OFFSET = BODY / 2 + 0.002
 /** Pegatina que cubre casi toda la cara: línea de rejilla negra muy fina (~0.05). */
 const STICKER_SIZE = 0.95
 
-/** Lee un token de color desde las variables CSS (definidas en App.css), con
+/** Lee un token de color desde las variables CSS (definidas en styles/tokens.css), con
  *  un hex de reserva por si el documento aún no está disponible. */
 function token(name: string, fallback: string): string {
   if (typeof document === 'undefined') return fallback
@@ -25,7 +25,7 @@ function token(name: string, fallback: string): string {
   return value || fallback
 }
 
-/** Colores clásicos por cara (en el estado resuelto). Fuente: tokens `--cube-face-*` en App.css. */
+/** Colores clásicos por cara (en el estado resuelto). Fuente: tokens `--cube-face-*` en styles/tokens.css. */
 const COLORS = {
   R: token('--cube-face-right', '#b71234'), // derecha   → rojo
   L: token('--cube-face-left', '#ff8a1f'), // izquierda → naranja

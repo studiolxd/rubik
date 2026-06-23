@@ -1,0 +1,99 @@
+/* --- Guía paso a paso ---------------------------------------------------- */
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* Reset de lista lo aporta <List type="plain">. */
+.guide-steps {
+  gap: var(--spacing-2);
+}
+.guide-steps__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--border-radius-md);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--color-text-muted-on-light);
+  font: inherit;
+  font-size: var(--font-size-1);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+.guide-steps__item:hover:not(:disabled) {
+  background: var(--color-grey-lightest);
+  border-color: var(--color-grey-light);
+}
+.guide-steps__item:disabled {
+  cursor: default;
+}
+.guide-steps__item.is-current {
+  background: var(--color-grey-lightest);
+  border-color: var(--color-grey-light);
+  color: var(--color-text-on-light);
+  font-weight: var(--font-weight-bold, 700);
+}
+.guide-steps__item.is-done {
+  color: var(--color-success-on-light);
+}
+.guide-steps__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-grey-light);
+  color: var(--color-text-on-light);
+  font-size: var(--font-size-0, 0.75rem);
+  font-weight: var(--font-weight-bold, 700);
+}
+.guide-steps__item.is-current .guide-steps__marker {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+.guide-steps__item.is-done .guide-steps__marker {
+  background: var(--color-success, #1e9e57);
+  color: var(--color-white);
+}
+
+.guide-current {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--color-grey-lightest);
+  border: 1px solid var(--color-grey-light);
+  border-radius: var(--border-radius-md);
+}
+
+.guide-how {
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-on-light);
+}
+
+/* --- Modo guiado: elección de cubo --- */
+.guided-choose {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  text-align: center;
+}
+
+.guided-choose__actions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,106 @@
+/* --- Introducción al cubo (cubo + explicación, por pantallas) --- */
+.intro {
+  height: 100%;
+  display: flex;
+  min-height: 0;
+}
+
+.intro__stage {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+/* El Canvas ocupa todo el escenario; los overlays flotantes se posicionan solos. */
+.intro__stage > div:not(.view-controls):not(.view-joystick),
+.intro__stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.intro__panel {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  padding-block: var(--section-padding-block-md)
+    max(var(--section-padding-block-md), var(--safe-bottom));
+  padding-inline: var(--section-padding-inline)
+    max(var(--section-padding-inline), var(--safe-right));
+  border-left: 1px solid var(--color-grey-light);
+  background: var(--color-white);
+  overflow-y: auto;
+}
+
+/* Índice de pasos (salto directo). El reset de lista lo aporta <List type="plain">. */
+.intro__index-list {
+  padding: 0 0 var(--spacing-4);
+  border-bottom: 1px solid var(--color-grey-light);
+  gap: var(--spacing-1);
+}
+.intro__index-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: var(--spacing-2);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  color: var(--color-text-muted-on-light);
+  font-size: var(--font-size-2);
+}
+.intro__index-item:hover {
+  background: var(--color-grey-lightest);
+  color: var(--color-text-on-light);
+}
+.intro__index-item.is-active {
+  background: var(--color-grey-lightest);
+  color: var(--color-text-on-light);
+  font-weight: 700;
+}
+
+.intro__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.intro__group {
+  margin: 0;
+  font-size: var(--font-size-1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted-on-light);
+}
+
+/* Reset de lista lo aporta <List type="plain">. */
+.intro__checks {
+  gap: var(--spacing-3);
+}
+
+/* Fila de movimiento: descripción + atajo de teclado */
+.intro__move-label {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
+}
+
+/* La navegación Anterior/Siguiente queda anclada abajo. */
+.intro__nav {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  border-top: 1px solid var(--color-grey-light);
+  padding-top: var(--spacing-4);
+}
+
+.intro__count {
+  font-size: var(--font-size-1);
+  color: var(--color-text-muted-on-light);
+  font-variant-numeric: tabular-nums;
+}
