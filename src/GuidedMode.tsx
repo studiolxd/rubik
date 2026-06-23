@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
@@ -13,9 +13,14 @@ import { CubeScan } from './CubeScan'
  */
 type Phase = 'choose' | 'scan' | 'play'
 
-export function GuidedMode() {
+export function GuidedMode({ onFillChange }: { onFillChange?: (fill: boolean) => void }) {
   const [phase, setPhase] = useState<Phase>('choose')
   const [facelets, setFacelets] = useState<string>()
+
+  // Elegir/escanear son contenido (scroll de página); jugar es pantalla completa.
+  useEffect(() => {
+    onFillChange?.(phase === 'play')
+  }, [phase, onFillChange])
 
   if (phase === 'scan') {
     return (
@@ -36,12 +41,10 @@ export function GuidedMode() {
 
   return (
     <div className="guided-choose">
-      <Heading level={2} size={3} weight="semibold">
-        ¿Qué cubo quieres resolver?
-      </Heading>
+      <Heading level={1}>Escanea tu cubo</Heading>
       <Paragraph>
-        Escanea tu cubo real con la cámara y te guiamos para resolver justo ese, o practica con un
-        cubo de ejemplo mezclado al azar.
+        Escanea tu cubo con la cámara y te guiaremos para resolverlo, o practica con un cubo
+        mezclado al azar.
       </Paragraph>
       <div className="guided-choose__actions">
         <Button variant="primary" onClick={() => setPhase('scan')}>

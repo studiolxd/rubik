@@ -1,5 +1,4 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Kbd } from '@studiolxd/brand/kbd'
 import type { CubeController, PracticeFeedback } from './three/cube/useCube'
 import { moveToString, type Face, type Move } from './three/cube/engine'
@@ -32,36 +31,37 @@ export function KeyHint({ move }: { move: Move }) {
 // botones de ViewControls. La explicación "¿Qué es el algoritmo de Kociemba?" pasó a
 // la página de Historia.
 
-/** Controles del modo guiado: indica qué tecla pulsar en cada paso. */
-export function StepControls({ controller }: { controller: CubeController }) {
-  const { mode, solving, solutionLength, stepIndex, nextMove } = controller
-  // Mientras se fija el modo y se calcula la solución, mostramos "calculando".
+/**
+ * HUD del modo guiado (paso a paso): caja arriba del visor con el siguiente
+ * movimiento, visible solo cuando el toggle de ViewControls lo activa. "Calculando"
+ * y "¡Resuelto!" se muestran siempre; con el movimiento oculto, no hay caja.
+ */
+export function StepHud({
+  controller,
+  showMove,
+}: {
+  controller: CubeController
+  showMove: boolean
+}) {
+  const { mode, solving, solutionLength, nextMove } = controller
   const preparing = mode !== 'step' || solving
 
-  return (
-    <section className="panel__section">
-      {preparing ? (
-        <Paragraph size="small">Calculando solución…</Paragraph>
-      ) : solutionLength === 0 ? (
-        <Paragraph size="small">El cubo ya está resuelto.</Paragraph>
-      ) : (
-        <>
-          <Paragraph size="small">
-            Paso {stepIndex} de {solutionLength}
-          </Paragraph>
-          {nextMove ? (
-            <div className="step-key">
-              <span className="step-key__caption">Pulsa</span>
-              <KeyHint move={nextMove} />
-              <Paragraph size="small">movimiento {moveToString(nextMove)}</Paragraph>
-            </div>
-          ) : (
-            <div className="step-key step-key--done">¡Resuelto! 🎉</div>
-          )}
-        </>
-      )}
-    </section>
-  )
+  let body: ReactNode = null
+  if (preparing) {
+    body = 'Calculando solución…'
+  } else if (solutionLength === 0 || !nextMove) {
+    body = '¡Resuelto! 🎉'
+  } else if (showMove) {
+    body = (
+      <>
+        Gira <strong>{FACE_LABEL[nextMove.face]}</strong> ({moveToString(nextMove)}){' '}
+        {turnSense(nextMove)}.
+      </>
+    )
+  }
+
+  if (!body) return null
+  return <div className="move-hud">{body}</div>
 }
 
 /** Sentido legible de un giro (la solución solo usa potencias 1 y 3). */
@@ -120,7 +120,7 @@ export function PracticeHud({ controller }: { controller: CubeController }) {
   // Sin mensaje (sin pista pedida ni feedback ni estado especial): no hay caja.
   if (!body) return null
 
-  return <div className={`practice-hud${tone ? ` practice-hud--${tone}` : ''}`}>{body}</div>
+  return <div className={`move-hud${tone ? ` move-hud--${tone}` : ''}`}>{body}</div>
 }
 
 // El modo cronometrado ya no tiene panel: el tiempo (HUD del visor) y su lógica

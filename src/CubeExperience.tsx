@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Scene } from './three/Scene'
-import { StepControls, PracticeHud } from './Controls'
+import { StepHud, PracticeHud } from './Controls'
 import { useTimer, formatTime } from './useTimer'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
 import { useCube } from './three/cube/useCube'
@@ -38,8 +38,8 @@ export function CubeExperience({
   // Cronómetro (solo cuenta en modo cronometrado). Se pinta como HUD del visor.
   const elapsed = useTimer(started, solved)
 
-  // Hoja de controles (solo móvil): colapsada por defecto, se expande con el tirador.
-  const [sheetExpanded, setSheetExpanded] = useState(false)
+  // Modo guiado (step): mostrar/ocultar el siguiente movimiento (oculto por defecto).
+  const [showMove, setShowMove] = useState(false)
 
   // Reinicia el cronometrado: mezcla nueva, oculta el cubo y resetea "started".
   const handleRestart = () => {
@@ -159,6 +159,9 @@ export function CubeExperience({
                 }
               : undefined
           }
+          step={
+            mode === 'step' ? { showMove, onToggleMove: () => setShowMove((v) => !v) } : undefined
+          }
         />
         {/* Cronómetro: HUD flotante arriba a la derecha de la página, en todas las
             vistas (móvil y escritorio). */}
@@ -169,23 +172,9 @@ export function CubeExperience({
         )}
         {/* Práctica: caja (borde primary) arriba con la pista / feedback. */}
         {mode === 'practice' && <PracticeHud controller={controller} />}
+        {/* Guiado: caja arriba con el siguiente movimiento (si el toggle lo activa). */}
+        {mode === 'step' && <StepHud controller={controller} showMove={showMove} />}
       </section>
-      {/* Solo paso a paso usa la hoja/panel: libre, cronometrado y práctica tienen
-          sus acciones en los controles de cámara (y su texto como HUD del visor). */}
-      {mode === 'step' && (
-        <aside className={`panel${sheetExpanded ? ' is-expanded' : ''}`}>
-          <button
-            type="button"
-            className="panel__handle"
-            onClick={() => setSheetExpanded((v) => !v)}
-            aria-expanded={sheetExpanded}
-            aria-label={
-              sheetExpanded ? 'Colapsar panel de controles' : 'Expandir panel de controles'
-            }
-          />
-          <StepControls controller={controller} />
-        </aside>
-      )}
     </div>
   )
 }

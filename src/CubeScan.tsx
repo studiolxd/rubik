@@ -3,7 +3,6 @@ import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Tag } from '@studiolxd/brand/tag'
-import { Alert } from '@studiolxd/brand/alert'
 import { List } from '@studiolxd/brand/list'
 import { classifyFace, type Refs, type RGB } from './three/cube/colors'
 import {
@@ -56,14 +55,28 @@ const COLOR_NAME: Record<Face, string> = {
   B: 'azul',
 }
 
-/** Orden de captura + cómo sostener el cubo para que la rejilla mapee bien. */
-const CAPTURE: { face: Face; hint: string }[] = [
-  { face: 'U', hint: 'cara BLANCA hacia la cámara, con la VERDE hacia ti (abajo)' },
-  { face: 'F', hint: 'cara VERDE hacia la cámara, con la BLANCA arriba' },
-  { face: 'R', hint: 'cara ROJA hacia la cámara, con la BLANCA arriba' },
-  { face: 'B', hint: 'cara AZUL hacia la cámara, con la BLANCA arriba' },
-  { face: 'L', hint: 'cara NARANJA hacia la cámara, con la BLANCA arriba' },
-  { face: 'D', hint: 'cara AMARILLA hacia la cámara, con la VERDE hacia ti (arriba)' },
+/** Nombre del color en masculino (para "color X" en los mensajes de error). */
+const COLOR_NAME_M: Record<Face, string> = {
+  U: 'blanco',
+  R: 'rojo',
+  F: 'verde',
+  D: 'amarillo',
+  L: 'naranja',
+  B: 'azul',
+}
+
+/** Orden de los 6 colores en la paleta de pintado manual. */
+const PALETTE: Face[] = ['U', 'R', 'F', 'D', 'L', 'B']
+
+/** Orden de captura + cómo sostener el cubo para que la rejilla mapee bien:
+ *  `face` es la cara a mostrar; `ref`/`refDir` la cara de referencia y su dirección. */
+const CAPTURE: { face: Face; ref: Face; refDir: string }[] = [
+  { face: 'U', ref: 'F', refDir: 'abajo' },
+  { face: 'F', ref: 'U', refDir: 'arriba' },
+  { face: 'R', ref: 'U', refDir: 'arriba' },
+  { face: 'B', ref: 'U', refDir: 'arriba' },
+  { face: 'L', ref: 'U', refDir: 'arriba' },
+  { face: 'D', ref: 'F', refDir: 'arriba' },
 ]
 
 /**
@@ -92,12 +105,17 @@ function medianRGB(data: Uint8ClampedArray, idxs: number[]): RGB {
   return [ch(0), ch(1), ch(2)]
 }
 
+/** Zoom digital de la cámara: recorta un cuadrado central más pequeño (más zoom).
+ *  DEBE coincidir con `transform: scale(...)` de `.scan__video` para que lo que se
+ *  ve y lo que se muestrea estén alineados. */
+const SCAN_ZOOM = 1.5
+
 /** Muestrea la rejilla 3×3 del centro del fotograma. Devuelve 9 RGB o null. */
 function sampleGrid(video: HTMLVideoElement, canvas: HTMLCanvasElement): RGB[] | null {
   const vw = video.videoWidth
   const vh = video.videoHeight
   if (!vw || !vh) return null
-  const side = Math.min(vw, vh)
+  const side = Math.min(vw, vh) / SCAN_ZOOM
   const x0 = (vw - side) / 2
   const y0 = (vh - side) / 2
   const S = 120
@@ -142,6 +160,20 @@ const ERROR_TEXT: Record<ValidationError['kind'], string> = {
   parity: 'La combinación leída no es resoluble (revisa las piezas).',
 }
 
+/** Texto del error. El de recuento (`count`) detalla el color y si sobran o faltan. */
+function errorText(e: ValidationError): string {
+  if (e.kind === 'count') {
+    const name = COLOR_NAME_M[e.face]
+    const diff = e.count - 9
+    const n = Math.abs(diff)
+    const verb = diff > 0 ? (n === 1 ? 'sobra' : 'sobran') : n === 1 ? 'falta' : 'faltan'
+    const veces = e.count === 1 ? 'vez' : 'veces'
+    const pegatinas = n === 1 ? 'pegatina' : 'pegatinas'
+    return `El color ${name} aparece ${e.count} ${veces}, ${verb} ${n} ${pegatinas}.`
+  }
+  return ERROR_TEXT[e.kind]
+}
+
 type Phase = 'scanning' | 'review' | 'error'
 
 export function CubeScan({
@@ -160,6 +192,14 @@ export function CubeScan({
   const [phase, setPhase] = useState<Phase>('scanning')
   const [errorMsg, setErrorMsg] = useState('')
   const [stepIdx, setStepIdx] = useState(0)
+  // Si está fijada, estamos reescaneando SOLO esa cara (desde la revisión); al
+  // capturar se actualiza su muestra y se vuelve a revisión.
+  const [rescanFace, setRescanFace] = useState<Face | null>(null)
+  // Color activo de la paleta (modo pintar). Mientras hay uno, clicar pegatinas
+  // del mapa las reemplaza por ese color; reclicar el color desactiva el modo.
+  const [paintColor, setPaintColor] = useState<Face | null>(null)
+  // Parpadeo de captura: durante el flash el botón queda deshabilitado.
+  const [capturing, setCapturing] = useState(false)
   const [live, setLive] = useState<{ faces: Face[]; minConfidence: number } | null>(null)
   // Muestras crudas (9 RGB) capturadas por cara; el centro define la referencia.
   const captured = useRef<Partial<Record<Face, RGB[]>>>({})
@@ -267,29 +307,74 @@ export function CubeScan({
 
   const captureCurrent = useCallback(() => {
     const samples = liveRef.current
-    if (!samples) return
-    const { face } = CAPTURE[stepIdx]
-    captured.current[face] = samples
-    if (stepIdx + 1 < CAPTURE.length) {
-      setStepIdx((i) => i + 1)
-    } else {
-      finish()
-    }
-  }, [stepIdx, finish])
+    if (!samples || capturing) return
+    // Guarda la muestra del instante del clic.
+    const target = rescanFace ?? CAPTURE[stepIdx].face
+    captured.current[target] = samples
+    // Parpadeo: bloquea el botón y, al terminar, avanza / reconstruye.
+    setCapturing(true)
+    setTimeout(() => {
+      setCapturing(false)
+      if (rescanFace) {
+        setRescanFace(null)
+        finish()
+      } else if (stepIdx + 1 < CAPTURE.length) {
+        setStepIdx((i) => i + 1)
+      } else {
+        finish()
+      }
+    }, 220)
+  }, [stepIdx, finish, rescanFace, capturing])
 
   const restart = useCallback(() => {
     captured.current = {}
     setStepIdx(0)
+    setRescanFace(null)
     setResult(undefined)
     setPhase('scanning')
   }, [])
+
+  // Desde la revisión: reescanear SOLO la cara pulsada en el mapa.
+  const rescan = useCallback((face: Face) => {
+    setRescanFace(face)
+    setPhase('scanning')
+  }, [])
+
+  // Cancela el reescaneo de una cara y vuelve a la revisión (mantiene el resultado).
+  const cancelRescan = useCallback(() => {
+    setRescanFace(null)
+    setPhase('review')
+  }, [])
+
+  // Paleta: activa/desactiva un color (reclicar el mismo → desactiva).
+  const togglePaint = useCallback((face: Face) => {
+    setPaintColor((prev) => (prev === face ? null : face))
+  }, [])
+
+  // Pinta una pegatina del mapa con el color activo y revalida el cubo.
+  const paintCell = useCallback(
+    (face: Face, idx: number) => {
+      if (paintColor === null) return
+      setResult((prev) => {
+        if (!prev) return prev
+        const net = {
+          ...prev.net,
+          [face]: prev.net[face].map((c, i) => (i === idx ? paintColor : c)),
+        }
+        const facelets = netToFacelets(net)
+        const v = validateFacelets(facelets)
+        return { facelets, net, errors: v.ok ? [] : v.errors }
+      })
+    },
+    [paintColor],
+  )
 
   // --- Render ---------------------------------------------------------------
 
   if (phase === 'error') {
     return (
       <div className="scan scan--message">
-        <Heading level={2} size={3} weight="semibold">
+        <Heading level={2} size={3}>
           Cámara no disponible
         </Heading>
         <Paragraph>{errorMsg}</Paragraph>
@@ -304,45 +389,63 @@ export function CubeScan({
     const valid = result.errors.length === 0
     return (
       <div className="scan scan--review">
-        <Heading level={2} size={3} weight="semibold">
-          {valid ? 'Cubo leído correctamente' : 'Hay algo que no cuadra'}
-        </Heading>
-        <CubeNet net={result.net} />
+        <div className="scan__head">
+          <Heading level={1}>Escanea tu cubo</Heading>
+          <Heading level={2}>
+            {valid ? 'Cubo leído correctamente' : '¡Ups! Algo no cuadra...'}
+          </Heading>
+        </div>
+        <div className="scan__net">
+          <CubeNet
+            net={result.net}
+            onPickFace={rescan}
+            onPaintCell={paintCell}
+            painting={paintColor !== null}
+          />
+          {/* Paleta de 6 colores: selecciona uno para pintar pegatinas; reclícalo
+              para desactivar. */}
+          <div className="scan__palette">
+            {PALETTE.map((face) => (
+              <button
+                type="button"
+                key={face}
+                className={`scan__swatch${paintColor === face ? ' is-active' : ''}`}
+                style={{ background: COLOR_HEX[face] }}
+                onClick={() => togglePaint(face)}
+                aria-pressed={paintColor === face}
+                title={`Pintar con ${COLOR_NAME[face]}`}
+              />
+            ))}
+          </div>
+        </div>
         {valid ? (
-          <>
-            <Paragraph>Revisa que los colores coinciden con tu cubo antes de empezar.</Paragraph>
-            <div className="scan__actions">
-              <Button variant="primary" onClick={() => onComplete(result.facelets)}>
-                Empezar a resolver
-              </Button>
-              <Button variant="outline" onClick={restart}>
-                Volver a escanear
-              </Button>
-            </div>
-          </>
+          <div className="scan__actions">
+            <Button variant="text" onClick={onCancel}>
+              Cancelar
+            </Button>
+            <Button variant="primary" onClick={() => onComplete(result.facelets)}>
+              Empezar a resolver
+            </Button>
+          </div>
         ) : (
           <>
-            <Alert
-              variant="error"
-              title="Revisa estos puntos"
-              description={
-                <List type="unordered">
-                  {result.errors.map((e, i) => (
-                    <li key={i}>{ERROR_TEXT[e.kind]}</li>
-                  ))}
-                </List>
-              }
-            />
-            <Paragraph>
-              Suele deberse a un color mal leído (rojo/naranja con poca luz) o a una cara torcida.
-              Escanea de nuevo con buena iluminación.
-            </Paragraph>
+            <List type="plain" className="scan__errors">
+              {result.errors.map((e, i) => (
+                <li key={i}>{errorText(e)}</li>
+              ))}
+            </List>
+            <Paragraph>Para corregirlo, tienes varias opciones:</Paragraph>
+            <List type="ordered">
+              <li>Pulsa sobre la cara que quieras volver a escanear.</li>
+              <li>Pulsa sobre el botón Volver a escanear para repetir el proceso.</li>
+              <li>Colorea manualmente las pegatinas incorrectas.</li>
+            </List>
             <div className="scan__actions">
-              <Button variant="primary" onClick={restart}>
-                Volver a escanear
-              </Button>
               <Button variant="text" onClick={onCancel}>
                 Cancelar
+              </Button>
+              <Button variant="primary" onClick={restart}>
+                Volver a escanear
               </Button>
             </div>
           </>
@@ -351,18 +454,43 @@ export function CubeScan({
     )
   }
 
-  // phase === 'scanning'
-  const step = CAPTURE[stepIdx]
+  // phase === 'scanning' (flujo normal o reescaneo de una sola cara)
+  const step = rescanFace ? CAPTURE.find((c) => c.face === rescanFace)! : CAPTURE[stepIdx]
   const confident = (live?.minConfidence ?? 0) >= CONFIDENCE_MIN
   return (
     <div className="scan">
       <div className="scan__head">
-        <Tag>
-          Cara {stepIdx + 1} de {CAPTURE.length}
-        </Tag>
+        <Heading level={1}>Escanea tu cubo</Heading>
+        <Heading level={2}>
+          {rescanFace
+            ? `Reescanea la cara ${COLOR_NAME[rescanFace]}`
+            : `Cara ${stepIdx + 1} de ${CAPTURE.length}`}
+        </Heading>
         <Paragraph>
-          Muestra la <strong>{COLOR_NAME[step.face]}</strong>: {step.hint}.
+          Muestra la cara <strong>{COLOR_NAME[step.face]}</strong>{' '}
+          <span
+            className="scan__hint-chip"
+            style={{ background: COLOR_HEX[step.face] }}
+            aria-hidden
+          />{' '}
+          a la cámara.
+          <br />
+          La cara <strong>{COLOR_NAME[step.ref]}</strong>{' '}
+          <span
+            className="scan__hint-chip"
+            style={{ background: COLOR_HEX[step.ref] }}
+            aria-hidden
+          />{' '}
+          hacia {step.refDir}.
         </Paragraph>
+      </div>
+
+      <div className="scan__status">
+        {confident ? (
+          <Tag variant="success">Lectura estable</Tag>
+        ) : (
+          <Tag variant="warning">Acerca el cubo y mejora la luz</Tag>
+        )}
       </div>
 
       <div className="scan__viewport">
@@ -381,37 +509,71 @@ export function CubeScan({
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="scan__status">
-        {confident ? (
-          <Tag variant="success">Lectura estable</Tag>
-        ) : (
-          <Tag variant="warning">Acerca el cubo y mejora la luz</Tag>
-        )}
+        {/* Parpadeo blanco al capturar (efecto "foto"). */}
+        {capturing && <div className="scan__flash" aria-hidden />}
       </div>
 
       <div className="scan__actions">
-        <Button variant="primary" onClick={captureCurrent} disabled={!live}>
-          {stepIdx + 1 < CAPTURE.length ? 'Capturar y siguiente' : 'Capturar y finalizar'}
+        <Button variant="text" onClick={rescanFace ? cancelRescan : onCancel}>
+          {rescanFace ? 'Volver' : 'Cancelar'}
         </Button>
-        <Button variant="text" onClick={onCancel}>
-          Cancelar
+        <Button variant="primary" onClick={captureCurrent} disabled={!live || capturing}>
+          {rescanFace
+            ? 'Capturar'
+            : stepIdx + 1 < CAPTURE.length
+              ? 'Capturar y siguiente'
+              : 'Capturar y finalizar'}
         </Button>
       </div>
     </div>
   )
 }
 
-/** Mapa desplegado (el "esquema") con los colores leídos. */
-function CubeNet({ net }: { net: Net }) {
-  const faceGrid = (face: Face) => (
-    <div className="net__face" key={face}>
-      {net[face].map((f, i) => (
+/** Mapa desplegado (el "esquema") con los colores leídos.
+ *  - `painting`: cada pegatina es un botón (`onPaintCell`) para pintarla.
+ *  - si no, y con `onPickFace`, cada CARA es un botón para reescanearla. */
+function CubeNet({
+  net,
+  onPickFace,
+  onPaintCell,
+  painting,
+}: {
+  net: Net
+  onPickFace?: (face: Face) => void
+  onPaintCell?: (face: Face, idx: number) => void
+  painting?: boolean
+}) {
+  const faceGrid = (face: Face) => {
+    const cells = net[face].map((f, i) =>
+      painting ? (
+        <button
+          type="button"
+          key={i}
+          className="net__cell net__cell--paint"
+          style={{ background: COLOR_HEX[f] }}
+          onClick={() => onPaintCell?.(face, i)}
+          aria-label="Pintar pegatina"
+        />
+      ) : (
         <span key={i} className="net__cell" style={{ background: COLOR_HEX[f] }} />
-      ))}
-    </div>
-  )
+      ),
+    )
+    return !painting && onPickFace ? (
+      <button
+        type="button"
+        className="net__face net__face--pick"
+        key={face}
+        onClick={() => onPickFace(face)}
+        title={`Volver a escanear la cara ${COLOR_NAME[face]}`}
+      >
+        {cells}
+      </button>
+    ) : (
+      <div className="net__face" key={face}>
+        {cells}
+      </div>
+    )
+  }
   // Disposición en cruz: U arriba; L F R B en fila; D abajo.
   return (
     <div className="net">

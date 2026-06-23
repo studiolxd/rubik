@@ -13,7 +13,7 @@
 
 /* El Canvas de R3F ocupa todo el viewport (excluye los overlays flotantes,
    que se posicionan ellos mismos). */
-.viewport > div:not(.view-controls):not(.view-joystick):not(.timer-hud):not(.practice-hud),
+.viewport > div:not(.view-controls):not(.view-joystick):not(.timer-hud):not(.move-hud),
 .viewport canvas {
   width: 100% !important;
   height: 100% !important;
@@ -101,34 +101,49 @@
   gap: var(--spacing-4);
 }
 
-/* Práctica: HUD (caja con borde primary) arriba-centro del VISOR (no de la página,
-   para no taparse con el header) con la pista o el feedback del último intento.
-   Fondo blanco para legibilidad sobre el cubo; `pointer-events: none` para no
-   bloquear el arrastre. En correcto/incorrecto pasa a fondo+borde de color success/
-   error con texto blanco (mismos tokens que el Tag de marca). */
-.practice-hud {
+/* HUD (caja con borde primary) arriba del VISOR (no de la página, para no taparse
+   con el header) con un mensaje: la pista/feedback del modo práctica o el siguiente
+   movimiento del modo guiado. Fondo blanco para legibilidad sobre el cubo;
+   `pointer-events: none` para no bloquear el arrastre. En práctica, correcto/
+   incorrecto pasa a fondo+borde success/error con texto blanco (tokens del Tag). */
+.move-hud {
   position: absolute;
   top: var(--spacing-3);
-  left: 50%;
-  transform: translateX(-50%);
+  /* Móvil: ocupa todo el ancho del visor, texto a la izquierda. */
+  left: 0;
+  right: 0;
   z-index: 4;
-  max-width: calc(100% - 2 * var(--spacing-4));
-  padding: var(--spacing-2) var(--spacing-4);
+  /* Padding del token del toast. */
+  padding-block: var(--toast-padding-block);
+  padding-inline: var(--toast-padding-inline);
   background: var(--color-white);
   border: 1px solid var(--color-primary);
-  text-align: center;
-  font-weight: var(--font-weight-bold, 700);
+  text-align: left;
+  /* Texto en peso normal; las negritas (<strong>) en semibold. */
+  font-weight: var(--font-weight-regular);
   pointer-events: none;
 }
-.practice-hud--correct {
+.move-hud strong {
+  font-weight: var(--font-weight-semibold);
+}
+.move-hud--correct {
   background: var(--color-success-on-light);
   border-color: var(--color-success-on-light);
   color: var(--color-white);
 }
-.practice-hud--wrong {
+.move-hud--wrong {
   background: var(--color-error-on-light);
   border-color: var(--color-error-on-light);
   color: var(--color-white);
+}
+/* Escritorio: ancho del token del toast, centrado (en móvil ocupa el 100%). */
+@media (min-width: 768px) {
+  .move-hud {
+    left: 50%;
+    right: auto;
+    width: var(--toast-width);
+    transform: translateX(-50%);
+  }
 }
 
 /* Paso a paso: pista de tecla */

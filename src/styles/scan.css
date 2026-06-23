@@ -1,15 +1,18 @@
 /* --- Escaneo con cámara --- */
+/* Altura natural: el scroll lo hace `.screen` (header incluido), igual que ranking.
+   El modo guiado deja de ser fill en la fase de escaneo (ver App.tsx). */
 .scan {
-  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-4);
   padding-block: var(--section-padding-block-md)
     max(var(--section-padding-block-md), var(--safe-bottom));
   padding-inline: max(var(--section-padding-inline), var(--safe-left))
     max(var(--section-padding-inline), var(--safe-right));
-  overflow: auto;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .scan--message {
@@ -20,14 +23,34 @@
 }
 
 .scan__head {
-  text-align: center;
+  display: grid;
+  gap: var(--spacing-3);
   max-width: 520px;
+}
+.scan__head strong {
+  font-weight: var(--font-weight-semibold);
+}
+/* Lista de errores de validación: sin caja, solo el texto en color de error. */
+.scan__errors {
+  color: var(--color-error-on-light);
+}
+
+/* Cuadradito con el color de la cara, junto a su nombre en el hint. */
+.scan__hint-chip {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  vertical-align: -0.1em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .scan__viewport {
   position: relative;
-  width: min(80vw, 60vh, 420px);
+  width: 100%;
   aspect-ratio: 1;
+  /* En el flex column con altura limitada, evita que el `flex-shrink` aplaste el
+     cuadrado (rompiendo el aspect-ratio); si no cabe, `.scan` hace scroll. */
+  flex-shrink: 0;
   border-radius: var(--border-radius-md);
   overflow: hidden;
   background: var(--color-grey-lightest);
@@ -38,6 +61,26 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Zoom digital: el visor recorta (overflow: hidden). DEBE coincidir con
+     SCAN_ZOOM en CubeScan.tsx para que lo visto y lo muestreado coincidan. */
+  transform: scale(1.5);
+}
+
+/* Parpadeo blanco al capturar (efecto "foto"): se desvanece en ~0,22 s. */
+.scan__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  animation: scan-flash 0.22s ease-out;
+}
+@keyframes scan-flash {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* Canvas de muestreo: oculto, solo se usa para leer píxeles. */
@@ -74,12 +117,29 @@
   min-height: 28px;
 }
 
+/* Móvil (por defecto): Capturar (primary) arriba a ancho completo; Cancelar (text)
+   debajo, centrado. El DOM va [Cancelar, Capturar]; `column-reverse` deja Capturar
+   arriba. */
 .scan__actions {
   display: flex;
-  gap: var(--spacing-3);
+  flex-direction: column-reverse;
   align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
+  gap: var(--spacing-3);
+  width: 100%;
+}
+.scan__actions .button--primary {
+  width: 100%;
+}
+/* Por encima del breakpoint de móvil: en fila, alineados a la derecha
+   (primero Cancelar, luego Capturar); ancho automático. */
+@media (min-width: 768px) {
+  .scan__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  .scan__actions .button--primary {
+    width: auto;
+  }
 }
 
 /* --- Mapa desplegado (el "esquema") con los colores leídos --- */
@@ -108,7 +168,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 2px;
   padding: 2px;
-  background: var(--color-grey-light);
+  background: #000;
   border-radius: var(--border-radius-sm, 6px);
 }
 
@@ -116,5 +176,48 @@
   width: 18px;
   height: 18px;
   border-radius: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid #000;
+}
+
+/* Pintado manual: mapa + paleta de colores a la derecha. */
+.scan__net {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+}
+.scan__palette {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.scan__swatch {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid #000;
+  cursor: pointer;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.12s ease;
+}
+.scan__swatch.is-active {
+  outline-color: var(--color-primary);
+}
+/* Pegatina clicable en modo pintar: reset de botón + cursor. */
+.net__cell--paint {
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Cara clicable del mapa (volver a escanear solo esa cara): reset de botón + cue. */
+.net__face--pick {
+  border: none;
+  cursor: pointer;
+  transition: outline-color 0.12s ease;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.net__face--pick:hover,
+.net__face--pick:focus-visible {
+  outline-color: var(--color-primary);
 }

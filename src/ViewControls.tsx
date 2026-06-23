@@ -121,6 +121,7 @@ export function ViewControls({
   timed,
   free,
   practice,
+  step,
 }: {
   controlsRef: RefObject<ViewControlsHandle | null>
   /** Modo activo: decide qué atajos propios del modo se muestran en la ayuda.
@@ -152,6 +153,12 @@ export function ViewControls({
     canHint: boolean
     hintLevel: number
     onHint: () => void
+  }
+  /** Solo en modo guiado (paso a paso): toggle para mostrar/ocultar el siguiente
+   *  movimiento (que se pinta en el HUD del visor). */
+  step?: {
+    showMove: boolean
+    onToggleMove: () => void
   }
 }) {
   // Estado de los botones, derivado de la cámara (se recalcula al moverla).
@@ -385,6 +392,20 @@ export function ViewControls({
             </VisuallyHidden>
           </Button>
         )}
+        {/* Guiado: primer botón (primary) para mostrar / ocultar el movimiento. */}
+        {step && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={step.onToggleMove}
+            aria-pressed={step.showMove}
+          >
+            <Icon name={step.showMove ? 'eye-off' : 'eye'} size="sm" />
+            <VisuallyHidden>
+              {step.showMove ? 'Ocultar movimiento' : 'Mostrar movimiento'}
+            </VisuallyHidden>
+          </Button>
+        )}
         <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>
           <Icon name="lifebuoy" size="sm" />
           <VisuallyHidden>Ayuda: teclas</VisuallyHidden>
@@ -466,6 +487,22 @@ export function ViewControls({
                     </span>
                     <span>
                       <strong>Pista</strong> — revela primero la cara y luego el sentido del giro.
+                    </span>
+                  </li>
+                </List>
+              </>
+            )}
+            {step && (
+              <>
+                <p className="help-keys__intro">Acción del modo guiado:</p>
+                <List type="plain" className="help-buttons">
+                  <li>
+                    <span className="help-buttons__icon">
+                      <Icon name="eye" size="sm" />
+                    </span>
+                    <span>
+                      <strong>Mostrar / ocultar movimiento</strong> — revela u oculta el siguiente
+                      movimiento a hacer.
                     </span>
                   </li>
                 </List>
