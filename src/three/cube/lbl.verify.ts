@@ -95,7 +95,7 @@ console.log('5) Giro U desde resuelto')
   const s = apply(createSolved(), 'U')
   check(!crossSolved(s), 'U debería romper la cruz blanca (arriba)')
   check(!firstLayerSolved(s), 'U debería romper la primera capa')
-  check(currentStep(s) === 'cruz', `currentStep debería ser 'cruz', es ${currentStep(s)}`)
+  check(currentStep(s) === 'cross', `currentStep debería ser 'cross', es ${currentStep(s)}`)
 }
 
 // 6) Un giro D desde resuelto: primera y segunda capa intactas, última capa no.
@@ -108,8 +108,8 @@ console.log('6) Giro D desde resuelto')
   check(lastFaceSolved(s), 'D mantiene la cara amarilla orientada')
   check(!lastCornersPlaced(s), 'D mueve las esquinas de la última capa de su sitio')
   check(
-    currentStep(s) === 'permutar-esquinas',
-    `currentStep debería ser 'permutar-esquinas', es ${currentStep(s)}`,
+    currentStep(s) === 'permute-corners',
+    `currentStep debería ser 'permute-corners', es ${currentStep(s)}`,
   )
   check(!solved(s), 'D no deja el cubo resuelto')
 }
@@ -132,13 +132,13 @@ console.log('7) Mezclas aleatorias')
 console.log('8) Resolución completa por capas (Fases 1–3)')
 {
   const PREDS: Record<string, (cs: Cubie[]) => boolean> = {
-    cruz: crossSolved,
-    'esquinas-primera': firstLayerSolved,
-    'segunda-capa': secondLayerSolved,
-    'cruz-ultima': lastCrossSolved,
-    'cara-ultima': lastFaceSolved,
-    'permutar-esquinas': lastCornersPlaced,
-    'permutar-aristas': solved,
+    cross: crossSolved,
+    'first-corners': firstLayerSolved,
+    'middle-layer': secondLayerSolved,
+    'last-cross': lastCrossSolved,
+    'last-face': lastFaceSolved,
+    'permute-corners': lastCornersPlaced,
+    'permute-edges': solved,
   }
   const TRIALS = 1000
   let totalMoves = 0

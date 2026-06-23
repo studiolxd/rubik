@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
-import { DespieceScene, type HighlightId } from './three/DespieceScene'
+import { DisassemblyScene, type HighlightId } from './three/DisassemblyScene'
 
 /**
  * Guion de pasos del despiece. El índice coincide con el `stage` de la escena.
@@ -20,22 +20,22 @@ const STAGES: { title: string; desc: string; highlight?: HighlightId }[] = [
   {
     title: 'El muelle',
     desc: 'Despiezamos un centro de dentro hacia fuera. Lo primero, el muelle: da elasticidad y permite que las piezas se separen un poco al girar y vuelvan a su sitio sin atascarse.',
-    highlight: 'muelle',
+    highlight: 'spring',
   },
   {
     title: 'El tornillo',
     desc: 'Sujeta el centro al núcleo y regula la tensión: más apretado gira más duro; más suelto, más fluido.',
-    highlight: 'tornillo',
+    highlight: 'screw',
   },
   {
     title: 'La tapa',
     desc: 'La carcasa de plástico que ves desde fuera. Es el cuerpo de la pieza y sobre ella se pega la pegatina.',
-    highlight: 'tapa',
+    highlight: 'cap',
   },
   {
     title: 'La pegatina de color',
     desc: 'Y por fuera, la pegatina: el adhesivo de color que da su aspecto al cubo. En los modelos de gama alta se sustituye por plástico de color.',
-    highlight: 'pegatina',
+    highlight: 'sticker',
   },
 ]
 
@@ -44,20 +44,20 @@ const STAGES: { title: string; desc: string; highlight?: HighlightId }[] = [
  * pasos con las flechas; en el tramo final cada parte se ilumina con su
  * explicación. Pensado para incrustarse dentro de la sección "Saber más".
  */
-export function Despiece() {
+export function Disassembly() {
   const [stage, setStage] = useState(0)
   const last = STAGES.length - 1
   const current = STAGES[stage]
 
   return (
-    <div className="despiece">
-      <div className="despiece__stage">
-        <DespieceScene stage={stage} highlight={current.highlight ?? null} />
+    <div className="disassembly">
+      <div className="disassembly__stage">
+        <DisassemblyScene stage={stage} highlight={current.highlight ?? null} />
       </div>
 
-      <div className="despiece__panel">
-        <div className="despiece__caption">
-          <span className="despiece__step">
+      <div className="disassembly__panel">
+        <div className="disassembly__caption">
+          <span className="disassembly__step">
             Paso {stage + 1} / {STAGES.length}
           </span>
           <Heading level={4} size={3} weight="bold">
@@ -66,7 +66,7 @@ export function Despiece() {
           <Paragraph size="small">{current.desc}</Paragraph>
         </div>
 
-        <div className="despiece__nav">
+        <div className="disassembly__nav">
           <Button
             variant="outline"
             onClick={() => setStage((s) => Math.max(0, s - 1))}

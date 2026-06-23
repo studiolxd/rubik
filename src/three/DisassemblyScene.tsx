@@ -24,7 +24,7 @@ import { createSolved, type Cubie, type Vec3 } from './cube/engine'
  */
 
 /** Partes del centro que se iluminan, una por sub-paso del despiece. */
-export type HighlightId = 'pegatina' | 'tapa' | 'tornillo' | 'muelle'
+export type HighlightId = 'sticker' | 'cap' | 'screw' | 'spring'
 
 // --- Tokens y constantes (espejo de Cubie.tsx para no acoplar ambos) --------
 
@@ -61,12 +61,12 @@ const FEATURED_CENTER: Vec3 = [0, 0, 1]
 const eq = (a: Vec3, b: Vec3) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 const scale = (v: Vec3, k: number): Vec3 => [v[0] * k, v[1] * k, v[2] * k]
 
-type PieceType = 'centro' | 'arista' | 'esquina'
+type PieceType = 'center' | 'edge' | 'corner'
 
 /** Tipo de pieza según cuántas coordenadas de su posición resuelta son ≠ 0. */
 function typeOf(home: Vec3): PieceType {
   const n = home.filter((v) => v !== 0).length
-  return n === 1 ? 'centro' : n === 2 ? 'arista' : 'esquina'
+  return n === 1 ? 'center' : n === 2 ? 'edge' : 'corner'
 }
 
 /** Recorre un subárbol aplicando lerp de opacidad e iluminación a sus
@@ -248,13 +248,13 @@ function Mechanism({ visible, dim }: { visible: boolean; dim: boolean }) {
 /** Distancia de cada subpieza a lo largo del eje en [paso 0, paso 1, paso 2+].
  *  En despiece, el muelle queda fuera del brazo del núcleo (~0.85) para verse. */
 const LAYOUT = {
-  muelle: [0.62, 0.62, 1.2],
-  tornillo: [0.62, 0.62, 1.95],
-  tapa: [1.0, 1.5, 2.85],
-  pegatina: [1.52, 2.02, 3.5],
+  spring: [0.62, 0.62, 1.2],
+  screw: [0.62, 0.62, 1.95],
+  cap: [1.0, 1.5, 2.85],
+  sticker: [1.52, 2.02, 3.5],
 } as const
 
-function CenterDespiece({
+function CenterDisassembly({
   dir,
   stage,
   highlight,
@@ -265,13 +265,13 @@ function CenterDespiece({
 }) {
   const quat = useMemo(() => quatToAxis(dir), [dir])
   const curve = useMemo(() => helixCurve(), [])
-  const muelleRef = useRef<Object3D>(null)
-  const tornilloRef = useRef<Object3D>(null)
-  const tapaRef = useRef<Object3D>(null)
-  const pegatinaRef = useRef<Object3D>(null)
+  const springRef = useRef<Object3D>(null)
+  const screwRef = useRef<Object3D>(null)
   const capRef = useRef<Object3D>(null)
+  const stickerRef = useRef<Object3D>(null)
+  const spinRef = useRef<Object3D>(null)
   // Distancia actual de cada subpieza, que interpolamos hacia el paso actual.
-  const cur = useRef({ muelle: 0.62, tornillo: 0.62, tapa: 1.0, pegatina: 1.52 })
+  const cur = useRef({ spring: 0.62, screw: 0.62, cap: 1.0, sticker: 1.52 })
 
   const exploded = stage >= 2
   const mechVisible = stage >= 1
@@ -280,20 +280,20 @@ function CenterDespiece({
   useFrame((_, delta) => {
     const c = cur.current
     const i = stage >= 2 ? 2 : stage // del paso 2 en adelante, la pieza queda despiezada
-    c.muelle += (LAYOUT.muelle[i] - c.muelle) * EASE
-    c.tornillo += (LAYOUT.tornillo[i] - c.tornillo) * EASE
-    c.tapa += (LAYOUT.tapa[i] - c.tapa) * EASE
-    c.pegatina += (LAYOUT.pegatina[i] - c.pegatina) * EASE
+    c.spring += (LAYOUT.spring[i] - c.spring) * EASE
+    c.screw += (LAYOUT.screw[i] - c.screw) * EASE
+    c.cap += (LAYOUT.cap[i] - c.cap) * EASE
+    c.sticker += (LAYOUT.sticker[i] - c.sticker) * EASE
 
-    if (muelleRef.current) muelleRef.current.position.y = c.muelle - 0.62
-    if (tornilloRef.current) tornilloRef.current.position.y = c.tornillo - 0.62
-    if (tapaRef.current) tapaRef.current.position.y = c.tapa
-    if (pegatinaRef.current) pegatinaRef.current.position.y = c.pegatina
+    if (springRef.current) springRef.current.position.y = c.spring - 0.62
+    if (screwRef.current) screwRef.current.position.y = c.screw - 0.62
+    if (capRef.current) capRef.current.position.y = c.cap
+    if (stickerRef.current) stickerRef.current.position.y = c.sticker
 
     // "Giro de 360 grados": el centro gira sobre su eje en el paso del mecanismo.
-    if (capRef.current) {
-      if (spinning) capRef.current.rotation.y += delta * 0.6
-      else capRef.current.rotation.y *= 0.9
+    if (spinRef.current) {
+      if (spinning) spinRef.current.rotation.y += delta * 0.6
+      else spinRef.current.rotation.y *= 0.9
     }
 
     // Iluminación: en el despiece, la parte explicada brilla (fijo) y crece un
@@ -310,16 +310,16 @@ function CenterDespiece({
       g.scale.y = g.scale.x
       g.scale.z = g.scale.x
     }
-    part(muelleRef, 'muelle', false)
-    part(tornilloRef, 'tornillo', false)
-    part(tapaRef, 'tapa', true)
-    part(pegatinaRef, 'pegatina', true)
+    part(springRef, 'spring', false)
+    part(screwRef, 'screw', false)
+    part(capRef, 'cap', true)
+    part(stickerRef, 'sticker', true)
   })
 
   return (
     <group quaternion={quat}>
       {/* Muelle */}
-      <group ref={muelleRef}>
+      <group ref={springRef}>
         <mesh>
           <tubeGeometry args={[curve, 90, 0.022, 6, false]} />
           <meshStandardMaterial
@@ -334,7 +334,7 @@ function CenterDespiece({
       </group>
 
       {/* Tornillo */}
-      <group ref={tornilloRef}>
+      <group ref={screwRef}>
         <mesh position={[0, 0.62, 0]}>
           <cylinderGeometry args={[0.05, 0.05, 0.72, 16]} />
           <meshStandardMaterial
@@ -353,8 +353,8 @@ function CenterDespiece({
       </group>
 
       {/* Tapa + pegatina (giran juntas como el centro) */}
-      <group ref={capRef}>
-        <group ref={tapaRef}>
+      <group ref={spinRef}>
+        <group ref={capRef}>
           <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
             <meshStandardMaterial
               color={BODY_COLOR}
@@ -366,7 +366,7 @@ function CenterDespiece({
             />
           </RoundedBox>
         </group>
-        <group ref={pegatinaRef}>
+        <group ref={stickerRef}>
           <mesh>
             <boxGeometry args={[STICKER_SIZE, 0.04, STICKER_SIZE]} />
             <meshStandardMaterial
@@ -386,7 +386,7 @@ function CenterDespiece({
 
 // --- Escena -----------------------------------------------------------------
 
-export function DespieceScene({
+export function DisassemblyScene({
   stage,
   highlight,
 }: {
@@ -394,7 +394,7 @@ export function DespieceScene({
   highlight: HighlightId | null
 }) {
   const cubies = useMemo(() => createSolved(), [])
-  // El centro protagonista se dibuja aparte (CenterDespiece); el resto de
+  // El centro protagonista se dibuja aparte (CenterDisassembly); el resto de
   // centros y todas las aristas/esquinas son cubies normales.
   const pieces = useMemo(() => cubies.filter((c) => !eq(c.home, FEATURED_CENTER)), [cubies])
 
@@ -406,7 +406,7 @@ export function DespieceScene({
       <directionalLight position={[-6, -2, -6]} intensity={0.5} />
 
       {pieces.map((c) => {
-        const external = typeOf(c.home) !== 'centro'
+        const external = typeOf(c.home) !== 'center'
         // Aristas y esquinas: desaparecen (apartándose un poco) desde el paso 1.
         // Centros: se separan hacia fuera para dejar ver el núcleo y sus
         // tornillos/muelles; en el despiece final se retiran.
@@ -417,7 +417,7 @@ export function DespieceScene({
       })}
 
       <Mechanism visible={stage >= 1} dim={stage >= 2} />
-      <CenterDespiece dir={FEATURED_CENTER} stage={stage} highlight={highlight} />
+      <CenterDisassembly dir={FEATURED_CENTER} stage={stage} highlight={highlight} />
 
       <TrackballControls noPan rotateSpeed={3} minDistance={5} maxDistance={16} />
     </Canvas>

@@ -5,6 +5,11 @@
 }
 
 :root {
+  /* El woff2 de @fontsource-variable/google-sans-flex registra la familia como
+     'Google Sans Flex Variable'; el brand pide 'Google Sans Flex'. Apuntamos el
+     token al nombre real para que la fuente se aplique de verdad. */
+  --font-family-sans: 'Google Sans Flex Variable', system-ui, sans-serif;
+
   font-family: var(--font-family-sans, system-ui, sans-serif);
   line-height: 1.5;
   color: var(--color-text-on-light, #111e30);
@@ -15,7 +20,7 @@
 }
 
 body {
-  margin: 0;
+  /* `margin: 0` ya lo aporta el normalize de @studiolxd/brand (brand.css). */
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh; /* descuenta las barras del navegador en móvil */

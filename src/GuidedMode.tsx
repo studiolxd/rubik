@@ -13,7 +13,7 @@ import { CubeScan } from './CubeScan'
  */
 type Phase = 'choose' | 'scan' | 'play'
 
-export function Guiado() {
+export function GuidedMode() {
   const [phase, setPhase] = useState<Phase>('choose')
   const [facelets, setFacelets] = useState<string>()
 

@@ -1,16 +1,14 @@
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
-import { List } from '@studiolxd/brand/list'
-import { Despiece } from './Despiece'
 
 /**
  * Sección "Saber más": el origen y la historia del cubo de Rubik.
  * Texto basado en el dosier "Origen del cubo y curiosidades".
  */
-export function SaberMas() {
+export function History() {
   return (
-    <article className="saber">
-      <header className="saber__intro">
+    <article className="article">
+      <header className="article__intro">
         <Heading level={2} size={7} weight="bold">
           Origen del cubo de Rubik
         </Heading>
@@ -19,7 +17,7 @@ export function SaberMas() {
         </Paragraph>
       </header>
 
-      <section className="saber__block">
+      <section className="article__block">
         <Heading level={3} size={5} weight="bold">
           De aula de arquitectura a fenómeno mundial
         </Heading>
@@ -49,7 +47,7 @@ export function SaberMas() {
         </Paragraph>
       </section>
 
-      <section className="saber__block">
+      <section className="article__block">
         <Heading level={3} size={5} weight="bold">
           ¿Por qué se convirtió en uno de los rompecabezas más famosos del mundo?
         </Heading>
@@ -58,9 +56,9 @@ export function SaberMas() {
           simple hasta que haces el primer giro. En realidad, el cubo “esconde” un universo de
           combinaciones.
         </Paragraph>
-        <div className="saber__stat">
-          <span className="saber__stat-num">43.252.003.274.489.856.000</span>
-          <span className="saber__stat-label">
+        <div className="article__stat">
+          <span className="article__stat-num">43.252.003.274.489.856.000</span>
+          <span className="article__stat-label">
             configuraciones posibles del 3×3 (más de 43 quintillones)
           </span>
         </div>
@@ -72,7 +70,7 @@ export function SaberMas() {
         </Paragraph>
       </section>
 
-      <section className="saber__block">
+      <section className="article__block">
         <Heading level={3} size={5} weight="bold">
           El cubo hoy: un clásico que no envejece
         </Heading>
@@ -90,41 +88,6 @@ export function SaberMas() {
           3×3, también otros “twisty puzzles”). Hoy el cubo no es solo cultura pop, también es{' '}
           <strong>comunidad global organizada, con eventos y rankings</strong>.
         </Paragraph>
-      </section>
-
-      <section className="saber__block">
-        <Heading level={3} size={5} weight="bold">
-          Cómo es por dentro: el mecanismo
-        </Heading>
-        <Paragraph>
-          Lo que hace mágico al cubo no se ve: un <strong>mecanismo interior</strong> articula sus
-          piezas para que las capas giren sin que nada se desmonte. Avanza paso a paso: el cubo se
-          abre, aparece el <strong>núcleo</strong> y, al final, se despieza una de sus piezas en{' '}
-          <strong>pegatina, tapa, tornillo y muelle</strong>.
-        </Paragraph>
-        <Despiece />
-      </section>
-
-      <section className="saber__block">
-        <Heading level={3} size={5} weight="bold">
-          Curiosidades y datos sorprendentes
-        </Heading>
-        <List type="unordered" className="saber__facts">
-          <li>
-            Su creador tardó <strong>semanas en resolverlo por primera vez</strong>: diseñarlo fue
-            una cosa; entender cómo volver al orden, otra muy distinta.
-          </li>
-          <li>
-            Hay un límite matemático famoso: se demostró que cualquier estado “legal” del cubo puede
-            resolverse en <strong>20 movimientos o menos</strong> (lo que a menudo se llama el
-            “número de Dios” del 3×3).
-          </li>
-          <li>
-            La clave de su éxito educativo es que entrena habilidades muy concretas:{' '}
-            <strong>visualización espacial, memoria, lógica y perseverancia</strong>, por eso sigue
-            usándose como recurso en contextos de aprendizaje.
-          </li>
-        </List>
       </section>
     </article>
   )

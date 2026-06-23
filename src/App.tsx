@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { Menu } from './Menu'
 import { Screen } from './Screen'
 import { CubeExperience } from './CubeExperience'
-import { SaberMas } from './SaberMas'
-import { Introduccion } from './Introduccion'
-import { Guia } from './Guia'
-import { Guiado } from './Guiado'
+import { History } from './History'
+import { Inside } from './Inside'
+import { TriviaPage } from './Trivia'
+import { Introduction } from './Introduction'
+import { Guide } from './Guide'
+import { GuidedMode } from './GuidedMode'
 import { SECTIONS, type SectionId } from './sections'
 import './App.css'
 
@@ -23,13 +25,15 @@ function App() {
   return (
     <Screen title={section.title} onBack={() => setScreen('menu')}>
       {/* Secciones con contenido. El resto quedan vacías (solo el título). */}
-      {screen === 'saber-mas' && <SaberMas />}
-      {screen === 'introduccion' && <Introduccion />}
-      {screen === 'guia' && <Guia />}
-      {screen === 'libre' && <CubeExperience mode="free" />}
-      {screen === 'guiado' && <Guiado />}
-      {screen === 'practica' && <CubeExperience mode="practice" />}
-      {screen === 'cronometrado' && <CubeExperience mode="timed" />}
+      {screen === 'history' && <History />}
+      {screen === 'inside' && <Inside />}
+      {screen === 'trivia' && <TriviaPage />}
+      {screen === 'introduction' && <Introduction />}
+      {screen === 'guide' && <Guide />}
+      {screen === 'free' && <CubeExperience mode="free" />}
+      {screen === 'guided' && <GuidedMode />}
+      {screen === 'practice' && <CubeExperience mode="practice" />}
+      {screen === 'timed' && <CubeExperience mode="timed" />}
     </Screen>
   )
 }

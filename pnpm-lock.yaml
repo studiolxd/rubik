@@ -18,8 +18,8 @@ importers:
         specifier: ^9.6.1
         version: 9.6.1(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.184.0)
       '@studiolxd/brand':
-        specifier: github:studiolxd/brand#v7.5.0
-        version: https://codeload.github.com/studiolxd/brand/tar.gz/461ede27d59d92b3f6818dd7fbcd17ae0db9297f(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sonner@2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
+        specifier: github:studiolxd/brand#v7.7.0
+        version: https://codeload.github.com/studiolxd/brand/tar.gz/38abe68bee280d6534c9b49e306adfed233d5cc7(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sonner@2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       '@studiolxd/scorm':
         specifier: ^2.0.0
         version: 2.0.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1174,9 +1174,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@studiolxd/brand@https://codeload.github.com/studiolxd/brand/tar.gz/461ede27d59d92b3f6818dd7fbcd17ae0db9297f':
-    resolution: {gitHosted: true, integrity: sha512-kcau9+4jLo2/JXYlQXdBS2POwUwU2PG4/flfoJZLyEPezALPfK5l6Vcez34CrLWpohcWMEcCPDhP0vV5CHpVjg==, tarball: https://codeload.github.com/studiolxd/brand/tar.gz/461ede27d59d92b3f6818dd7fbcd17ae0db9297f}
-    version: 7.5.0
+  '@studiolxd/brand@https://codeload.github.com/studiolxd/brand/tar.gz/38abe68bee280d6534c9b49e306adfed233d5cc7':
+    resolution: {gitHosted: true, integrity: sha512-yXaF3Zo+eo53X45sPRa0cdyyuRZSVuXP2fN2MLyJ03Wv5cRs6D6hAgR/3cnEKMRka11Wq9bGovKF7PXkbhsh3w==, tarball: https://codeload.github.com/studiolxd/brand/tar.gz/38abe68bee280d6534c9b49e306adfed233d5cc7}
+    version: 7.7.0
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
@@ -3259,7 +3259,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.62.2':
     optional: true
 
-  '@studiolxd/brand@https://codeload.github.com/studiolxd/brand/tar.gz/461ede27d59d92b3f6818dd7fbcd17ae0db9297f(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sonner@2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
+  '@studiolxd/brand@https://codeload.github.com/studiolxd/brand/tar.gz/38abe68bee280d6534c9b49e306adfed233d5cc7(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sonner@2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7))':
     dependencies:
       '@radix-ui/react-accordion': 1.2.14(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@radix-ui/react-checkbox': 1.3.5(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)

@@ -1,13 +1,15 @@
 /** Secciones de la aplicación, en el orden del menú inicial. */
 export type SectionId =
-  | 'saber-mas'
-  | 'introduccion'
-  | 'guia'
-  | 'guiado'
-  | 'practica'
-  | 'libre'
-  | 'cronometrado'
+  | 'history'
+  | 'inside'
+  | 'introduction'
+  | 'guide'
+  | 'guided'
+  | 'practice'
+  | 'free'
+  | 'timed'
   | 'ranking'
+  | 'trivia'
 
 export interface Section {
   id: SectionId
@@ -15,12 +17,30 @@ export interface Section {
 }
 
 export const SECTIONS: Section[] = [
-  { id: 'saber-mas', title: 'Saber más' },
-  { id: 'introduccion', title: 'Introducción al cubo' },
-  { id: 'guia', title: 'Guía paso a paso' },
-  { id: 'guiado', title: 'Modo guiado' },
-  { id: 'practica', title: 'Modo práctica' },
-  { id: 'libre', title: 'Modo libre' },
-  { id: 'cronometrado', title: 'Modo cronometrado' },
+  { id: 'history', title: 'Historia' },
+  { id: 'inside', title: '¿Cómo es por dentro?' },
+  { id: 'introduction', title: 'Introducción al cubo' },
+  { id: 'guide', title: 'Guía paso a paso' },
+  { id: 'guided', title: 'Modo guiado' },
+  { id: 'practice', title: 'Modo práctica' },
+  { id: 'free', title: 'Modo libre' },
+  { id: 'timed', title: 'Modo cronometrado' },
   { id: 'ranking', title: 'Ranking' },
+  // Se llega desde la tarjeta de curiosidad de la portada (no va en el menú).
+  { id: 'trivia', title: 'Curiosidades' },
 ]
+
+/** Grupos del menú de la portada (en escritorio, una columna por grupo). */
+export interface MenuGroup {
+  title: string
+  ids: SectionId[]
+}
+
+export const MENU_GROUPS: MenuGroup[] = [
+  { title: 'Aprende', ids: ['history', 'inside', 'introduction', 'guide'] },
+  { title: 'Juega', ids: ['guided', 'practice', 'free'] },
+  { title: 'Compite', ids: ['timed', 'ranking'] },
+]
+
+/** Título de cada sección por id (para el menú agrupado). */
+export const SECTION_TITLE = new Map(SECTIONS.map((s) => [s.id, s.title]))

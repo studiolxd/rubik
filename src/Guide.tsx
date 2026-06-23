@@ -16,37 +16,37 @@ import { STEPS, type StepId } from './three/cube/lbl'
 /** Contenido didáctico de cada paso, fiel a nuestro método (blanco arriba,
  *  amarillo abajo) y al algoritmo que ejecuta el solver. */
 const STEP_INFO: Record<StepId, { title: string; what: string; how: string }> = {
-  cruz: {
+  cross: {
     title: 'La cruz blanca',
     what: 'Vas a formar una cruz blanca en la cara de arriba: las cuatro aristas que llevan blanco, colocadas alrededor del centro blanco.',
     how: 'No basta con que el blanco mire hacia arriba: el segundo color de cada arista (rojo, verde, azul o naranja) debe coincidir con el centro de su cara lateral. La técnica: junta primero las aristas blancas debajo (con el blanco hacia abajo) y luego sube cada una a su sitio.',
   },
-  'esquinas-primera': {
+  'first-corners': {
     title: 'Las esquinas blancas',
     what: 'Completa toda la primera capa colocando las cuatro esquinas que llevan blanco, cada una entre los centros de sus tres colores.',
     how: 'Lleva cada esquina a la capa de abajo, justo debajo del hueco donde va, y desde ahí súbela a su posición con una maniobra corta. Repite lo mismo para las cuatro esquinas hasta cerrar la capa de arriba.',
   },
-  'segunda-capa': {
+  'middle-layer': {
     title: 'La segunda capa',
     what: 'Coloca las cuatro aristas de la capa de en medio: son las que no tienen ni blanco ni amarillo.',
     how: 'Busca en la capa de abajo una arista sin amarillo, gírala hasta que su color frontal case con el centro de esa cara y mándala a su hueco de en medio (a la izquierda o a la derecha, según su otro color), sin deshacer la primera capa.',
   },
-  'cruz-ultima': {
+  'last-cross': {
     title: 'La cruz amarilla',
     what: 'Cambiamos el foco a la cara amarilla, que está abajo. Lo primero es formar una cruz amarilla.',
     how: 'Aquí solo importa que las cuatro aristas tengan el amarillo hacia abajo (todavía no que encajen con los centros). Aplicando un mismo algoritmo desde la posición correcta, pasarás de punto → «L» → línea → cruz.',
   },
-  'cara-ultima': {
+  'last-face': {
     title: 'La cara amarilla',
     what: 'Haz que toda la cara de abajo sea amarilla orientando las cuatro esquinas.',
     how: 'Se repite un mismo algoritmo (el «Sune»), colocando cada vez una esquina mal orientada en la posición de partida. Tras unas pocas repeticiones, toda la cara amarilla queda mirando hacia abajo.',
   },
-  'permutar-esquinas': {
+  'permute-corners': {
     title: 'Colocar las esquinas',
     what: 'Las esquinas ya son amarillas por debajo, pero puede que no estén en su sitio. Llévalas a su posición correcta.',
     how: 'Ahora solo cambian de lugar, no de orientación: un algoritmo intercambia tres esquinas en ciclo. Repítelo (girando la capa de abajo entre medias) hasta que cada esquina quede entre sus colores correctos.',
   },
-  'permutar-aristas': {
+  'permute-edges': {
     title: 'Colocar las aristas',
     what: 'Último paso: coloca en su sitio las aristas de la última capa.',
     how: 'Un algoritmo rota tres aristas en ciclo. En cuanto cada arista encaja con los centros de su cara… ¡el cubo queda resuelto!',
@@ -62,7 +62,7 @@ const turnSense = (power: number) => (power === 3 ? 'antihorario (con Shift)' : 
  * solver por capas recalcula la solución y te dice en qué paso estás y cuál sería
  * el siguiente movimiento. Al completar cada paso, lanza confeti.
  */
-export function Guia() {
+export function Guide() {
   const controller = useCube()
   const {
     setMode,

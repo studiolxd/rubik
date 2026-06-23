@@ -209,7 +209,7 @@ const STEPS: IntroStep[] = [
 ]
 
 /** Sección "Introducción al cubo": recorrido por pantallas con cubo + explicación. */
-export function Introduccion() {
+export function Introduction() {
   const [index, setIndex] = useState(0)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   // Hoja de explicaciones (solo móvil): colapsada por defecto.
@@ -381,7 +381,7 @@ export function Introduccion() {
               {step.selectable.map((s) => (
                 <li key={s.key}>
                   <RadioField
-                    name="intro-nivel"
+                    name="intro-level"
                     value={s.key}
                     label={s.text}
                     checked={checked.has(s.key)}

@@ -56,23 +56,23 @@ export const OPPOSITE: Record<Face, Face> = {
 // --- Pasos del método -------------------------------------------------------
 
 export type StepId =
-  | 'cruz' // cruz de la primera capa
-  | 'esquinas-primera' // esquinas de la primera capa (capa completa)
-  | 'segunda-capa' // aristas de la capa media
-  | 'cruz-ultima' // cruz de la última capa (aristas orientadas)
-  | 'cara-ultima' // cara de la última capa completa (esquinas orientadas)
-  | 'permutar-esquinas' // esquinas de la última capa en su sitio
-  | 'permutar-aristas' // aristas de la última capa en su sitio (cubo resuelto)
+  | 'cross' // cruz de la primera capa
+  | 'first-corners' // esquinas de la primera capa (capa completa)
+  | 'middle-layer' // aristas de la capa media
+  | 'last-cross' // cruz de la última capa (aristas orientadas)
+  | 'last-face' // cara de la última capa completa (esquinas orientadas)
+  | 'permute-corners' // esquinas de la última capa en su sitio
+  | 'permute-edges' // aristas de la última capa en su sitio (cubo resuelto)
 
 /** Orden canónico de los pasos. */
 export const STEPS: StepId[] = [
-  'cruz',
-  'esquinas-primera',
-  'segunda-capa',
-  'cruz-ultima',
-  'cara-ultima',
-  'permutar-esquinas',
-  'permutar-aristas',
+  'cross',
+  'first-corners',
+  'middle-layer',
+  'last-cross',
+  'last-face',
+  'permute-corners',
+  'permute-edges',
 ]
 
 /** Movimientos que resuelven un paso concreto. */
@@ -261,13 +261,13 @@ export function solved(cubies: Cubie[]): boolean {
  * Devuelve null si el cubo ya está resuelto.
  */
 export function currentStep(cubies: Cubie[]): StepId | null {
-  if (!crossSolved(cubies)) return 'cruz'
-  if (!firstLayerSolved(cubies)) return 'esquinas-primera'
-  if (!secondLayerSolved(cubies)) return 'segunda-capa'
-  if (!lastCrossSolved(cubies)) return 'cruz-ultima'
-  if (!lastFaceSolved(cubies)) return 'cara-ultima'
-  if (!lastCornersPlaced(cubies)) return 'permutar-esquinas'
-  if (!solved(cubies)) return 'permutar-aristas'
+  if (!crossSolved(cubies)) return 'cross'
+  if (!firstLayerSolved(cubies)) return 'first-corners'
+  if (!secondLayerSolved(cubies)) return 'middle-layer'
+  if (!lastCrossSolved(cubies)) return 'last-cross'
+  if (!lastFaceSolved(cubies)) return 'last-face'
+  if (!lastCornersPlaced(cubies)) return 'permute-corners'
+  if (!solved(cubies)) return 'permute-edges'
   return null
 }
 
@@ -622,15 +622,15 @@ function solveStepMacro(
 export function solveLBL(cubies: Cubie[]): StepGroup[] {
   const w: Work = { cubies, moves: [] }
   return [
-    { step: 'cruz', moves: solveCross(w) },
-    { step: 'esquinas-primera', moves: solveFirstLayerCorners(w) },
-    { step: 'segunda-capa', moves: solveSecondLayer(w) },
-    { step: 'cruz-ultima', moves: solveStepMacro(w, LL_CROSS, lastCrossSolved, keyEdges) },
-    { step: 'cara-ultima', moves: solveStepMacro(w, LL_SUNE, lastFaceSolved, keyCorners) },
+    { step: 'cross', moves: solveCross(w) },
+    { step: 'first-corners', moves: solveFirstLayerCorners(w) },
+    { step: 'middle-layer', moves: solveSecondLayer(w) },
+    { step: 'last-cross', moves: solveStepMacro(w, LL_CROSS, lastCrossSolved, keyEdges) },
+    { step: 'last-face', moves: solveStepMacro(w, LL_SUNE, lastFaceSolved, keyCorners) },
     {
-      step: 'permutar-esquinas',
+      step: 'permute-corners',
       moves: solveStepMacro(w, LL_CORNER, lastCornersPlaced, keyCorners),
     },
-    { step: 'permutar-aristas', moves: solveStepMacro(w, LL_EDGE, solved, keyLL) },
+    { step: 'permute-edges', moves: solveStepMacro(w, LL_EDGE, solved, keyLL) },
   ]
 }

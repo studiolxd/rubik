@@ -19,19 +19,25 @@
 }
 
 /* --- Menú inicial --- */
+/* Página de la portada: contenedor desplazable. El menú ocupa toda la pantalla
+   y el footer queda debajo, así que solo aparece al hacer scroll. */
+.menu-page {
+  height: 100%;
+  overflow-y: auto;
+}
+
 .menu {
   position: relative;
-  height: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   /* `safe`: si el contenido no cabe (móvil/pantalla baja) se alinea al inicio en
-     vez de recortarse por arriba; con overflow-y se puede desplazar para verlo todo. */
+     vez de recortarse por arriba; el scroll del contenedor permite verlo todo. */
   justify-content: safe center;
-  overflow-y: auto;
   gap: var(--spacing-7);
-  padding: max(var(--spacing-6), var(--safe-top)) max(var(--spacing-6), var(--safe-right))
-    max(var(--spacing-6), var(--safe-bottom)) max(var(--spacing-6), var(--safe-left));
+  padding-block: var(--section-padding-block-lg);
+  padding-inline: var(--section-padding-inline);
 }
 
 /* Evita que los bloques se compriman: si no caben, se desplazan (no se aplastan). */
@@ -39,17 +45,21 @@
   flex-shrink: 0;
 }
 
-/* Logo de Studio LXD, esquina inferior derecha → studiolxd.com (pestaña nueva) */
-.menu__logo {
-  position: absolute;
-  right: max(var(--spacing-5), var(--safe-right));
-  bottom: max(var(--spacing-5), var(--safe-bottom));
-  display: inline-flex;
-  opacity: 0.8;
-  transition: opacity 0.15s ease;
+/* Footer oscuro de la portada: bajo el menú (a pantalla completa), aparece al
+   hacer scroll. El logo (en blanco, vía prop `dark`) va alineado a la derecha. */
+.menu__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background: var(--color-text-on-light);
+  padding: var(--spacing-5) max(var(--spacing-6), var(--safe-right))
+    max(var(--spacing-5), var(--safe-bottom)) max(var(--spacing-6), var(--safe-left));
 }
-.menu__logo:hover {
-  opacity: 1;
+
+/* Logo de Studio LXD → studiolxd.com (pestaña nueva). El color (blanco) lo da la
+   prop `dark` del componente Logo; aquí solo se dimensiona. */
+.menu__logo {
+  display: inline-flex;
 }
 
 /* En escritorio el logo se muestra más grande (el ancho lo deduce del viewBox). */
@@ -60,51 +70,11 @@
   }
 }
 
-/* En móvil el logo no flota: va al fondo de la portada, en flujo y centrado
-   (el centrado horizontal lo da `align-items: center` del .menu; el padding
-   inferior con safe-area lo mantiene sobre el indicador de inicio). */
-@media (max-width: 640px) {
-  .menu__logo {
-    position: static;
-    margin-top: auto;
-  }
-}
-
 .menu__brand {
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-}
-
-/* En escritorio: cubo a la izquierda y la marca + menú a la derecha. */
-@media (min-width: 641px) {
-  .menu {
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-template-areas:
-      'cube brand'
-      'cube nav';
-    column-gap: clamp(2rem, 6vw, 5rem);
-    row-gap: var(--spacing-4);
-    align-content: center;
-    justify-content: center;
-  }
-  .menu__cube {
-    grid-area: cube;
-  }
-  .menu__brand {
-    grid-area: brand;
-    align-self: end;
-    text-align: left;
-  }
-  .menu__nav {
-    grid-area: nav;
-    align-self: start;
-  }
-  .menu__nav-list {
-    align-items: flex-start;
-  }
 }
 
 .menu__cube {
@@ -132,38 +102,82 @@
   pointer-events: none;
 }
 
-/* Navegación de secciones: enlaces de texto (sin botones), al estilo de los
-   social links del footer de @studiolxd/brand. */
-.menu__nav-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* Las dos columnas de la portada. Cada una apila su contenido sin hueco y, en
+   escritorio, lo alinea abajo de forma independiente (ver media query). */
+.menu__left,
+.menu__right {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2);
+  gap: 0;
+  width: 100%;
 }
 
-.menu__nav-link {
-  appearance: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--font-size-4);
-  font-weight: var(--font-weight-bold, 700);
-  line-height: 1.3;
-  color: var(--color-text-on-light);
-  text-decoration: none;
-  padding: var(--spacing-1) var(--spacing-2);
-  transition: color 0.12s ease;
+/* Menú agrupado (Aprende / Juega / Compite): en móvil los grupos se apilan;
+   en escritorio van en fila (ver media query). */
+.menu__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
 }
 
-.menu__nav-link:hover,
-.menu__nav-link:focus-visible {
-  color: var(--color-primary);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+/* Tarjeta de curiosidad de la portada: envoltorio del <Card> de marca (accent-2),
+   que lleva a la página de Curiosidades. El estilo lo aporta el propio Card.
+   `max-width: 100%` evita que su texto desborde el contenedor (sobre todo en móvil). */
+.menu__curio {
+  max-width: 100%;
+}
+
+/* Página de Curiosidades: lista de datos (la List ya aporta gap/viñetas). */
+.trivia__list li {
+  line-height: 1.6;
+}
+
+/* En escritorio: columna izquierda con cubo → título; a la derecha, el menú
+   (Aprende/Juega/Compite) con la tarjeta de curiosidad debajo.
+   Va después de las reglas base del menú para ganar por orden (las media queries
+   no aumentan la especificidad). */
+@media (min-width: 641px) {
+  .menu {
+    display: grid;
+    /* Izquierda al tamaño de su contenido (lo delimita el h1); la derecha crece
+       y ocupa el ancho disponible. */
+    grid-template-columns: auto 1fr;
+    column-gap: clamp(2rem, 6vw, 5rem);
+    /* Las columnas (wrappers) ocupan todo el alto para poder alinear su contenido
+       abajo de forma independiente. */
+    align-items: stretch;
+  }
+  /* Cada columna alinea su contenido abajo y lo estira al ancho de la columna. */
+  .menu__left,
+  .menu__right {
+    justify-content: flex-end;
+    align-items: stretch;
+  }
+  /* El cubo va arriba del título (orden) y a ancho completo de la columna.
+     El tamaño del cubo depende del alto del contenedor (fov vertical de la
+     cámara): lo hacemos cuadrado (alto = ancho de columna) para que crezca y
+     aproveche el espacio disponible en vez de dejar aire a los lados. */
+  .menu__cube {
+    order: -1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 4;
+  }
+  .menu__brand {
+    text-align: left;
+  }
+  .menu__nav {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+  }
+  /* Las 3 cards (Aprende / Juega / Compite) reparten el ancho a partes iguales. */
+  .menu__nav .card {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
 
 /* --- Pantalla de sección --- */
@@ -375,27 +389,27 @@
 }
 
 /* --- Saber más (contenido de lectura) --- */
-.saber {
+.article {
   height: 100%;
   overflow-y: auto;
   padding: var(--spacing-6) max(var(--spacing-5), var(--safe-right))
     max(var(--spacing-6), var(--safe-bottom)) max(var(--spacing-5), var(--safe-left));
 }
 
-.saber > * {
+.article > * {
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.saber__intro {
+.article__intro {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-6);
 }
 
-.saber__block {
+.article__block {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
@@ -404,18 +418,18 @@
   border-top: 1px solid var(--color-grey-light);
 }
 
-.saber__block:first-of-type {
+.article__block:first-of-type {
   border-top: none;
   margin-top: 0;
   padding-top: 0;
 }
 
-.saber__block h3 {
+.article__block h3 {
   color: var(--color-primary);
 }
 
 /* Cifra destacada (nº de combinaciones) */
-.saber__stat {
+.article__stat {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
@@ -424,7 +438,7 @@
   border-left: 4px solid var(--color-primary);
   border-radius: var(--border-radius-md);
 }
-.saber__stat-num {
+.article__stat-num {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--font-size-4);
   font-weight: 700;
@@ -432,29 +446,21 @@
   color: var(--color-primary);
   word-break: break-word;
 }
-.saber__stat-label {
+.article__stat-label {
   font-size: var(--font-size-1);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted-on-light);
 }
 
-/* Lista de curiosidades. El reset/viñetas/sangría los aporta <List type="unordered">. */
-.saber__facts {
-  gap: var(--spacing-3);
-}
-.saber__facts li {
-  line-height: 1.6;
-}
-
 /* --- Despiece 3D: "cómo es por dentro" --- */
-.despiece {
+.disassembly {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
   margin-top: var(--spacing-2);
 }
-.despiece__stage {
+.disassembly__stage {
   position: relative;
   height: 360px;
   border: 1px solid var(--color-grey-light);
@@ -463,28 +469,28 @@
   overflow: hidden;
   touch-action: none; /* el lienzo gestiona el arrastre/zoom */
 }
-.despiece__panel {
+.disassembly__panel {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
 }
-.despiece__caption {
+.disassembly__caption {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
 }
-.despiece__step {
+.disassembly__step {
   font-size: var(--font-size-1);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted-on-light);
 }
-.despiece__nav {
+.disassembly__nav {
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-3);
 }
-.despiece__info {
+.disassembly__info {
   padding: var(--spacing-3) var(--spacing-4);
   background: var(--color-grey-lightest);
   border-left: 4px solid var(--color-primary);
@@ -495,30 +501,30 @@
   justify-content: center;
   gap: var(--spacing-1);
 }
-.despiece__info-head {
+.disassembly__info-head {
   display: flex;
   align-items: baseline;
   gap: var(--spacing-2);
   flex-wrap: wrap;
 }
-.despiece__info-head strong {
+.disassembly__info-head strong {
   color: var(--color-primary);
 }
-.despiece__info-meta {
+.disassembly__info-meta {
   font-size: var(--font-size-1);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted-on-light);
 }
-.despiece__info-desc {
+.disassembly__info-desc {
   margin: 0;
   line-height: 1.5;
 }
-.despiece__hint {
+.disassembly__hint {
   color: var(--color-text-muted-on-light);
 }
 @media (min-width: 641px) {
-  .despiece__stage {
+  .disassembly__stage {
     height: 440px;
   }
 }
