@@ -189,10 +189,16 @@
 }
 
 /* Vista de opciones de un grupo: reutiliza la superficie de la card de marca
-   (.card .card--*) para conservar el color del grupo. El color del texto de los
-   Button lo da `surface-dark` (en primary) o sus tokens por defecto (en accent).
-   La lista ocupa todo el ancho (la .card alinea sus hijos a la izquierda) y deja
-   el mismo aire bajo ella que la descripción de una card. */
+   (.card .card--*) para conservar el color del grupo. `.menu__right` centra sus
+   hijos, así que sin `align-self: stretch` el panel quedaría al ancho de su
+   contenido y centrado (igual que le pasaba al nav). */
+.menu__section {
+  align-self: stretch;
+}
+
+/* El color del texto de los Button lo da `surface-dark` (en primary) o sus tokens
+   por defecto (en accent). La lista ocupa todo el ancho (la .card alinea sus hijos
+   a la izquierda) y deja el mismo aire bajo ella que la descripción de una card. */
 .menu__section .list {
   align-self: stretch;
   width: 100%;
@@ -294,5 +300,19 @@
   /* La card de Curiosidades solo se muestra a partir de este ancho. */
   .menu__curio {
     display: block;
+  }
+}
+
+/* En móvil, al abrir un grupo sus enlaces ocupan toda la pantalla (overlay): en
+   la portada apilada el panel quedaría colgando bajo el cubo (que mide 100dvh).
+   `.menu__section` solo existe en el DOM con un grupo abierto, así que basta con
+   apuntarlo aquí. Va por encima de la cabecera (5) y el overlay de carga (10). */
+@media (max-width: 767px) {
+  .menu__section {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    overflow-y: auto;
+    border-radius: 0;
   }
 }
