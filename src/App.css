@@ -77,57 +77,33 @@
   gap: var(--spacing-2);
 }
 
-/* Slogan con palabra rotatoria (Gira / Aprende / Resuelve / Compite). */
-.menu__slogan {
-  margin: 0;
-  font-size: var(--font-size-6);
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.rotating-text {
-  display: inline-flex;
-  overflow: hidden;
-  padding-block: 0.12em; /* aire para que no se recorten g/p (descendentes) */
-  vertical-align: bottom;
-  line-height: 1.1;
-  color: var(--color-primary);
-}
-.rotating-text__word {
-  display: inline-block;
-  white-space: pre;
-  will-change: transform, opacity;
-}
-.rotating-text__word.is-in {
-  animation: rotating-text-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.rotating-text__word.is-out {
-  animation: rotating-text-out 0.5s cubic-bezier(0.4, 0, 1, 1) both;
-}
-@keyframes rotating-text-in {
-  from {
-    transform: translateY(110%);
-    opacity: 0;
+/* En escritorio: cubo a la izquierda y la marca + menú a la derecha. */
+@media (min-width: 641px) {
+  .menu {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      'cube brand'
+      'cube nav';
+    column-gap: clamp(2rem, 6vw, 5rem);
+    row-gap: var(--spacing-4);
+    align-content: center;
+    justify-content: center;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+  .menu__cube {
+    grid-area: cube;
   }
-}
-@keyframes rotating-text-out {
-  from {
-    transform: translateY(0);
-    opacity: 1;
+  .menu__brand {
+    grid-area: brand;
+    align-self: end;
+    text-align: left;
   }
-  to {
-    transform: translateY(-110%);
-    opacity: 0;
+  .menu__nav {
+    grid-area: nav;
+    align-self: start;
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rotating-text__word.is-in,
-  .rotating-text__word.is-out {
-    animation: none;
+  .menu__nav-list {
+    align-items: flex-start;
   }
 }
 
