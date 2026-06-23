@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
-import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Link } from '@studiolxd/brand/link'
 import { Logo } from '@studiolxd/brand/logo'
 import { VisuallyHidden } from '@studiolxd/brand/visually-hidden'
 import { MenuCube } from './MenuCube'
+import { RotatingText } from './RotatingText'
 import { SECTIONS, type SectionId } from './sections'
 
 /** Menú inicial: marca + slogan + acceso a cada sección. */
@@ -19,7 +19,9 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
         <Heading level={1} size={9} weight="bold">
           Rubik
         </Heading>
-        <Paragraph size="large">Gira. Aprende. Resuelve. Compite.</Paragraph>
+        <p className="menu__slogan">
+          <RotatingText words={['Gira', 'Aprende', 'Resuelve', 'Compite']} />
+        </p>
       </div>
 
       <MenuCube onReady={() => setReady(true)} />
