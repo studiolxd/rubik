@@ -44,3 +44,6 @@ export const MENU_GROUPS: MenuGroup[] = [
 
 /** Título de cada sección por id (para el menú agrupado). */
 export const SECTION_TITLE = new Map(SECTIONS.map((s) => [s.id, s.title]))
+
+/** Conjunto de ids válidos: sirve para validar el id que llega por el hash de la URL. */
+export const SECTION_IDS = new Set<SectionId>(SECTIONS.map((s) => s.id))
