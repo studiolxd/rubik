@@ -43,6 +43,9 @@ const COLORS = {
   B: token('--cube-face-back', '#0046ad'),
 } as const
 const BODY_COLOR = token('--cube-body', '#0a0a0a')
+/** Gris para las piezas (cuerpo/tapa) cuando se abre el cubo (paso 2): el negro
+ *  forma un bloque ilegible, así que al revelar el mecanismo salen en gris. */
+const PIECE_GREY = '#6f757b'
 
 const SPACING = 1
 const BODY = 0.995
@@ -114,10 +117,12 @@ function AnimatedCubie({
   cubie,
   offset,
   opacity,
+  bodyColor,
 }: {
   cubie: Cubie
   offset: Vec3
   opacity: number
+  bodyColor: string
 }) {
   const ref = useRef<Object3D>(null)
   const stickers = useMemo(() => stickersFor(cubie.home), [cubie.home])
@@ -144,7 +149,7 @@ function AnimatedCubie({
       position={[cubie.pos[0] * SPACING, cubie.pos[1] * SPACING, cubie.pos[2] * SPACING]}
     >
       <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
-        <meshStandardMaterial color={BODY_COLOR} roughness={0.55} metalness={0.05} />
+        <meshStandardMaterial color={bodyColor} roughness={0.55} metalness={0.05} />
       </RoundedBox>
       {stickers.map((s, i) => (
         <mesh key={i} position={s.position} rotation={s.rotation}>
@@ -202,7 +207,7 @@ function Spindle({ dir }: { dir: Vec3 }) {
       </mesh>
       <mesh>
         <tubeGeometry args={[curve, 90, 0.022, 6, false]} />
-        <meshStandardMaterial color="#c8ccd0" roughness={0.35} metalness={0.6} transparent />
+        <meshStandardMaterial color="#7f868c" roughness={0.35} metalness={0.6} transparent />
       </mesh>
     </group>
   )
@@ -248,10 +253,10 @@ function Mechanism({ visible, dim }: { visible: boolean; dim: boolean }) {
 /** Distancia de cada subpieza a lo largo del eje en [paso 0, paso 1, paso 2+].
  *  En despiece, el muelle queda fuera del brazo del núcleo (~0.85) para verse. */
 const LAYOUT = {
-  spring: [0.62, 0.62, 1.2],
-  screw: [0.62, 0.62, 1.95],
-  cap: [1.0, 1.5, 2.85],
-  sticker: [1.52, 2.02, 3.5],
+  spring: [0.62, 0.62, 1.4],
+  screw: [0.62, 0.62, 2.3],
+  cap: [1.0, 1.5, 3.55],
+  sticker: [1.48, 2.02, 4.45],
 } as const
 
 function CenterDisassembly({
@@ -271,7 +276,7 @@ function CenterDisassembly({
   const stickerRef = useRef<Object3D>(null)
   const spinRef = useRef<Object3D>(null)
   // Distancia actual de cada subpieza, que interpolamos hacia el paso actual.
-  const cur = useRef({ spring: 0.62, screw: 0.62, cap: 1.0, sticker: 1.52 })
+  const cur = useRef({ spring: 0.62, screw: 0.62, cap: 1.0, sticker: 1.48 })
 
   const exploded = stage >= 2
   const mechVisible = stage >= 1
@@ -323,7 +328,7 @@ function CenterDisassembly({
         <mesh>
           <tubeGeometry args={[curve, 90, 0.022, 6, false]} />
           <meshStandardMaterial
-            color="#c8ccd0"
+            color="#7f868c"
             roughness={0.35}
             metalness={0.6}
             emissive="#ffffff"
@@ -357,7 +362,7 @@ function CenterDisassembly({
         <group ref={capRef}>
           <RoundedBox args={[BODY, BODY, BODY]} radius={BODY_RADIUS} smoothness={4}>
             <meshStandardMaterial
-              color={BODY_COLOR}
+              color={stage === 1 ? PIECE_GREY : BODY_COLOR}
               roughness={0.55}
               metalness={0.05}
               emissive="#ffffff"
@@ -413,7 +418,18 @@ export function DisassemblyScene({
         const out = external ? 0.6 : 0.5
         const offset: Vec3 = stage >= 1 ? scale(c.home, out) : [0, 0, 0]
         const opacity = (external ? stage >= 1 : stage >= 2) ? 0 : 1
-        return <AnimatedCubie key={c.id} cubie={c} offset={offset} opacity={opacity} />
+        // Al abrir el cubo (paso 2), las piezas negras pasan a gris para que el
+        // mecanismo se lea; montado (paso 1) conservan su negro real.
+        const bodyColor = stage >= 1 ? PIECE_GREY : BODY_COLOR
+        return (
+          <AnimatedCubie
+            key={c.id}
+            cubie={c}
+            offset={offset}
+            opacity={opacity}
+            bodyColor={bodyColor}
+          />
+        )
       })}
 
       <Mechanism visible={stage >= 1} dim={stage >= 2} />

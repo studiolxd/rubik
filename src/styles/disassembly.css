@@ -1,5 +1,7 @@
 /* --- Despiece 3D: "cómo es por dentro" --- */
 .disassembly {
+  --stage-h: 360px;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
@@ -7,8 +9,7 @@
 }
 .disassembly__stage {
   position: relative;
-  height: 360px;
-  border: 1px solid var(--color-grey-light);
+  height: var(--stage-h);
   border-radius: var(--border-radius-md);
   background: radial-gradient(circle at 50% 35%, var(--color-white), var(--color-grey-lightest));
   overflow: hidden;
@@ -26,14 +27,56 @@
 }
 .disassembly__step {
   font-size: var(--font-size-1);
-  text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted-on-light);
 }
+/* Móvil: las dos flechas, alineadas a la derecha, justo encima del "Paso". */
 .disassembly__nav {
   display: flex;
-  justify-content: space-between;
-  gap: var(--spacing-3);
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+}
+.disassembly__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+.disassembly__chevron:hover:not(:disabled) {
+  color: var(--color-grey-darkest);
+}
+.disassembly__chevron:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: default;
+}
+/* El chevron de marca apunta a la derecha; lo giramos para "anterior". */
+.disassembly__chevron-icon--prev {
+  transform: rotate(180deg);
+}
+
+/* Desde 1280px: las flechas se superponen al lienzo, una a cada lado. */
+@media (min-width: 1280px) {
+  .disassembly__nav {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: var(--stage-h);
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: var(--spacing-3);
+    pointer-events: none; /* deja pasar el arrastre del cubo */
+  }
+  .disassembly__chevron {
+    pointer-events: auto;
+  }
 }
 .disassembly__info {
   padding: var(--spacing-3) var(--spacing-4);
@@ -69,7 +112,7 @@
   color: var(--color-text-muted-on-light);
 }
 @media (min-width: 768px) {
-  .disassembly__stage {
-    height: 440px;
+  .disassembly {
+    --stage-h: 440px;
   }
 }

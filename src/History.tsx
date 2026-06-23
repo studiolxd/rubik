@@ -7,7 +7,7 @@ import { Paragraph } from '@studiolxd/brand/paragraph'
  */
 export function History() {
   return (
-    <article className="article">
+    <article className="article article--narrow">
       <header className="article__intro">
         <Heading level={2} size={7} weight="bold">
           Origen del cubo de Rubik

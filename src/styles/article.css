@@ -13,6 +13,12 @@
   margin-right: auto;
 }
 
+/* Columna estrecha (640px), igual que el ranking. La usan «¿Cómo es por dentro?»
+   e Historia para que la lectura quede más centrada. */
+.article--narrow > * {
+  max-width: 640px;
+}
+
 .article__intro {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@studiolxd/brand/button'
+import { Icon } from '@studiolxd/brand/icon'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { DisassemblyScene, type HighlightId } from './three/DisassemblyScene'
@@ -55,6 +55,29 @@ export function Disassembly() {
         <DisassemblyScene stage={stage} highlight={current.highlight ?? null} />
       </div>
 
+      {/* Navegación por pasos: en móvil va alineada a la derecha sobre el "Paso";
+          a partir de 1280px se superpone al lienzo, una flecha a cada lado. */}
+      <div className="disassembly__nav">
+        <button
+          type="button"
+          className="disassembly__chevron"
+          onClick={() => setStage((s) => Math.max(0, s - 1))}
+          disabled={stage === 0}
+          aria-label="Paso anterior"
+        >
+          <Icon name="chevron" size="lg" className="disassembly__chevron-icon--prev" />
+        </button>
+        <button
+          type="button"
+          className="disassembly__chevron"
+          onClick={() => setStage((s) => Math.min(last, s + 1))}
+          disabled={stage === last}
+          aria-label="Paso siguiente"
+        >
+          <Icon name="chevron" size="lg" />
+        </button>
+      </div>
+
       <div className="disassembly__panel">
         <div className="disassembly__caption">
           <span className="disassembly__step">
@@ -64,23 +87,6 @@ export function Disassembly() {
             {current.title}
           </Heading>
           <Paragraph size="small">{current.desc}</Paragraph>
-        </div>
-
-        <div className="disassembly__nav">
-          <Button
-            variant="outline"
-            onClick={() => setStage((s) => Math.max(0, s - 1))}
-            disabled={stage === 0}
-          >
-            ← Anterior
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => setStage((s) => Math.min(last, s + 1))}
-            disabled={stage === last}
-          >
-            Siguiente →
-          </Button>
         </div>
       </div>
     </div>
