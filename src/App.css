@@ -885,13 +885,17 @@
     border-top: 1px solid var(--color-grey-light);
     border-radius: var(--border-radius-lg, 16px) var(--border-radius-lg, 16px) 0 0;
     box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.14);
-    max-height: 40vh; /* colapsada: deja ver el cubo */
+    /* Colapsada: solo asoman el tirador + cabecera (peek). Debe ser MENOR que el
+       contenido para que colapsar libere espacio del cubo en todos los modos. */
+    max-height: 7.5rem;
+    overflow: hidden;
     padding-top: 0;
     transition: max-height 0.28s ease;
   }
   .panel.is-expanded,
   .intro__panel.is-expanded {
     max-height: 86vh;
+    overflow-y: auto;
   }
 
   /* Tirador: barra superior fija para tocar/arrastrar y colapsar la hoja. */
