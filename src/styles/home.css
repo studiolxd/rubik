@@ -315,4 +315,9 @@
     overflow-y: auto;
     border-radius: 0;
   }
+  /* A pantalla completa el botón de volver (hijo directo de la card, no los de la
+     lista) se ancla abajo del todo: la .card es flex column y `auto` lo empuja. */
+  .menu__section > .button {
+    margin-block-start: auto;
+  }
 }
