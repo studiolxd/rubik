@@ -52,6 +52,14 @@
   opacity: 1;
 }
 
+/* En escritorio el logo se muestra más grande (el ancho lo deduce del viewBox). */
+@media (min-width: 641px) {
+  .menu__logo svg {
+    height: 48px;
+    width: auto;
+  }
+}
+
 /* En móvil el logo no flota: va al fondo de la portada, en flujo y centrado
    (el centrado horizontal lo da `align-items: center` del .menu; el padding
    inferior con safe-area lo mantiene sobre el indicador de inicio). */
