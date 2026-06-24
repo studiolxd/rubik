@@ -8,6 +8,7 @@ import { ViewControls, type ViewControlsHandle } from './ViewControls'
 import { useCube } from './three/cube/useCube'
 import { FACES, type Face } from './three/cube/engine'
 import { STEPS, type StepId } from './three/cube/lbl'
+import { useScormCompleteOnSolve } from './scorm'
 
 /** Contenido didáctico de cada paso, fiel a nuestro método (blanco arriba,
  *  amarillo abajo) y al algoritmo que ejecuta el solver. */
@@ -82,6 +83,8 @@ export function Guide() {
     playToStep,
     busy,
   } = controller
+  // Único criterio de completado del SCORM: resolver el cubo en esta sección.
+  useScormCompleteOnSolve(solved)
   const controlsRef = useRef<ViewControlsHandle | null>(null)
   // El movimiento a pulsar va oculto por defecto; se revela con el check.
   const [showMove, setShowMove] = useState(false)

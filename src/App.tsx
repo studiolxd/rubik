@@ -11,6 +11,7 @@ import { Guide } from './Guide'
 import { GuidedMode } from './GuidedMode'
 import { Ranking } from './Ranking'
 import { SECTION_IDS, type SectionId } from './sections'
+import { useScormLifecycle } from './scorm'
 import './styles/index.css'
 
 type ScreenId = SectionId | 'menu'
@@ -34,6 +35,10 @@ function screenFromHash(): ScreenId {
 }
 
 function App() {
+  // Arranca la sesión SCORM: inicializa, va guardando el tiempo de sesión y, en el
+  // primer arranque, marca el estado como "iniciado". Vive aquí (dentro del provider)
+  // para que la navegación por hash, sin recargar, mantenga viva una única sesión.
+  useScormLifecycle()
   // El hash de la URL es la fuente de verdad de la sección actual. Esto permite
   // enlaces directos (#free), botón atrás/adelante del navegador y, sobre todo,
   // navegar sin recargar: clave para que una futura sesión SCORM siga viva.

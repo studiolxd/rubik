@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Manifest SCORM 1.2 para empaquetar este build en un LMS.
+
+  Vite lo copia tal cual a la raíz de `dist/` en cada build (está en `public/`).
+  Para subirlo a un LMS: `pnpm build` y comprimir el CONTENIDO de `dist/` en un .zip
+  con este imsmanifest.xml en la RAÍZ del zip (no dentro de una subcarpeta).
+
+  Un único SCO que lanza `index.html`. No se listan los demás assets a propósito:
+  los nombres llevan hash y cambian en cada build, y el LMS sirve todo el paquete
+  (solo usa `href` para arrancar). El runtime SCORM lo aporta la app vía
+  @studiolxd/scorm, que localiza window.API que inyecta el LMS.
+-->
+<manifest identifier="studiolxd.rubik" version="1.2"
+  xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
+                      http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="rubik-org">
+    <organization identifier="rubik-org">
+      <title>Aprende a resolver el cubo de Rubik</title>
+      <item identifier="item-1" identifierref="res-1" isvisible="true">
+        <title>Aprende a resolver el cubo de Rubik</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="res-1" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="index.html"/>
+    </resource>
+  </resources>
+</manifest>
