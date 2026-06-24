@@ -274,6 +274,49 @@ export function currentStep(cubies: Cubie[]): StepId | null {
   return null
 }
 
+// --- Detección del "caso" de la última capa (para la guía) ------------------
+//
+// Durante los pasos de última capa, el método se ramifica según un patrón
+// reconocible. Estas funciones lo NOMBRAN para poder enseñarlo (la guía dice
+// "tienes una L", "ves 2 esquinas"…). Son puras: el solver ya resuelve cada caso
+// por dentro; esto solo lo hace legible. Solo tienen sentido en su paso.
+
+/** ¿La pegatina del color de `last` de la pieza apunta hacia `last`? */
+function lastOriented(c: Cubie, last: Face): boolean {
+  return stickersOf(c).find((s) => s.color === last)?.facing === last
+}
+
+/** Caso de la cruz de la última capa: punto → «L» → línea → cruz. */
+export function lastCrossCase(
+  cubies: Cubie[],
+  last: Face = LAST_FACE,
+): 'dot' | 'L' | 'line' | 'cross' {
+  const oriented = piecesOfFace(edges(cubies), last).filter((c) => lastOriented(c, last))
+  if (oriented.length >= 4) return 'cross'
+  if (oriented.length !== 2) return 'dot' // 0 (y los imposibles 1/3 por paridad) → punto
+  // Dos aristas orientadas: línea si comparten eje; «L» si son perpendiculares.
+  const axisOf = (c: Cubie) => (c.pos[0] !== 0 ? 'x' : 'z')
+  return axisOf(oriented[0]) === axisOf(oriented[1]) ? 'line' : 'L'
+}
+
+/** Caso de la cara de la última capa: nº de esquinas ya orientadas (0/1/2) o 'done' (4). */
+export function lastFaceCase(cubies: Cubie[], last: Face = LAST_FACE): 0 | 1 | 2 | 'done' {
+  const n = piecesOfFace(corners(cubies), last).filter((c) => lastOriented(c, last)).length
+  if (n >= 4) return 'done'
+  return n === 1 ? 1 : n === 2 ? 2 : 0
+}
+
+/** Caso del paso actual para la guía, o null si el paso no tiene casos enseñables. */
+export type StepCase =
+  | { step: 'last-cross'; value: ReturnType<typeof lastCrossCase> }
+  | { step: 'last-face'; value: ReturnType<typeof lastFaceCase> }
+
+export function stepCase(cubies: Cubie[], step: StepId): StepCase | null {
+  if (step === 'last-cross') return { step, value: lastCrossCase(cubies) }
+  if (step === 'last-face') return { step, value: lastFaceCase(cubies) }
+  return null
+}
+
 // ===========================================================================
 // Resolución por capas
 // ===========================================================================
