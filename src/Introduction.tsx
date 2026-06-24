@@ -86,10 +86,10 @@ const STEPS: IntroStep[] = [
       </>
     ),
     items: [
-      { pos: [1, 0, 0], text: 'El centro rojo es la cara roja.' },
-      { pos: [-1, 0, 0], text: 'El centro naranja es la cara naranja.' },
-      { pos: [0, 1, 0], text: 'El centro blanco es la cara blanca.' },
-      { pos: [0, -1, 0], text: 'El centro amarillo es la cara amarilla.' },
+      { pos: [1, 0, 0], text: 'El centro naranja es la cara naranja.' },
+      { pos: [-1, 0, 0], text: 'El centro rojo es la cara roja.' },
+      { pos: [0, 1, 0], text: 'El centro amarillo es la cara amarilla.' },
+      { pos: [0, -1, 0], text: 'El centro blanco es la cara blanca.' },
       { pos: [0, 0, 1], text: 'El centro verde es la cara verde.' },
       { pos: [0, 0, -1], text: 'El centro azul es la cara azul.' },
     ],
@@ -112,20 +112,20 @@ const STEPS: IntroStep[] = [
         </Paragraph>
       </>
     ),
-    // Pares de caras contiguas (blanco arriba, amarillo abajo; rojo/naranja, verde/azul a los lados).
+    // Pares de caras contiguas (amarillo arriba, blanco abajo; rojo/naranja, verde/azul a los lados).
     items: [
-      { pos: [1, 1, 0], text: 'Un lateral blanco y rojo.' },
-      { pos: [-1, 1, 0], text: 'Un lateral blanco y naranja.' },
-      { pos: [0, 1, 1], text: 'Un lateral blanco y verde.' },
-      { pos: [0, 1, -1], text: 'Un lateral blanco y azul.' },
-      { pos: [1, -1, 0], text: 'Un lateral amarillo y rojo.' },
-      { pos: [-1, -1, 0], text: 'Un lateral amarillo y naranja.' },
-      { pos: [0, -1, 1], text: 'Un lateral amarillo y verde.' },
-      { pos: [0, -1, -1], text: 'Un lateral amarillo y azul.' },
-      { pos: [1, 0, 1], text: 'Un lateral rojo y verde.' },
-      { pos: [1, 0, -1], text: 'Un lateral rojo y azul.' },
-      { pos: [-1, 0, 1], text: 'Un lateral naranja y verde.' },
-      { pos: [-1, 0, -1], text: 'Un lateral naranja y azul.' },
+      { pos: [1, 1, 0], text: 'Un lateral amarillo y naranja.' },
+      { pos: [-1, 1, 0], text: 'Un lateral amarillo y rojo.' },
+      { pos: [0, 1, 1], text: 'Un lateral amarillo y verde.' },
+      { pos: [0, 1, -1], text: 'Un lateral amarillo y azul.' },
+      { pos: [1, -1, 0], text: 'Un lateral blanco y naranja.' },
+      { pos: [-1, -1, 0], text: 'Un lateral blanco y rojo.' },
+      { pos: [0, -1, 1], text: 'Un lateral blanco y verde.' },
+      { pos: [0, -1, -1], text: 'Un lateral blanco y azul.' },
+      { pos: [1, 0, 1], text: 'Un lateral naranja y verde.' },
+      { pos: [1, 0, -1], text: 'Un lateral naranja y azul.' },
+      { pos: [-1, 0, 1], text: 'Un lateral rojo y verde.' },
+      { pos: [-1, 0, -1], text: 'Un lateral rojo y azul.' },
     ],
   },
   {
@@ -145,17 +145,17 @@ const STEPS: IntroStep[] = [
         </Paragraph>
       </>
     ),
-    // Cada esquina toca tres caras contiguas (blanco arriba / amarillo abajo,
+    // Cada esquina toca tres caras contiguas (amarillo arriba / blanco abajo,
     // nunca juntos por ser opuestos; rojo/naranja y verde/azul a los lados).
     items: [
-      { pos: [1, 1, 1], text: 'Una esquina blanca, roja y verde.' },
-      { pos: [-1, 1, 1], text: 'Una esquina blanca, naranja y verde.' },
-      { pos: [1, 1, -1], text: 'Una esquina blanca, roja y azul.' },
-      { pos: [-1, 1, -1], text: 'Una esquina blanca, naranja y azul.' },
-      { pos: [1, -1, 1], text: 'Una esquina amarilla, roja y verde.' },
-      { pos: [-1, -1, 1], text: 'Una esquina amarilla, naranja y verde.' },
-      { pos: [1, -1, -1], text: 'Una esquina amarilla, roja y azul.' },
-      { pos: [-1, -1, -1], text: 'Una esquina amarilla, naranja y azul.' },
+      { pos: [1, 1, 1], text: 'Una esquina amarilla, naranja y verde.' },
+      { pos: [-1, 1, 1], text: 'Una esquina amarilla, roja y verde.' },
+      { pos: [1, 1, -1], text: 'Una esquina amarilla, naranja y azul.' },
+      { pos: [-1, 1, -1], text: 'Una esquina amarilla, roja y azul.' },
+      { pos: [1, -1, 1], text: 'Una esquina blanca, naranja y verde.' },
+      { pos: [-1, -1, 1], text: 'Una esquina blanca, roja y verde.' },
+      { pos: [1, -1, -1], text: 'Una esquina blanca, naranja y azul.' },
+      { pos: [-1, -1, -1], text: 'Una esquina blanca, roja y azul.' },
     ],
   },
   {

@@ -27,10 +27,10 @@ function token(name: string, fallback: string): string {
 
 /** Colores clásicos por cara (en el estado resuelto). Fuente: tokens `--cube-face-*` en styles/tokens.css. */
 const COLORS = {
-  R: token('--cube-face-right', '#b71234'), // derecha   → rojo
-  L: token('--cube-face-left', '#ff8a1f'), // izquierda → naranja
-  U: token('--cube-face-up', '#ffffff'), // arriba    → blanco
-  D: token('--cube-face-down', '#ffd500'), // abajo     → amarillo
+  R: token('--cube-face-right', '#ff8a1f'), // derecha   → naranja
+  L: token('--cube-face-left', '#b71234'), // izquierda → rojo
+  U: token('--cube-face-up', '#ffd500'), // arriba    → amarillo
+  D: token('--cube-face-down', '#ffffff'), // abajo     → blanco
   F: token('--cube-face-front', '#009b48'), // frente    → verde
   B: token('--cube-face-back', '#0046ad'), // atrás     → azul
 } as const

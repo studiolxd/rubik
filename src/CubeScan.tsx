@@ -29,39 +29,39 @@ import { ensureSolver } from './three/cube/solver'
  */
 
 const CANON: Refs = {
-  U: [255, 255, 255], // blanco
-  R: [183, 18, 52], // rojo
+  U: [255, 213, 0], // amarillo
+  R: [255, 138, 31], // naranja
   F: [0, 155, 72], // verde
-  D: [255, 213, 0], // amarillo
-  L: [255, 138, 31], // naranja
+  D: [255, 255, 255], // blanco
+  L: [183, 18, 52], // rojo
   B: [0, 70, 173], // azul
 }
 
 const COLOR_HEX: Record<Face, string> = {
-  U: '#ffffff',
-  R: '#b71234',
+  U: '#ffd500',
+  R: '#ff8a1f',
   F: '#009b48',
-  D: '#ffd500',
-  L: '#ff8a1f',
+  D: '#ffffff',
+  L: '#b71234',
   B: '#0046ad',
 }
 
 const COLOR_NAME: Record<Face, string> = {
-  U: 'blanca',
-  R: 'roja',
+  U: 'amarilla',
+  R: 'naranja',
   F: 'verde',
-  D: 'amarilla',
-  L: 'naranja',
+  D: 'blanca',
+  L: 'roja',
   B: 'azul',
 }
 
 /** Nombre del color en masculino (para "color X" en los mensajes de error). */
 const COLOR_NAME_M: Record<Face, string> = {
-  U: 'blanco',
-  R: 'rojo',
+  U: 'amarillo',
+  R: 'naranja',
   F: 'verde',
-  D: 'amarillo',
-  L: 'naranja',
+  D: 'blanco',
+  L: 'rojo',
   B: 'azul',
 }
 

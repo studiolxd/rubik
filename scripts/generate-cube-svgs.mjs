@@ -1,5 +1,5 @@
 // Genera los SVG del cubo de Rubik resuelto a partir de los tokens de color
-// definidos en src/App.css (`--cube-*`), que son la fuente única de la verdad.
+// definidos en src/styles/tokens.css (`--cube-*`), que son la fuente única de la verdad.
 //
 //   node scripts/generate-cube-svgs.mjs
 //
@@ -14,18 +14,18 @@ import { dirname, resolve } from 'node:path'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const out = (name) => resolve(root, 'public', name)
 
-// --- Tokens de color desde App.css ---------------------------------------
+// --- Tokens de color desde styles/tokens.css -----------------------------
 function readTokens() {
-  const css = readFileSync(resolve(root, 'src/App.css'), 'utf8')
+  const css = readFileSync(resolve(root, 'src/styles/tokens.css'), 'utf8')
   const pick = (name, fallback) => {
     const m = css.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{3,6})`))
     return m ? m[1] : fallback
   }
   return {
-    R: pick('cube-face-right', '#b71234'), // rojo
-    L: pick('cube-face-left', '#ff5800'), // naranja
-    U: pick('cube-face-up', '#ffffff'), // blanco
-    D: pick('cube-face-down', '#ffd500'), // amarillo
+    R: pick('cube-face-right', '#ff8a1f'), // naranja
+    L: pick('cube-face-left', '#b71234'), // rojo
+    U: pick('cube-face-up', '#ffd500'), // amarillo
+    D: pick('cube-face-down', '#ffffff'), // blanco
     F: pick('cube-face-front', '#009b48'), // verde
     B: pick('cube-face-back', '#0046ad'), // azul
     BODY: pick('cube-body', '#0a0a0a'), // cuerpo de la pieza
@@ -196,7 +196,7 @@ writeFileSync(out('cube-solved-net.svg'), buildNet(C))
 writeFileSync(
   out('cube-solved-isometric.svg'),
   buildIso(C, {
-    faceColors: { U: C.U, L: C.F, R: C.R }, // blanco arriba, verde frente, rojo derecha
+    faceColors: { U: C.U, L: C.F, R: C.R }, // amarillo arriba, verde frente, naranja derecha
     shade: { U: 1.0, L: 1.0, R: 1.0 },
     label: 'Cubo de Rubik resuelto en perspectiva isométrica',
     title: 'Cubo de Rubik resuelto (isométrico)',
@@ -206,7 +206,7 @@ writeFileSync(
 writeFileSync(
   out('cube-solved-corner.svg'),
   buildIso(C, {
-    faceColors: { U: C.D, L: C.B, R: C.R }, // amarillo arriba, azul izquierda, rojo derecha
+    faceColors: { U: C.U, L: C.B, R: C.R }, // amarillo arriba, azul izquierda, naranja derecha
     shade: { U: 1.0, R: 0.9, L: 0.72 },
     rotateDeg: 17,
     withShadow: false,
@@ -221,7 +221,7 @@ writeFileSync(
 writeFileSync(
   out('cube-favicon.svg'),
   buildIso(C, {
-    faceColors: { U: C.D, L: C.B, R: C.R }, // amarillo arriba, azul izquierda, rojo derecha
+    faceColors: { U: C.U, L: C.B, R: C.R }, // amarillo arriba, azul izquierda, naranja derecha
     shade: { U: 1.0, R: 0.9, L: 0.72 },
     rotateDeg: 17,
     withShadow: false,
