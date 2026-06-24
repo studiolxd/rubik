@@ -121,12 +121,12 @@ export function Guide() {
   const currentIdx = currentStepId ? STEPS.indexOf(currentStepId) : solved ? STEPS.length : -1
 
   // Mensaje efímero al completar una etapa (sustituye al confeti): aparece en el
-  // HUD cuando el progreso avanza, como el "¡Resuelto!" de los otros modos.
+  // HUD cuando el progreso avanza, como el "¡Cubo resuelto!" de los otros modos.
   const [flash, setFlash] = useState<{ text: string } | null>(null)
   const prevIdx = useRef(-1)
   useEffect(() => {
     if (!preparing && prevIdx.current >= 0 && currentIdx > prevIdx.current) {
-      setFlash({ text: solved ? '¡Cubo resuelto! 🎉' : '¡Etapa completada! 🎉' })
+      setFlash({ text: solved ? '¡Cubo resuelto!' : '¡Etapa completada!' })
     }
     prevIdx.current = preparing ? -1 : currentIdx
   }, [currentIdx, preparing, solved])
@@ -139,7 +139,7 @@ export function Guide() {
   }, [flash])
 
   // Eyebrow del panel: el nombre del paso actual (o estado).
-  const eyebrow = solved ? '¡Resuelto!' : currentStepId ? STEP_INFO[currentStepId].title : ''
+  const eyebrow = solved ? '¡Cubo resuelto!' : currentStepId ? STEP_INFO[currentStepId].title : ''
   const canPrev = !busy && currentIdx > 0
   const canNext = !busy && currentIdx >= 0 && currentIdx < STEPS.length - 1
   // Movimientos que faltan para resolver (se muestra en el HUD).
@@ -201,7 +201,7 @@ export function Guide() {
             <Paragraph size="small">Preparando la guía para tu cubo…</Paragraph>
           ) : solved ? (
             <>
-              <div className="step-key step-key--done">¡Cubo resuelto! 🎉</div>
+              <div className="step-key step-key--done">¡Cubo resuelto!</div>
               <Paragraph size="small">
                 Ya dominas los pasos. Practícalos en el <strong>Modo práctica</strong> o vuelve a
                 intentarlo con una mezcla nueva.

@@ -34,7 +34,7 @@ export function KeyHint({ move }: { move: Move }) {
 /**
  * HUD del modo guiado (paso a paso): caja arriba del visor con el siguiente
  * movimiento, visible solo cuando el toggle de ViewControls lo activa. "Calculando"
- * y "¡Resuelto!" se muestran siempre; con el movimiento oculto, no hay caja.
+ * y "¡Cubo resuelto!" se muestran siempre; con el movimiento oculto, no hay caja.
  */
 export function StepHud({
   controller,
@@ -50,7 +50,7 @@ export function StepHud({
   if (preparing) {
     body = 'Calculando solución…'
   } else if (solutionLength === 0 || !nextMove) {
-    body = '¡Resuelto! 🎉'
+    body = '¡Cubo resuelto!'
   } else if (showMove) {
     body = (
       <>
@@ -98,7 +98,7 @@ export function PracticeHud({ controller }: { controller: CubeController }) {
   if (preparing) {
     body = 'Calculando solución…'
   } else if (solved) {
-    body = '¡Resuelto! 🎉'
+    body = '¡Cubo resuelto!'
   } else if (flash) {
     tone = flash.kind
     body = flash.kind === 'correct' ? '¡Correcto!' : 'No es correcto. Vuelve a intentarlo.'

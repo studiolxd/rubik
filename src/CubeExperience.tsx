@@ -163,10 +163,10 @@ export function CubeExperience({
             mode === 'step' ? { showMove, onToggleMove: () => setShowMove((v) => !v) } : undefined
           }
         />
-        {/* Cronómetro: HUD flotante arriba a la derecha de la página, en todas las
-            vistas (móvil y escritorio). */}
-        {mode === 'timed' && (
-          <div className="timer-hud" data-state={solved ? 'done' : started ? 'running' : 'idle'}>
+        {/* Cronómetro: HUD flotante arriba a la derecha. Al resolver se oculta y
+            deja paso a la caja "¡Cubo resuelto!" (coherente con el resto de modos). */}
+        {mode === 'timed' && !solved && (
+          <div className="timer-hud" data-state={started ? 'running' : 'idle'}>
             <span className="timer__value">{formatTime(elapsed)}</span>
           </div>
         )}
@@ -174,6 +174,10 @@ export function CubeExperience({
         {mode === 'practice' && <PracticeHud controller={controller} />}
         {/* Guiado: caja arriba con el siguiente movimiento (si el toggle lo activa). */}
         {mode === 'step' && <StepHud controller={controller} showMove={showMove} />}
+        {/* Libre y cronometrado: misma caja de "¡Cubo resuelto!" que el resto de modos. */}
+        {(mode === 'free' || mode === 'timed') && solved && (
+          <div className="move-hud">¡Cubo resuelto!</div>
+        )}
       </section>
     </div>
   )
