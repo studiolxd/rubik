@@ -10,38 +10,38 @@ import { FACES, type Face } from './three/cube/engine'
 import { STEPS, type StepId } from './three/cube/lbl'
 import { useScormCompleteOnSolve } from './scorm'
 
-/** Contenido didáctico de cada paso, fiel a nuestro método (blanco arriba,
- *  amarillo abajo) y al algoritmo que ejecuta el solver. */
+/** Contenido didáctico de cada paso, fiel a nuestro método (blanco abajo,
+ *  amarillo arriba —convención estándar) y al algoritmo que ejecuta el solver. */
 const STEP_INFO: Record<StepId, { title: string; what: string; how: string }> = {
   cross: {
     title: 'La cruz blanca',
-    what: 'Vas a formar una cruz blanca en la cara de arriba: las cuatro aristas que llevan blanco, colocadas alrededor del centro blanco.',
-    how: 'No basta con que el blanco mire hacia arriba: el segundo color de cada arista (rojo, verde, azul o naranja) debe coincidir con el centro de su cara lateral. La técnica: junta primero las aristas blancas debajo (con el blanco hacia abajo) y luego sube cada una a su sitio.',
+    what: 'Vas a formar una cruz blanca en la cara de abajo: las cuatro aristas que llevan blanco, colocadas alrededor del centro blanco.',
+    how: 'No basta con que el blanco mire hacia abajo: el segundo color de cada arista (rojo, verde, azul o naranja) debe coincidir con el centro de su cara lateral. La técnica: forma primero una margarita arriba (las cuatro aristas blancas alrededor del centro amarillo, con el blanco hacia arriba) y luego baja cada una a su sitio.',
   },
   'first-corners': {
     title: 'Las esquinas blancas',
     what: 'Completa toda la primera capa colocando las cuatro esquinas que llevan blanco, cada una entre los centros de sus tres colores.',
-    how: 'Lleva cada esquina a la capa de abajo, justo debajo del hueco donde va, y desde ahí súbela a su posición con una maniobra corta. Repite lo mismo para las cuatro esquinas hasta cerrar la capa de arriba.',
+    how: 'Lleva cada esquina a la capa de arriba, justo encima del hueco donde va, y desde ahí bájala a su posición con una maniobra corta. Repite lo mismo para las cuatro esquinas hasta cerrar la capa de abajo.',
   },
   'middle-layer': {
     title: 'La segunda capa',
     what: 'Coloca las cuatro aristas de la capa de en medio: son las que no tienen ni blanco ni amarillo.',
-    how: 'Busca en la capa de abajo una arista sin amarillo, gírala hasta que su color frontal case con el centro de esa cara y mándala a su hueco de en medio (a la izquierda o a la derecha, según su otro color), sin deshacer la primera capa.',
+    how: 'Busca en la capa de arriba una arista sin amarillo, gírala hasta que su color frontal case con el centro de esa cara y mándala a su hueco de en medio (a la izquierda o a la derecha, según su otro color), sin deshacer la primera capa.',
   },
   'last-cross': {
     title: 'La cruz amarilla',
-    what: 'Cambiamos el foco a la cara amarilla, que está abajo. Lo primero es formar una cruz amarilla.',
-    how: 'Aquí solo importa que las cuatro aristas tengan el amarillo hacia abajo (todavía no que encajen con los centros). Aplicando un mismo algoritmo desde la posición correcta, pasarás de punto → «L» → línea → cruz.',
+    what: 'Cambiamos el foco a la cara amarilla, que está arriba. Lo primero es formar una cruz amarilla.',
+    how: 'Aquí solo importa que las cuatro aristas tengan el amarillo hacia arriba (todavía no que encajen con los centros). Aplicando un mismo algoritmo desde la posición correcta, pasarás de punto → «L» → línea → cruz.',
   },
   'last-face': {
     title: 'La cara amarilla',
-    what: 'Haz que toda la cara de abajo sea amarilla orientando las cuatro esquinas.',
-    how: 'Se repite un mismo algoritmo (el «Sune»), colocando cada vez una esquina mal orientada en la posición de partida. Tras unas pocas repeticiones, toda la cara amarilla queda mirando hacia abajo.',
+    what: 'Haz que toda la cara de arriba sea amarilla orientando las cuatro esquinas.',
+    how: 'Se repite un mismo algoritmo (el «Sune»), colocando cada vez una esquina mal orientada en la posición de partida. Tras unas pocas repeticiones, toda la cara amarilla queda mirando hacia arriba.',
   },
   'permute-corners': {
     title: 'Colocar las esquinas',
-    what: 'Las esquinas ya son amarillas por debajo, pero puede que no estén en su sitio. Llévalas a su posición correcta.',
-    how: 'Ahora solo cambian de lugar, no de orientación: un algoritmo intercambia tres esquinas en ciclo. Repítelo (girando la capa de abajo entre medias) hasta que cada esquina quede entre sus colores correctos.',
+    what: 'Las esquinas ya son amarillas por arriba, pero puede que no estén en su sitio. Llévalas a su posición correcta.',
+    how: 'Ahora solo cambian de lugar, no de orientación: un algoritmo intercambia tres esquinas en ciclo. Repítelo (girando la capa de arriba entre medias) hasta que cada esquina quede entre sus colores correctos.',
   },
   'permute-edges': {
     title: 'Colocar las aristas',

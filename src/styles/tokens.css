@@ -1,9 +1,10 @@
-/* --- Tokens de color del cubo (esquema clásico WCA) --- */
+/* --- Tokens de color del cubo (esquema estándar: amarillo arriba / blanco abajo,
+ *     para reutilizar los algoritmos del mundo) --- */
 :root {
-  --cube-face-right: #b71234; /* derecha   → rojo */
-  --cube-face-left: #ff8a1f; /* izquierda → naranja */
-  --cube-face-up: #ffffff; /* arriba    → blanco */
-  --cube-face-down: #ffd500; /* abajo     → amarillo */
+  --cube-face-right: #ff8a1f; /* derecha   → naranja */
+  --cube-face-left: #b71234; /* izquierda → rojo */
+  --cube-face-up: #ffd500; /* arriba    → amarillo */
+  --cube-face-down: #ffffff; /* abajo     → blanco */
   --cube-face-front: #009b48; /* frente    → verde */
   --cube-face-back: #0046ad; /* atrás     → azul */
   --cube-body: #0a0a0a; /* cuerpo de la pieza → negro */

@@ -10,11 +10,14 @@
  * Es puro: trabaja sobre el modelo `Cubie[]` de `engine.ts` (cada pieza conoce su
  * `home`, su `pos` actual y su orientación `rot`), sin tocar `cubejs`.
  *
- * Marco de resolución (decisión de producto: "cruz blanca primero"):
- *   - Primera capa = U (blanco, arriba).
- *   - Última capa  = D (amarillo, abajo).
+ * Marco de resolución (decisión de producto: "cruz blanca primero", en la
+ * convención ESTÁNDAR del mundo para poder reutilizar sus algoritmos y mnemotecnias
+ * —Sune R U R' U R U2 R', etc.):
+ *   - Primera capa = D (blanco, abajo).
+ *   - Última capa  = U (amarillo, arriba).
  * Los helpers son agnósticos a la cara; las constantes FIRST_FACE/LAST_FACE fijan
- * el marco concreto.
+ * el marco concreto. Cambiar este par (y los algoritmos de abajo, que son su
+ * imagen especular) bastaría para reorientar todo el método.
  *
  * NOTA: este fichero contiene de momento la Fase 0 (andamiaje, localización de
  * piezas y predicados de "paso resuelto"). La lógica de resolución se añade por
@@ -38,10 +41,10 @@ import {
 
 // --- Marco de resolución ----------------------------------------------------
 
-/** Cara cuya capa se resuelve primero (blanco, arriba). */
-export const FIRST_FACE: Face = 'U'
-/** Cara de la última capa (amarillo, abajo). */
-export const LAST_FACE: Face = 'D'
+/** Cara cuya capa se resuelve primero (blanco, abajo). */
+export const FIRST_FACE: Face = 'D'
+/** Cara de la última capa (amarillo, arriba). */
+export const LAST_FACE: Face = 'U'
 
 /** Cara opuesta a cada cara. */
 export const OPPOSITE: Record<Face, Face> = {
@@ -309,7 +312,8 @@ function whiteSticker(c: Cubie): Sticker {
   return stickersOf(c).find((s) => s.color === FIRST_FACE)!
 }
 
-/** Pétalo correcto de la margarita: en la cara D con el blanco mirando hacia D. */
+/** Pétalo correcto de la margarita: en la cara de la última capa (arriba) con el
+ *  blanco mirando hacia ella. */
 function isPetal(c: Cubie): boolean {
   return (
     c.pos[FACE_DEFS[LAST_FACE].axisIndex] === FACE_DEFS[LAST_FACE].layer &&
@@ -376,17 +380,18 @@ function buildDaisy(w: Work): void {
   }
 }
 
-/** Sube cada pétalo a su sitio: alinea D para que su color lateral case y gira X2. */
+/** Baja cada pétalo a su sitio: alinea la última capa para que su color lateral
+ *  case y gira X2 para insertarlo en la cruz. */
 function insertCross(w: Work): void {
   const sides: Face[] = ['F', 'R', 'B', 'L']
   for (const x of sides) {
     let guard = 0
-    // Alinea D hasta que la pegatina lateral del pétalo de color `x` apunte a `x`.
+    // Alinea la última capa hasta que la pegatina lateral del pétalo `x` apunte a `x`.
     while (true) {
       const c = whiteEdges(w.cubies).find((e) => homeColors(e).includes(x))!
       const side = stickersOf(c).find((s) => s.color !== FIRST_FACE)!
       if (isPetal(c) && side.facing === x) break
-      applyAlg(w, 'D')
+      applyAlg(w, LAST_FACE)
       if (++guard > 4) throw new Error(`insertCross: no se pudo alinear ${x}`)
     }
     applyAlg(w, x + '2')
@@ -403,8 +408,9 @@ function solveCross(w: Work): Move[] {
 
 // --- Fase 1B: esquinas de la primera capa -----------------------------------
 
-/** Rotación de cara alrededor del eje vertical (y): F→R→B→L→F; U,D fijas. */
-const Y_MAP: Record<Face, Face> = { F: 'R', R: 'B', B: 'L', L: 'F', U: 'U', D: 'D' }
+/** Rotación de cara alrededor del eje vertical (y): F→L→B→R→F; U,D fijas.
+ *  (Sentido coherente con el marco blanco-abajo / amarillo-arriba.) */
+const Y_MAP: Record<Face, Face> = { F: 'L', L: 'B', B: 'R', R: 'F', U: 'U', D: 'D' }
 
 /** Aplica `k` rotaciones en Y a una cara. */
 function rotFaceY(face: Face, k: number): Face {
@@ -423,28 +429,28 @@ function whiteCorners(cubies: Cubie[]): Cubie[] {
   return piecesOfFace(corners(cubies), FIRST_FACE)
 }
 
-/** Índice de slot (0=URF, 1=URB, 2=ULB, 3=ULF) de una posición de la capa superior. */
+/** Índice de slot (0=DLF, 1=DLB, 2=DRB, 3=DRF) de una posición de la primera capa (abajo). */
 function topSlotIndex(p: Vec3): number {
-  if (p[0] === 1 && p[2] === 1) return 0
-  if (p[0] === 1 && p[2] === -1) return 1
-  if (p[0] === -1 && p[2] === -1) return 2
-  return 3 // [-1, 1, 1]
+  if (p[0] === -1 && p[2] === 1) return 0
+  if (p[0] === -1 && p[2] === -1) return 1
+  if (p[0] === 1 && p[2] === -1) return 2
+  return 3 // [1, -1, 1]
 }
 
-/** Posición D bajo cada slot superior (índice = slot). */
+/** Posición de la última capa (arriba) sobre cada slot de la primera (índice = slot). */
 const SLOT_BELOW: Vec3[] = [
-  [1, -1, 1],
-  [1, -1, -1],
-  [-1, -1, -1],
-  [-1, -1, 1],
+  [-1, 1, 1],
+  [-1, 1, -1],
+  [1, 1, -1],
+  [1, 1, 1],
 ]
 
-/** Caras laterales de cada slot: [y^k(R), y^k(F)] (las dos que toca la esquina). */
+/** Caras laterales de cada slot: [y^k(L), y^k(F)] (las dos que toca la esquina). */
 const SLOT_SIDES: [Face, Face][] = [
-  ['R', 'F'],
-  ['B', 'R'],
-  ['L', 'B'],
-  ['F', 'L'],
+  ['L', 'F'],
+  ['B', 'L'],
+  ['R', 'B'],
+  ['F', 'R'],
 ]
 
 /** Resuelve las 4 esquinas de la primera capa (completa la capa). */
@@ -458,22 +464,22 @@ function solveFirstLayerCorners(w: Work): Move[] {
       if (isHome(c)) break
       if (++guard > 12) throw new Error(`esquina slot ${k} no converge`)
       if (c.pos[1] === firstLayer) {
-        // En la capa superior pero mal: extráela a D con el gatillo de su slot actual.
-        applyAlg(w, rotateAlgY("R' D R", topSlotIndex(c.pos)))
+        // En la primera capa (abajo) pero mal: extráela a la última con el gatillo de su slot.
+        applyAlg(w, rotateAlgY("L' U L", topSlotIndex(c.pos)))
         continue
       }
-      // En la capa D: alinéala bajo su slot k.
+      // En la última capa (arriba): alinéala sobre su slot k.
       const below = SLOT_BELOW[k]
       if (c.pos[0] !== below[0] || c.pos[2] !== below[2]) {
-        applyAlg(w, 'D')
+        applyAlg(w, LAST_FACE)
         continue
       }
-      // Bajo su slot: inserta según hacia dónde mira el blanco.
+      // Sobre su slot: inserta según hacia dónde mira el blanco.
       const wf = whiteSticker(c).facing
       const [sideP, sideQ] = SLOT_SIDES[k]
-      if (wf === LAST_FACE) applyAlg(w, rotateAlgY("R2 U' B2 U R2", k))
-      else if (wf === sideP) applyAlg(w, rotateAlgY("R' D' R", k))
-      else if (wf === sideQ) applyAlg(w, rotateAlgY("F D F'", k))
+      if (wf === LAST_FACE) applyAlg(w, rotateAlgY("L2 D' B2 D L2", k))
+      else if (wf === sideP) applyAlg(w, rotateAlgY("L' U' L", k))
+      else if (wf === sideQ) applyAlg(w, rotateAlgY("F U F'", k))
       else throw new Error(`orientación de esquina inesperada: ${wf}`)
     }
   }
@@ -482,10 +488,10 @@ function solveFirstLayerCorners(w: Work): Move[] {
 
 // --- Fase 2: segunda capa (aristas de la capa media) ------------------------
 
-/** Inserción a la derecha: arista en DF → slot FR. */
-const SL_RIGHT = "D' R' D R D F D' F'"
-/** Inserción a la izquierda: arista en DF → slot FL. */
-const SL_LEFT = "D L D' L' D' F' D F"
+/** Inserción a la derecha: arista en UF → slot FR. */
+const SL_RIGHT = "U' L' U L U F U' F'"
+/** Inserción a la izquierda: arista en UF → slot FL. */
+const SL_LEFT = "U R U' R' U' F' U F"
 
 /** Las 4 aristas de la capa media (sin color de primera ni última capa). */
 function middleEdges(cubies: Cubie[]): Cubie[] {
@@ -494,14 +500,14 @@ function middleEdges(cubies: Cubie[]): Cubie[] {
 }
 
 /** Cara frontal → índice de rotación Y (k tal que y^k(F) = cara). */
-const FRONT_K: Record<Face, number> = { F: 0, R: 1, B: 2, L: 3, U: -1, D: -1 }
+const FRONT_K: Record<Face, number> = { F: 0, L: 1, B: 2, R: 3, U: -1, D: -1 }
 
-/** Índice de slot medio (0=FR, 1=RB, 2=BL, 3=LF) de una posición de la capa media. */
+/** Índice de slot medio (0=FL, 1=LB, 2=BR, 3=RF) de una posición de la capa media. */
 function middleSlotIndex(p: Vec3): number {
-  if (p[0] === 1 && p[2] === 1) return 0
-  if (p[0] === 1 && p[2] === -1) return 1
-  if (p[0] === -1 && p[2] === -1) return 2
-  return 3 // [-1, 0, 1]
+  if (p[0] === -1 && p[2] === 1) return 0
+  if (p[0] === -1 && p[2] === -1) return 1
+  if (p[0] === 1 && p[2] === -1) return 2
+  return 3 // [1, 0, 1]
 }
 
 /** Resuelve la segunda capa: inserta las 4 aristas medias desde la última capa. */
@@ -521,14 +527,14 @@ function solveSecondLayer(w: Work): Move[] {
         const e = w.cubies.find((c) => c.id === id)!
         const side = stickersOf(e).find((s) => s.facing !== LAST_FACE)!
         if (side.facing === side.color) break
-        applyAlg(w, 'D')
+        applyAlg(w, LAST_FACE)
         if (++g2 > 4) throw new Error('segunda capa: no se pudo alinear')
       }
       const e = w.cubies.find((c) => c.id === id)!
       const side = stickersOf(e).find((s) => s.facing !== LAST_FACE)!
       const k = FRONT_K[side.facing]
       const downColor = stickersOf(e).find((s) => s.facing === LAST_FACE)!.color
-      if (downColor === rotFaceY('R', k)) applyAlg(w, rotateAlgY(SL_RIGHT, k))
+      if (downColor === rotFaceY('L', k)) applyAlg(w, rotateAlgY(SL_RIGHT, k))
       else applyAlg(w, rotateAlgY(SL_LEFT, k))
     } else {
       // Las pendientes están atascadas en su capa, mal colocadas: expulsa una a D.
@@ -542,18 +548,20 @@ function solveSecondLayer(w: Work): Move[] {
 // --- Fase 3: última capa ----------------------------------------------------
 //
 // Cada paso se resuelve con una BFS sobre "macro-movimientos": rotaciones de la
-// última capa (D) más el algoritmo del paso. La BFS deduplica sobre el estado de
+// última capa (U) más el algoritmo del paso. La BFS deduplica sobre el estado de
 // las piezas de la última capa (espacio pequeño), así que es exacta y rápida, y
 // encuentra automáticamente la colocación (AUF) y el nº de repeticiones de cada
 // caso. Cada algoritmo preserva lo ya conseguido por los pasos anteriores.
+// Son los algoritmos ESTÁNDAR (amarillo arriba): coinciden con los de cualquier
+// guía del mundo, de modo que lo que enseña la app es directamente transferible.
 
-const LL_CROSS = "F L D L' D' F'" // orienta las aristas (cruz de la última capa)
-const LL_SUNE = "L D L' D L D2 L'" // orienta las esquinas (mantiene la cruz)
-const LL_CORNER = "L' F L' B2 L F' L' B2 L2" // ciclo de 3 esquinas (no toca aristas)
-const LL_EDGE = "L D' L D L D L D' L' D' L2" // ciclo de 3 aristas (no toca esquinas)
+const LL_CROSS = "F R U R' U' F'" // orienta las aristas (cruz de la última capa)
+const LL_SUNE = "R U R' U R U2 R'" // orienta las esquinas (Sune; mantiene la cruz)
+const LL_CORNER = "R' F R' B2 R F' R' B2 R2" // ciclo de 3 esquinas (no toca aristas)
+const LL_EDGE = "R U' R U R U R U' R' U' R2" // ciclo de 3 aristas (no toca esquinas)
 
 /** Rotaciones de la última capa, como macro-movimientos. */
-const D_MACROS: Move[][] = [parseMoves('D'), parseMoves('D2'), parseMoves("D'")]
+const U_MACROS: Move[][] = [parseMoves('U'), parseMoves('U2'), parseMoves("U'")]
 
 function llEdges(cs: Cubie[]): Cubie[] {
   return piecesOfFace(edges(cs), LAST_FACE)
@@ -612,7 +620,7 @@ function solveStepMacro(
   key: (cs: Cubie[]) => string,
 ): Move[] {
   const before = w.moves.length
-  applyAlg(w, macroSolve(w.cubies, [parseMoves(alg), ...D_MACROS], goal, key))
+  applyAlg(w, macroSolve(w.cubies, [parseMoves(alg), ...U_MACROS], goal, key))
   return w.moves.slice(before)
 }
 

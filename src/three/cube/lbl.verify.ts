@@ -89,29 +89,29 @@ console.log('4) Localización de piezas (resuelto)')
   )
 }
 
-// 5) Un giro U desde resuelto rompe la primera capa → paso 'cruz'.
-console.log('5) Giro U desde resuelto')
+// 5) Un giro D desde resuelto rompe la primera capa (blanca, abajo) → paso 'cruz'.
+console.log('5) Giro D desde resuelto')
 {
-  const s = apply(createSolved(), 'U')
-  check(!crossSolved(s), 'U debería romper la cruz blanca (arriba)')
-  check(!firstLayerSolved(s), 'U debería romper la primera capa')
+  const s = apply(createSolved(), 'D')
+  check(!crossSolved(s), 'D debería romper la cruz blanca (abajo)')
+  check(!firstLayerSolved(s), 'D debería romper la primera capa')
   check(currentStep(s) === 'cross', `currentStep debería ser 'cross', es ${currentStep(s)}`)
 }
 
-// 6) Un giro D desde resuelto: primera y segunda capa intactas, última capa no.
-console.log('6) Giro D desde resuelto')
+// 6) Un giro U desde resuelto: primera y segunda capa intactas, última capa no.
+console.log('6) Giro U desde resuelto')
 {
-  const s = apply(createSolved(), 'D')
-  check(firstLayerSolved(s), 'D no debería tocar la primera capa (arriba)')
-  check(secondLayerSolved(s), 'D no debería tocar la segunda capa')
-  check(lastCrossSolved(s), 'D mantiene las aristas amarillas mirando abajo')
-  check(lastFaceSolved(s), 'D mantiene la cara amarilla orientada')
-  check(!lastCornersPlaced(s), 'D mueve las esquinas de la última capa de su sitio')
+  const s = apply(createSolved(), 'U')
+  check(firstLayerSolved(s), 'U no debería tocar la primera capa (abajo)')
+  check(secondLayerSolved(s), 'U no debería tocar la segunda capa')
+  check(lastCrossSolved(s), 'U mantiene las aristas amarillas mirando arriba')
+  check(lastFaceSolved(s), 'U mantiene la cara amarilla orientada')
+  check(!lastCornersPlaced(s), 'U mueve las esquinas de la última capa de su sitio')
   check(
     currentStep(s) === 'permute-corners',
     `currentStep debería ser 'permute-corners', es ${currentStep(s)}`,
   )
-  check(!solved(s), 'D no deja el cubo resuelto')
+  check(!solved(s), 'U no deja el cubo resuelto')
 }
 
 // 7) Mezclas: nunca "resuelto" y currentStep nunca null.
