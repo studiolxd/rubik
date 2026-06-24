@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
-import { Icon } from '@studiolxd/brand/icon'
 import { List } from '@studiolxd/brand/list'
 import { Scene } from './three/Scene'
 import { KeyHint } from './Controls'
@@ -140,8 +139,6 @@ export function Guide() {
 
   // Eyebrow del panel: el nombre del paso actual (o estado).
   const eyebrow = solved ? '¡Cubo resuelto!' : currentStepId ? STEP_INFO[currentStepId].title : ''
-  const canPrev = !busy && currentIdx > 0
-  const canNext = !busy && currentIdx >= 0 && currentIdx < STEPS.length - 1
   // Movimientos que faltan para resolver (se muestra en el HUD).
   const remaining = solutionSteps.reduce((n, g) => n + g.moves.length, 0) - controller.stepIndex
 
@@ -168,28 +165,6 @@ export function Guide() {
             </div>
           ) : null}
         </section>
-
-        {/* Flechas de paso: llevan el cubo al inicio del paso anterior/siguiente. */}
-        <div className="guide__arrows">
-          <button
-            type="button"
-            className="guide__chevron"
-            onClick={() => canPrev && playToStep(STEPS[currentIdx - 1])}
-            disabled={!canPrev}
-            aria-label="Paso anterior"
-          >
-            <Icon name="chevron" size="lg" className="guide__chevron-icon--prev" />
-          </button>
-          <button
-            type="button"
-            className="guide__chevron"
-            onClick={() => canNext && playToStep(STEPS[currentIdx + 1])}
-            disabled={!canNext}
-            aria-label="Paso siguiente"
-          >
-            <Icon name="chevron" size="lg" />
-          </button>
-        </div>
       </div>
 
       <aside className="guide__panel">
@@ -198,22 +173,19 @@ export function Guide() {
           <Heading level={1}>Resuélvelo paso a paso</Heading>
 
           {preparing ? (
-            <Paragraph size="small">Preparando la guía para tu cubo…</Paragraph>
+            <Paragraph>Preparando la guía para tu cubo…</Paragraph>
           ) : solved ? (
             <>
               <div className="step-key step-key--done">¡Cubo resuelto!</div>
-              <Paragraph size="small">
+              <Paragraph>
                 Ya dominas los pasos. Practícalos en el <strong>Modo práctica</strong> o vuelve a
                 intentarlo con una mezcla nueva.
               </Paragraph>
             </>
           ) : currentStepId ? (
             <>
-              <Paragraph size="small">{STEP_INFO[currentStepId].what}</Paragraph>
-              <Paragraph size="small">
-                <span className="guide-how">Cómo: </span>
-                {STEP_INFO[currentStepId].how}
-              </Paragraph>
+              <Paragraph>{STEP_INFO[currentStepId].what}</Paragraph>
+              <Paragraph>{STEP_INFO[currentStepId].how}</Paragraph>
             </>
           ) : null}
         </div>
