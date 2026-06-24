@@ -37,6 +37,13 @@
   pointer-events: auto;
 }
 
+/* Contador informativo (no pulsable), p. ej. movimientos restantes en la Guía.
+   Toma la apariencia del botón outline de marca (clases .button--outline/--sm);
+   aquí solo afinamos las cifras tabulares. */
+.view-controls__count {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Dimensiona los SVG propios (zoom/ayuda) dentro de los botones de marca. */
 .view-controls svg {
   width: 1.25rem;

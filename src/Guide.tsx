@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import confetti from 'canvas-confetti'
-import { Button } from '@studiolxd/brand/button'
 import { Heading } from '@studiolxd/brand/heading'
-import { Icon } from '@studiolxd/brand/icon'
 import { Paragraph } from '@studiolxd/brand/paragraph'
-import { Tag } from '@studiolxd/brand/tag'
-import { CheckboxField } from '@studiolxd/brand/checkbox-field'
+import { Icon } from '@studiolxd/brand/icon'
 import { List } from '@studiolxd/brand/list'
 import { Scene } from './three/Scene'
 import { KeyHint } from './Controls'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
 import { useCube } from './three/cube/useCube'
-import { FACES, moveToString, type Face } from './three/cube/engine'
+import { FACES, type Face } from './three/cube/engine'
 import { STEPS, type StepId } from './three/cube/lbl'
 
 /** Contenido didáctico de cada paso, fiel a nuestro método (blanco arriba,
@@ -54,14 +50,21 @@ const STEP_INFO: Record<StepId, { title: string; what: string; how: string }> = 
   },
 }
 
-/** Sentido legible de un giro (la solución solo usa potencias 1 y 3). */
-const turnSense = (power: number) => (power === 3 ? 'antihorario (con Shift)' : 'horario')
+/** Nombre legible de cada cara, para el siguiente movimiento del HUD. */
+const FACE_LABEL: Record<Face, string> = {
+  U: 'Arriba',
+  D: 'Abajo',
+  L: 'Izquierda',
+  R: 'Derecha',
+  F: 'Frente',
+  B: 'Atrás',
+}
 
 /**
  * Sección "Guía paso a paso": guía interactiva sobre EL cubo del usuario. Puedes
  * mover libremente todas las caras (a ver si lo resuelves tú); tras cada giro, el
  * solver por capas recalcula la solución y te dice en qué paso estás y cuál sería
- * el siguiente movimiento. Al completar cada paso, lanza confeti.
+ * el siguiente movimiento. Al completar cada etapa, muestra un mensaje en el HUD.
  *
  * Mismo patrón de layout que "Partes y movimientos" y "El cubo por dentro":
  * cubo + panel (hoja inferior en móvil, aside en escritorio) y flechas de paso.
@@ -117,32 +120,53 @@ export function Guide() {
   // Índice del paso actual dentro del orden del método (para marcar el progreso).
   const currentIdx = currentStepId ? STEPS.indexOf(currentStepId) : solved ? STEPS.length : -1
 
-  // Confeti al completar un paso: dispara cuando el progreso avanza (no al
-  // recalcular hacia atrás ni durante la preparación). Más grande al resolver.
+  // Mensaje efímero al completar una etapa (sustituye al confeti): aparece en el
+  // HUD cuando el progreso avanza, como el "¡Resuelto!" de los otros modos.
+  const [flash, setFlash] = useState<{ text: string } | null>(null)
   const prevIdx = useRef(-1)
   useEffect(() => {
     if (!preparing && prevIdx.current >= 0 && currentIdx > prevIdx.current) {
-      confetti({
-        particleCount: solved ? 220 : 70,
-        spread: solved ? 120 : 70,
-        origin: { y: 0.6 },
-      })
+      setFlash({ text: solved ? '¡Cubo resuelto! 🎉' : '¡Etapa completada! 🎉' })
     }
     prevIdx.current = preparing ? -1 : currentIdx
   }, [currentIdx, preparing, solved])
+  // El mensaje se oculta solo a los 1,8 s (cada `flash` es un objeto nuevo, así
+  // que dos etapas seguidas reinician el temporizador correctamente).
+  useEffect(() => {
+    if (!flash) return
+    const id = setTimeout(() => setFlash(null), 1800)
+    return () => clearTimeout(id)
+  }, [flash])
 
   // Eyebrow del panel: el nombre del paso actual (o estado).
   const eyebrow = solved ? '¡Resuelto!' : currentStepId ? STEP_INFO[currentStepId].title : ''
   const canPrev = !busy && currentIdx > 0
   const canNext = !busy && currentIdx >= 0 && currentIdx < STEPS.length - 1
+  // Movimientos que faltan para resolver (se muestra en el HUD).
+  const remaining = solutionSteps.reduce((n, g) => n + g.moves.length, 0) - controller.stepIndex
 
   return (
     <div className="guide">
       <div className="guide__main">
         <section className="guide__stage">
           <Scene controller={controller} controlsRef={controlsRef} onTurn={doMove} />
-          {/* Solo giro de vista: ayuda, zoom y restaurar. */}
-          <ViewControls controlsRef={controlsRef} mode="free" />
+          {/* Giro de vista + acciones de la guía: mostrar movimiento y reiniciar. */}
+          <ViewControls
+            controlsRef={controlsRef}
+            mode="free"
+            step={{ showMove, onToggleMove: () => setShowMove((v) => !v) }}
+            guide={{ busy, onReset: reset, remaining }}
+          />
+          {/* Caja flotante arriba (como en los otros modos): el mensaje de etapa
+              completada y, si "Mostrar movimiento" está activo, el siguiente giro. */}
+          {flash ? (
+            <div className="move-hud">{flash.text}</div>
+          ) : !preparing && !solved && nextMove && showMove ? (
+            <div className="move-hud">
+              Gira <strong>{FACE_LABEL[nextMove.face]}</strong> <KeyHint move={nextMove} /> (
+              {nextMove.power === 3 ? 'antihorario' : 'horario'})
+            </div>
+          ) : null}
         </section>
 
         {/* Flechas de paso: llevan el cubo al inicio del paso anterior/siguiente. */}
@@ -169,7 +193,33 @@ export function Guide() {
       </div>
 
       <aside className="guide__panel">
-        {/* Progreso por los 7 pasos. Pulsa uno para llevar el cubo al inicio de ese paso. */}
+        <div className="guide__content">
+          {eyebrow && <span className="guide__step">{eyebrow}</span>}
+          <Heading level={1}>Guía paso a paso</Heading>
+
+          {preparing ? (
+            <Paragraph size="small">Preparando la guía para tu cubo…</Paragraph>
+          ) : solved ? (
+            <>
+              <div className="step-key step-key--done">¡Cubo resuelto! 🎉</div>
+              <Paragraph size="small">
+                Ya dominas los pasos. Practícalos en el <strong>Modo práctica</strong> o vuelve a
+                intentarlo con una mezcla nueva.
+              </Paragraph>
+            </>
+          ) : currentStepId ? (
+            <>
+              <Paragraph size="small">{STEP_INFO[currentStepId].what}</Paragraph>
+              <Paragraph size="small">
+                <span className="guide-how">Cómo: </span>
+                {STEP_INFO[currentStepId].how}
+              </Paragraph>
+            </>
+          ) : null}
+        </div>
+
+        {/* Las etapas (progreso por los 7 pasos) van al final del aside. Pulsa una
+            para llevar el cubo al inicio de ese paso. */}
         {!preparing && (
           <List type="plain" className="guide-steps">
             {STEPS.map((id, i) => {
@@ -192,60 +242,6 @@ export function Guide() {
             })}
           </List>
         )}
-
-        <div className="guide__content">
-          {eyebrow && <span className="guide__step">{eyebrow}</span>}
-          <Heading level={1}>Guía paso a paso</Heading>
-
-          {preparing ? (
-            <Paragraph size="small">Preparando la guía para tu cubo…</Paragraph>
-          ) : solved ? (
-            <>
-              <div className="step-key step-key--done">¡Cubo resuelto! 🎉</div>
-              <Paragraph size="small">
-                Ya dominas los pasos. Practícalos en el <strong>Modo práctica</strong> o vuelve a
-                intentarlo con una mezcla nueva.
-              </Paragraph>
-            </>
-          ) : currentStepId ? (
-            <>
-              <Paragraph size="small">{STEP_INFO[currentStepId].what}</Paragraph>
-              <Paragraph size="small">
-                <span className="guide-how">Cómo: </span>
-                {STEP_INFO[currentStepId].how}
-              </Paragraph>
-
-              {nextMove && (
-                <>
-                  <CheckboxField
-                    label="Mostrar movimiento"
-                    checked={showMove}
-                    onCheckedChange={(v) => setShowMove(v === true)}
-                  />
-                  {showMove && (
-                    <div className="step-key">
-                      <span className="step-key__caption">Pulsa</span>
-                      <KeyHint move={nextMove} />
-                      <Paragraph size="small">
-                        giro {moveToString(nextMove)} ({turnSense(nextMove.power)})
-                      </Paragraph>
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          ) : null}
-
-          <Button variant="outline" block onClick={reset} disabled={controller.busy}>
-            Reiniciar
-          </Button>
-          {solutionSteps.length > 0 && !preparing && !solved && (
-            <Tag variant="info">
-              Quedan {solutionSteps.reduce((n, g) => n + g.moves.length, 0) - controller.stepIndex}{' '}
-              movimientos
-            </Tag>
-          )}
-        </div>
       </aside>
     </div>
   )

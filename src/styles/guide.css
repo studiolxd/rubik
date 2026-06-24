@@ -27,7 +27,7 @@
   touch-action: none; /* el lienzo gestiona el arrastre/zoom */
 }
 /* El Canvas ocupa todo el escenario; los overlays flotantes se posicionan solos. */
-.guide__stage > div:not(.view-controls):not(.view-joystick),
+.guide__stage > div:not(.view-controls):not(.view-joystick):not(.move-hud),
 .guide__stage canvas {
   display: block;
   width: 100% !important;

@@ -122,6 +122,7 @@ export function ViewControls({
   free,
   practice,
   step,
+  guide,
 }: {
   controlsRef: RefObject<ViewControlsHandle | null>
   /** Modo activo: decide qué atajos propios del modo se muestran en la ayuda.
@@ -159,6 +160,13 @@ export function ViewControls({
   step?: {
     showMove: boolean
     onToggleMove: () => void
+  }
+  /** Solo en la "Guía paso a paso": botón de reiniciar (nueva mezcla) y un
+   *  contador no pulsable con los movimientos que faltan para resolver. */
+  guide?: {
+    busy: boolean
+    onReset: () => void
+    remaining: number
   }
 }) {
   // Estado de los botones, derivado de la cámara (se recalcula al moverla).
@@ -406,6 +414,24 @@ export function ViewControls({
             </VisuallyHidden>
           </Button>
         )}
+        {/* Guía: primer botón (primary) para reiniciar con una mezcla nueva. */}
+        {guide && (
+          <Button variant="primary" size="sm" onClick={guide.onReset} disabled={guide.busy}>
+            <Icon name="sparkles" size="sm" />
+            <VisuallyHidden>Reiniciar</VisuallyHidden>
+          </Button>
+        )}
+        {/* Guía: movimientos restantes (informativo, no pulsable). Reutiliza las
+            clases del botón outline de marca para tener su misma apariencia. */}
+        {guide && guide.remaining > 0 && (
+          <span
+            className="button button--outline button--sm view-controls__count"
+            title="Movimientos restantes"
+          >
+            {guide.remaining}
+            <VisuallyHidden> movimientos restantes</VisuallyHidden>
+          </span>
+        )}
         <Button variant="outline" size="sm" onClick={() => setHelpOpen(true)}>
           <Icon name="lifebuoy" size="sm" />
           <VisuallyHidden>Ayuda: teclas</VisuallyHidden>
@@ -503,6 +529,21 @@ export function ViewControls({
                     <span>
                       <strong>Mostrar / ocultar movimiento</strong> — revela u oculta el siguiente
                       movimiento a hacer.
+                    </span>
+                  </li>
+                </List>
+              </>
+            )}
+            {guide && (
+              <>
+                <p className="help-keys__intro">Acción de la guía:</p>
+                <List type="plain" className="help-buttons">
+                  <li>
+                    <span className="help-buttons__icon">
+                      <Icon name="sparkles" size="sm" />
+                    </span>
+                    <span>
+                      <strong>Reiniciar</strong> — empieza de nuevo con una mezcla nueva.
                     </span>
                   </li>
                 </List>
