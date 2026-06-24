@@ -1,0 +1,222 @@
+/* --- Línea de tiempo de "Origen" -------------------------------------------
+   Móvil/tablet (≤1279px): eje VERTICAL centrado; fecha y caja al mismo lado del
+   círculo, alternando izquierda/derecha.
+   Escritorio (≥1280px): eje HORIZONTAL a todo el ancho; fecha y caja al mismo
+   lado (abajo impares, arriba pares).
+   En ambos: el eje y los círculos NO se mueven (las cajas van en absoluto y el
+   espacio está reservado), solo una caja abierta a la vez, con fundido de
+   entrada/salida. Colores y medidas con tokens de marca. */
+
+.timeline {
+  --tl-dot: 1rem; /* diámetro del círculo */
+  --tl-line: var(--color-grey-light);
+
+  list-style: none;
+  margin: var(--spacing-5) 0 0;
+  padding: 0;
+  position: relative;
+}
+
+.timeline__item {
+  position: relative; /* referencia de la fecha y la caja absolutas */
+}
+
+/* Marcador: solo el círculo (la fecha va aparte, en absoluto). */
+.timeline__marker {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.timeline__dot {
+  width: var(--tl-dot);
+  height: var(--tl-dot);
+  box-sizing: border-box;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--border-radius-full);
+  background: var(--color-white); /* tapa el eje */
+  transition: background-color 0.15s ease;
+}
+.timeline__item.is-open .timeline__dot {
+  background: var(--color-primary); /* circunferencia → círculo relleno */
+}
+
+.timeline__date {
+  position: absolute;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-1);
+  line-height: 1;
+  color: var(--color-text-on-light);
+  white-space: nowrap;
+}
+
+/* Caja: fondo primary, texto blanco (clase surface-dark en el componente).
+   Siempre presente (absoluta, sin coste de layout); se muestra con un fundido. */
+.timeline__panel {
+  position: absolute;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s; /* al cerrar, se oculta tras el fundido */
+}
+.timeline__item.is-open .timeline__panel {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease;
+}
+
+.timeline__text {
+  margin: 0;
+  font-size: var(--font-size-1);
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* --- Vertical (≤1279px) ---------------------------------------------------- */
+@media (max-width: 1279px) {
+  .timeline {
+    --tl-panel: 16rem;
+    --tl-row: 4.5rem; /* separación entre círculos */
+    --tl-pad: 1.5rem; /* reserva arriba/abajo (recorte del eje en los extremos) */
+
+    display: flex;
+    flex-direction: column;
+    padding-block: var(--tl-pad);
+  }
+
+  /* Eje vertical continuo y centrado, del primer al último círculo. */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: calc(var(--tl-pad) + var(--tl-row) / 2);
+    bottom: calc(var(--tl-pad) + var(--tl-row) / 2);
+    width: 2px;
+    background: var(--tl-line);
+    transform: translateX(-50%);
+  }
+
+  .timeline__item {
+    min-height: var(--tl-row); /* reserva: los círculos no se mueven */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* círculo sobre el eje */
+  }
+
+  /* Fecha al lado del círculo, a su altura (impares derecha, pares izquierda). */
+  .timeline__date {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .timeline__item:nth-child(odd) .timeline__date {
+    left: 50%;
+    margin-left: calc(var(--tl-dot) / 2 + var(--spacing-3));
+  }
+  .timeline__item:nth-child(even) .timeline__date {
+    right: 50%;
+    margin-right: calc(var(--tl-dot) / 2 + var(--spacing-3));
+  }
+
+  /* Caja: mismo lado que la fecha, colgando justo por debajo de ella. */
+  .timeline__panel {
+    top: calc(50% + var(--spacing-4));
+    width: var(--tl-panel);
+    max-width: calc(50% - var(--tl-dot)); /* no cruzar el eje en pantallas estrechas */
+  }
+  .timeline__item:nth-child(odd) .timeline__panel {
+    left: 50%;
+    margin-left: calc(var(--tl-dot) / 2 + var(--spacing-3));
+  }
+  .timeline__item:nth-child(even) .timeline__panel {
+    right: 50%;
+    margin-right: calc(var(--tl-dot) / 2 + var(--spacing-3));
+  }
+  /* El último cuelga hacia arriba para no desbordar por abajo. */
+  .timeline__item:last-child .timeline__panel {
+    top: auto;
+    bottom: calc(50% + var(--spacing-4));
+  }
+}
+
+/* --- Horizontal (≥1280px) -------------------------------------------------- */
+@media (min-width: 1280px) {
+  .timeline {
+    --tl-box-h: 10rem; /* alto reservado para la caja (arriba y abajo) */
+    --tl-panel: 15rem;
+
+    display: flex;
+    justify-content: space-between; /* 1.ª circunferencia a la izq., última a la der. */
+    align-items: center;
+    padding: var(--tl-box-h) 0; /* reserva fija arriba/abajo: el eje no se mueve */
+  }
+
+  /* Eje horizontal a todo el ancho, en el centro vertical. */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 2px;
+    background: var(--tl-line);
+    transform: translateY(-50%);
+  }
+
+  .timeline__item {
+    display: flex;
+    justify-content: center;
+  }
+
+  .timeline__marker {
+    background: var(--color-white); /* tapa el eje bajo el círculo */
+  }
+
+  /* Fecha centrada bajo (impares) o sobre (pares) el círculo. */
+  .timeline__date {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .timeline__item:nth-child(odd) .timeline__date {
+    inset: 100% auto auto 50%;
+    margin: var(--spacing-1) 0 0;
+  }
+  .timeline__item:nth-child(even) .timeline__date {
+    inset: auto auto 100% 50%;
+    margin: 0 0 var(--spacing-1);
+  }
+
+  /* Caja centrada sobre el círculo, al mismo lado que la fecha (impares abajo,
+     pares arriba), más allá de la fecha. */
+  .timeline__panel {
+    width: var(--tl-panel);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .timeline__item:nth-child(odd) .timeline__panel {
+    top: calc(50% + var(--tl-dot) / 2 + var(--spacing-6));
+  }
+  .timeline__item:nth-child(even) .timeline__panel {
+    bottom: calc(50% + var(--tl-dot) / 2 + var(--spacing-6));
+  }
+  /* Extremos: 1.ª caja/fecha alineada a la izquierda, última a la derecha. */
+  .timeline__item:first-child .timeline__panel,
+  .timeline__item:first-child .timeline__date {
+    left: 0;
+    right: auto;
+    transform: none;
+  }
+  .timeline__item:last-child .timeline__panel,
+  .timeline__item:last-child .timeline__date {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+}

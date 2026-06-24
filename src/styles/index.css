@@ -21,6 +21,7 @@
 @import './disassembly.css';
 @import './guide.css';
 @import './scan.css';
+@import './timeline.css';
 
 /* Overrides responsive (DEBEN ir los últimos) */
 @import './responsive.css';

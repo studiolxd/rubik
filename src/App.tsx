@@ -5,6 +5,7 @@ import { CubeExperience } from './CubeExperience'
 import { History } from './History'
 import { Inside } from './Inside'
 import { TriviaPage } from './Trivia'
+import { triviaIndexFromHash } from './trivia-data'
 import { Introduction } from './Introduction'
 import { Guide } from './Guide'
 import { GuidedMode } from './GuidedMode'
@@ -24,10 +25,12 @@ const FILL_SCREENS: ScreenId[] = ['inside', 'introduction', 'guide', 'free', 'pr
  *  o el href="#" de las cards de la portada nunca dejan la app en un estado raro. */
 function screenFromHash(): ScreenId {
   const raw = window.location.hash.replace(/^#/, '')
-  // `#trivia-N` abre una curiosidad concreta; la pantalla sigue siendo 'trivia'
-  // (el número lo lee la propia página de Curiosidades).
-  const id = /^trivia-\d+$/.test(raw) ? 'trivia' : raw
-  return SECTION_IDS.has(id as SectionId) ? (id as SectionId) : 'menu'
+  // `#trivia-N` abre una curiosidad concreta (la pantalla sigue siendo 'trivia').
+  // Un #trivia sin número o con uno fuera de rango se trata como hash inválido.
+  if (raw.replace(/-\d+$/, '') === 'trivia') {
+    return triviaIndexFromHash() !== null ? 'trivia' : 'menu'
+  }
+  return SECTION_IDS.has(raw as SectionId) ? (raw as SectionId) : 'menu'
 }
 
 function App() {
@@ -39,11 +42,18 @@ function App() {
   // fase de juego 3D es a pantalla completa. GuidedMode nos avisa al cambiar de fase.
   const [guidedFill, setGuidedFill] = useState(false)
 
-  // Sincroniza el estado cuando el hash cambia por fuera (atrás/adelante, enlace).
+  // Sincroniza el estado con el hash (al montar y cuando cambia por fuera:
+  // atrás/adelante, enlace). Un hash inválido —incluido un #trivia-N fuera de
+  // rango— muestra la portada y, además, limpia la URL: una redirección de verdad.
   useEffect(() => {
-    const onHashChange = () => setScreenState(screenFromHash())
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
+    const sync = () => {
+      const next = screenFromHash()
+      if (next === 'menu' && window.location.hash) window.location.hash = ''
+      setScreenState(next)
+    }
+    sync()
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
   }, [])
 
   // Navegar = actualizar el hash (y el estado, para que el cambio sea inmediato).
