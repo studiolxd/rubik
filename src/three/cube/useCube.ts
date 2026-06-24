@@ -18,8 +18,8 @@ import {
 } from './engine'
 import { ensureSolver } from './solver'
 import { buildFromFacelets } from './facelets'
-import { currentStep as lblCurrentStep, solveLBL } from './lbl'
-import type { StepGroup, StepId } from './lbl'
+import { currentStep as lblCurrentStep, solveLBL, stepCase } from './lbl'
+import type { StepCase, StepGroup, StepId } from './lbl'
 
 /** Solución por capas (LBL) del estado actual, con los dobles giros expandidos
  *  a giros simples (cada movimiento = una pulsación) y agrupada por paso. */
@@ -100,6 +100,8 @@ export interface CubeController {
   solutionSteps: StepGroup[]
   /** Paso del método al que pertenece el movimiento actual (null si resuelto). */
   currentStepId: StepId | null
+  /** (Modo guía) Caso reconocible del paso actual (punto/L/línea; 0/1/2), o null. */
+  currentCase: StepCase | null
   /**
    * (Modo guía) Lleva el cubo al INICIO del paso indicado: recalcula la solución
    * por capas desde el estado actual y anima los movimientos de los pasos previos.
@@ -406,6 +408,10 @@ export function useCube(initialFacelets?: string): CubeController {
     }
   }
 
+  // (Modo guía) Caso reconocible del paso actual, deducido en vivo del estado.
+  const currentCase: StepCase | null =
+    mode === 'guide' && currentStepId ? stepCase(cubies, currentStepId) : null
+
   return {
     cubies,
     anim,
@@ -426,6 +432,7 @@ export function useCube(initialFacelets?: string): CubeController {
     stepIndex,
     solutionSteps: mode === 'guide' ? guideGroups : solutionGroups,
     currentStepId,
+    currentCase,
     playToStep,
     nextMove:
       mode === 'guide'

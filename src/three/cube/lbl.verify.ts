@@ -17,11 +17,14 @@ import {
   homeColors,
   isHome,
   lastCornersPlaced,
+  lastCrossCase,
   lastCrossSolved,
+  lastFaceCase,
   lastFaceSolved,
   secondLayerSolved,
   solveLBL,
   solved,
+  stepCase,
   stickersOf,
 } from './lbl'
 
@@ -151,6 +154,11 @@ console.log('8) Resolución completa por capas (Fases 1–3)')
       totalMoves += g.moves.length
       for (const mv of g.moves) cubies = applyMove(cubies, mv)
       check(PREDS[g.step](cubies), `mezcla ${i}: el paso '${g.step}' no quedó correcto`)
+      // El detector de caso debe coincidir con el predicado al cerrar su paso.
+      if (g.step === 'last-cross')
+        check(lastCrossCase(cubies) === 'cross', `mezcla ${i}: caso de cruz ≠ 'cross' tras el paso`)
+      if (g.step === 'last-face')
+        check(lastFaceCase(cubies) === 'done', `mezcla ${i}: caso de cara ≠ 'done' tras el paso`)
     }
     check(solved(cubies), `mezcla ${i}: el cubo no quedó resuelto`)
   }
@@ -158,6 +166,29 @@ console.log('8) Resolución completa por capas (Fases 1–3)')
   console.log(
     `   ${TRIALS} mezclas · media ${(totalMoves / TRIALS).toFixed(1)} mov/solución · ${ms} ms (${(ms / TRIALS).toFixed(1)} ms/mezcla)`,
   )
+}
+
+// 9) Detección del caso de la última capa (cruz: punto/L/línea/cruz; cara: 0/1/2/done).
+console.log('9) Detección de caso de la última capa')
+{
+  const s = createSolved()
+  check(lastCrossCase(s) === 'cross', `resuelto → caso de cruz 'cross', es ${lastCrossCase(s)}`)
+  check(lastFaceCase(s) === 'done', `resuelto → caso de cara 'done', es ${lastFaceCase(s)}`)
+  check(stepCase(s, 'cross') === null, "stepCase('cross') no debería tener caso")
+  const sc = stepCase(s, 'last-cross')
+  check(sc?.step === 'last-cross' && sc.value === 'cross', "stepCase('last-cross') = cross")
+
+  // Dominio sobre mezclas: nunca lanza y siempre devuelve un valor válido.
+  const CROSS = new Set(['dot', 'L', 'line', 'cross'])
+  const FACE = new Set<number | string>([0, 1, 2, 'done'])
+  const TRIALS = 200
+  for (let i = 0; i < TRIALS; i++) {
+    let c: Cubie[] = createSolved()
+    for (const mv of scramble(25)) c = applyMove(c, mv)
+    check(CROSS.has(lastCrossCase(c)), `mezcla ${i}: caso de cruz fuera de dominio`)
+    check(FACE.has(lastFaceCase(c)), `mezcla ${i}: caso de cara fuera de dominio`)
+  }
+  console.log(`   ${TRIALS} mezclas comprobadas`)
 }
 
 if (failures === 0) {
