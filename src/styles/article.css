@@ -8,14 +8,9 @@
 }
 
 .article > * {
-  max-width: 1024px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
-}
-
-/* Columna ancha (1024px). La usa Origen (History) para dar más aire al contenido. */
-.article--narrow > * {
-  max-width: 1024px;
 }
 
 .article__intro {
@@ -42,6 +37,11 @@
 
 .article__block h3 {
   color: var(--color-primary);
+}
+
+/* Curiosidades: el titular de la curiosidad va como párrafo en seminegrita. */
+.trivia__title {
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Cifra destacada (nº de combinaciones) */

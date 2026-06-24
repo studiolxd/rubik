@@ -23,7 +23,10 @@ const FILL_SCREENS: ScreenId[] = ['inside', 'introduction', 'guide', 'free', 'pr
  *  un '#' suelto o un id desconocido se tratan como el menú: así un enlace roto
  *  o el href="#" de las cards de la portada nunca dejan la app en un estado raro. */
 function screenFromHash(): ScreenId {
-  const id = window.location.hash.replace(/^#/, '')
+  const raw = window.location.hash.replace(/^#/, '')
+  // `#trivia-N` abre una curiosidad concreta; la pantalla sigue siendo 'trivia'
+  // (el número lo lee la propia página de Curiosidades).
+  const id = /^trivia-\d+$/.test(raw) ? 'trivia' : raw
   return SECTION_IDS.has(id as SectionId) ? (id as SectionId) : 'menu'
 }
 

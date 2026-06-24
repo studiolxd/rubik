@@ -231,15 +231,6 @@
   display: none;
 }
 
-/* Página de Curiosidades: lista de datos (la List ya aporta gap/viñetas). */
-.trivia__list li {
-  line-height: 1.6;
-}
-/* Titulares de cada curiosidad: seminegrita, como el resto de énfasis de la app. */
-.trivia__list strong {
-  font-weight: var(--font-weight-semibold);
-}
-
 /* Entre sm (480px) y xl (1280px): el cubo de la portada pasa a ancho completo
    (más grande que el cuadrado base de 240px) y con un aspect-ratio más ancho. */
 @media (min-width: 480px) and (max-width: 1279px) {

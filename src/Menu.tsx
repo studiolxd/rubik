@@ -128,8 +128,8 @@ export function Menu({ onSelect }: { onSelect: (id: SectionId) => void }) {
           )}
 
           {/* La curiosidad "¿Sabías que…?" se mantiene visible también con un grupo
-              abierto. */}
-          <TriviaCard onOpen={() => onSelect('trivia')} />
+              abierto. Su enlace (#trivia-N) navega solo a esa curiosidad. */}
+          <TriviaCard />
         </div>
       </div>
 

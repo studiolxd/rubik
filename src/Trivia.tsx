@@ -1,105 +1,105 @@
 import { useEffect, useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
-import { Steps } from '@studiolxd/brand/steps'
+import { Paragraph } from '@studiolxd/brand/paragraph'
 import { Card } from '@studiolxd/brand/card'
 
 /**
  * Curiosidades del cubo. Cada una tiene un titular (`title`) y su explicación
- * (`text`). En la portada se muestra el titular de una al azar (tarjeta Card que
- * lleva a la página de Curiosidades); la página las lista todas, completas.
+ * (`text`). En la portada se muestra el titular de una al azar (tarjeta Card); al
+ * pulsarla, la página de Curiosidades muestra esa misma curiosidad completa.
  */
 const TRIVIA: { title: string; text: string }[] = [
   {
-    title: 'Su creador tardó semanas en resolverlo por primera vez.',
-    text: 'Diseñar el mecanismo fue relativamente sencillo para él; descubrir cómo devolver todas las piezas a su posición original resultó un desafío mucho mayor.',
+    title: 'Ni su propio inventor sabía resolverlo.',
+    text: 'Ernő Rubik construyó el mecanismo sin dificultad, pero al mezclarlo por primera vez descubrió que no sabía deshacer la mezcla: había creado un rompecabezas sin querer. Tardó varias semanas en dar con un método para devolver cada pieza a su sitio.',
   },
   {
     title: 'Cualquier cubo mezclado puede resolverse en 20 movimientos o menos.',
-    text: 'En 2010 se demostró matemáticamente que cualquier posición posible del cubo 3×3 puede resolverse en un máximo de 20 movimientos. Este límite se conoce popularmente como el «Número de Dios».',
+    text: 'En 2010 se demostró, con ayuda de superordenadores, que 20 movimientos bastan para resolver cualquier posición del 3×3, partas de donde partas: es el famoso «Número de Dios». Quien encuentra esas soluciones tan cortas es un programa como el algoritmo de Kociemba (1992), que resuelve el cubo en dos fases apoyándose en enormes tablas precalculadas. Son soluciones rapidísimas, pero «no humanas» —mezclan todas las caras a la vez—, así que para aprender seguimos usando el método por capas: más largo, pero comprensible.',
   },
   {
-    title: 'Es mucho más que un juguete.',
-    text: 'Resolver el cubo ayuda a desarrollar habilidades como la visualización espacial, el pensamiento lógico, la memoria de trabajo y la perseverancia, por lo que sigue utilizándose en entornos educativos de todo el mundo.',
+    title: 'Resolverlo entrena el cerebro, no solo los dedos.',
+    text: 'Más allá del entretenimiento, el cubo pone a trabajar la visualización espacial, el pensamiento lógico, la memoria y la paciencia. Por eso se sigue usando como recurso educativo en aulas de todo el mundo.',
   },
   {
-    title: 'Fue inventado para enseñar geometría.',
-    text: 'Su creador, Ernő Rubik, era profesor de arquitectura y buscaba una forma de explicar conceptos tridimensionales a sus estudiantes.',
+    title: 'No se inventó para jugar, sino para dar clase.',
+    text: 'Ernő Rubik era profesor de arquitectura y diseño en Budapest, y buscaba una forma tangible de explicar a sus alumnos cómo se mueven los objetos en el espacio sin desmontarse. El rompecabezas nació como herramienta didáctica; lo de juguete vino después.',
   },
   {
     title: 'Originalmente no se llamaba Cubo de Rubik.',
-    text: 'El primer nombre del rompecabezas fue «Cubo Mágico» (Magic Cube).',
+    text: 'En Hungría se vendió primero como «Cubo Mágico» (Magic Cube). Solo al distribuirse internacionalmente pasó a llamarse Rubik’s Cube, en honor a su creador, y con ese nombre estalló la «rubikmanía» en todo el mundo.',
   },
   {
-    title: 'Existen más de 43 trillones de trillones de combinaciones.',
-    text: 'Un cubo 3×3 puede adoptar exactamente 43.252.003.274.489.856.000 posiciones distintas.',
+    title: 'Tiene más posiciones que estrellas hay en la galaxia.',
+    text: 'Un cubo 3×3 puede adoptar exactamente 43.252.003.274.489.856.000 posiciones distintas: un número de 20 cifras, más de 43 trillones. Si cambiaras de posición cada segundo, no te bastaría toda la edad del universo para verlas todas.',
   },
   {
-    title: 'Solo una combinación está resuelta.',
-    text: 'Entre todas las configuraciones posibles, únicamente una tiene cada cara formada por un único color.',
+    title: 'De 43 trillones de posiciones, solo una está resuelta.',
+    text: 'Entre todas las configuraciones posibles, únicamente una tiene cada cara de un solo color. Esa rareza es justo lo que hace difícil el reto: hay infinidad de formas de mezclarlo y una sola meta.',
   },
   {
-    title: 'No todas las mezclas son posibles.',
-    text: 'Si desmontas y vuelves a montar el cubo incorrectamente, puedes crear posiciones imposibles de alcanzar mediante movimientos normales.',
+    title: 'Hay cubos imposibles de resolver.',
+    text: 'Si desmontas el cubo y lo vuelves a montar al azar, 11 de cada 12 veces creas una posición que ningún giro puede deshacer. Girando las caras nunca se llega a esos estados «ilegales»: solo aparecen si fuerzas el montaje.',
   },
   {
-    title: 'Cada cubo se puede resolver sin desmontarlo.',
-    text: 'Aunque parezca imposible cuando está muy mezclado, cualquier posición legal tiene solución.',
+    title: 'Por muy mezclado que esté, siempre tiene solución.',
+    text: 'Cualquier posición a la que llegues girando las caras se puede deshacer girando las caras, por imposible que parezca. No hace falta despegar pegatinas ni abrir el cubo: si llegaste ahí jugando, hay camino de vuelta.',
   },
   {
-    title: 'Se han vendido cientos de millones de unidades.',
-    text: 'Es uno de los rompecabezas más vendidos de la historia y uno de los juguetes más reconocibles del planeta.',
+    title: 'Es uno de los objetos más vendidos de la historia.',
+    text: 'Se han vendido cientos de millones de unidades desde su lanzamiento, lo que lo convierte en uno de los juguetes más populares —y reconocibles— jamás fabricados.',
   },
   {
-    title: 'Existe un deporte dedicado a resolver cubos.',
-    text: 'El speedcubing reúne a competidores de todo el mundo para resolver distintos tipos de cubos en el menor tiempo posible.',
+    title: 'Resolver cubos rápido es un deporte de competición.',
+    text: 'Se llama speedcubing y tiene su propio organismo internacional, la World Cube Association (WCA), que regula las competiciones y homologa los récords. No solo se compite con el 3×3: también a una mano, con los ojos vendados o con otros muchos «twisty puzzles».',
   },
   {
-    title: 'Los mejores resolutores tardan menos de 4 segundos.',
-    text: 'Lo que para la mayoría supone varios minutos, los campeones mundiales lo consiguen en apenas unos instantes.',
+    title: 'Los mejores resuelven el cubo en menos de 4 segundos.',
+    text: 'Lo que a la mayoría le lleva varios minutos, los campeones lo hacen en un suspiro: memorizan algoritmos, planifican los primeros movimientos durante la inspección y entrenan la memoria muscular hasta automatizarla.',
   },
   {
-    title: 'El récord mundial de resolución del cubo 3×3 pertenece al polaco Teodor Zajder.',
-    text: 'En 2026 consiguió convertirse en la primera persona en resolver un Cubo de Rubik oficial en menos de tres segundos, estableciendo una nueva marca histórica de 2,76 segundos.',
+    title: 'El récord mundial del 3×3 ya baja de los 3 segundos.',
+    text: 'En 2026, el polaco Teodor Zajder se convirtió en la primera persona en resolver un cubo oficial en menos de tres segundos, con una marca histórica de 2,76 segundos.',
   },
   {
-    title: 'La inspección está limitada.',
-    text: 'En competición, los participantes solo disponen de 15 segundos para estudiar el cubo antes de empezar.',
+    title: 'En competición solo puedes mirar el cubo 15 segundos.',
+    text: 'Antes de empezar a resolver, el reglamento concede un máximo de 15 segundos de inspección para estudiar la mezcla y planear el arranque. A partir de ahí, manda el cronómetro.',
   },
   {
-    title: 'No es necesario memorizar cientos de algoritmos.',
-    text: 'Con unos pocos algoritmos básicos ya es posible aprender a resolver un cubo 3×3 completo.',
+    title: 'No hace falta ser un genio para resolverlo.',
+    text: 'Existen métodos avanzados con decenas de algoritmos, pero para resolver un 3×3 completo bastan unos pocos pasos básicos. El método por capas se aprende en una tarde y siempre funciona.',
   },
   {
-    title: 'Los centros nunca cambian de posición.',
-    text: 'En un cubo 3×3 los seis centros permanecen fijos entre sí y determinan el color de cada cara.',
+    title: 'Los centros del cubo nunca se mueven de sitio.',
+    text: 'Aunque gires las caras, los seis centros están unidos al núcleo y mantienen siempre la misma posición entre sí. Por eso cada centro fija el color de su cara y sirve de brújula para resolverlo.',
   },
   {
-    title: 'Las esquinas tienen tres colores y las aristas dos.',
-    text: 'Esta característica es fundamental para entender cómo funciona el mecanismo interno.',
+    title: 'Cada pieza lleva un número fijo de colores.',
+    text: 'Las 8 esquinas llevan tres colores, las 12 aristas dos y los 6 centros uno solo. Esa regla no cambia nunca, y entenderla es la clave para saber dónde va cada pieza al resolver.',
   },
   {
-    title: 'El mecanismo interior fue una innovación de ingeniería.',
-    text: 'Uno de los grandes retos del diseño fue permitir que las capas giraran sin que el cubo se desmontara.',
+    title: 'Lo más ingenioso del cubo está escondido dentro.',
+    text: 'El gran reto de diseño no fueron los colores, sino el mecanismo: lograr que las capas giren en cualquier dirección sin que el cubo se descomponga. Esa pieza central que lo sujeta todo fue la verdadera invención.',
   },
   {
-    title: 'Existen cubos de muchos tamaños.',
-    text: 'Además del clásico 3×3, hay versiones 2×2, 4×4, 5×5 y modelos gigantes con decenas de capas.',
+    title: 'El 3×3 es solo el principio.',
+    text: 'Además del clásico, hay cubos 2×2, 4×4, 5×5 y modelos enormes de 17×17 o más, con cientos de piezas móviles. Cuanto mayor es el cubo, más larga (y mareante) se vuelve la resolución.',
   },
   {
-    title: 'También hay cubos con formas extrañas.',
-    text: 'Algunos rompecabezas derivados se transforman en pirámides, dodecaedros o figuras aparentemente imposibles.',
+    title: 'No todos los «cubos» son cubos.',
+    text: 'Hay rompecabezas derivados con forma de pirámide (Pyraminx), de dodecaedro (Megaminx) o con cortes que deforman la figura al girar. Todos comparten la misma idea: piezas que rotan sin separarse.',
   },
   {
-    title: 'Los robots pueden resolverlo más rápido que los humanos.',
-    text: 'Sistemas especializados han conseguido tiempos inferiores a una décima de segundo.',
+    title: 'Un robot lo resuelve en lo que tardas en parpadear.',
+    text: 'Mientras los mejores humanos rondan los pocos segundos, las máquinas bajan muy por debajo del segundo, acercándose a la décima. Usan cámaras que leen las seis caras al instante y motores que giran las capas a una velocidad imposible para una mano.',
   },
   {
-    title: 'El cubo apareció en una época sin internet.',
-    text: 'Su popularidad mundial se extendió gracias al boca a boca, las tiendas de juguetes y los concursos, décadas antes de las redes sociales.',
+    title: 'Se hizo viral 30 años antes de que existiera internet.',
+    text: 'Su éxito mundial de los años 80 se propagó a base de boca a boca, escaparates de jugueterías y concursos en televisión. No hubo tutoriales online ni redes sociales: la «rubikmanía» fue totalmente analógica.',
   },
   {
-    title: 'Muchas personas aprenden matemáticas gracias al cubo.',
-    text: 'Conceptos avanzados como permutaciones, teoría de grupos y algoritmos pueden explorarse a través de este rompecabezas.',
+    title: 'Es un libro de matemáticas que cabe en la mano.',
+    text: 'El cubo es un ejemplo físico de teoría de grupos, permutaciones y algoritmos. Por eso profesores y universidades lo usan para enseñar conceptos abstractos de forma tangible: se tocan, se giran y se entienden.',
   },
 ]
 
@@ -121,9 +121,10 @@ function pickIndex(): number {
 
 /**
  * Tarjeta de curiosidad de la portada: Card de marca (outline) con una curiosidad
- * al azar (distinta de la última). Al pulsarla abre la página de Curiosidades.
+ * al azar (distinta de la última). Su enlace apunta a `#trivia-N`, así que abre esa
+ * misma curiosidad en la página de Curiosidades (y el enlace es compartible).
  */
-export function TriviaCard({ onOpen }: { onOpen: () => void }) {
+export function TriviaCard() {
   // La elección se hace una sola vez por montaje (cada visita a la portada).
   const [index] = useState(pickIndex)
 
@@ -136,42 +137,52 @@ export function TriviaCard({ onOpen }: { onOpen: () => void }) {
     }
   }, [index])
 
-  // El Card de marca es un <a href>; la app navega por estado, así que
-  // interceptamos el click (evitando el salto del href "#") y abrimos la página.
+  // El Card de marca es un <a href>: el propio enlace cambia el hash a `#trivia-N`
+  // y la app navega a esa curiosidad. El número es 1-based para que se lea natural.
   return (
-    <div
-      className="menu__curio"
-      onClick={(e) => {
-        e.preventDefault()
-        onOpen()
-      }}
-    >
+    <div className="menu__curio">
       <Card
         color="outline"
-        href="#"
+        href={`#trivia-${index + 1}`}
         title="¿Sabías que…?"
         description={TRIVIA[index].title}
-        ctaLabel="Ver todas las curiosidades"
+        ctaLabel="Saber más"
       />
     </div>
   )
 }
 
-/** Página "Curiosidades": lista todas las curiosidades del cubo. */
+/** Índice (0-based) de la curiosidad pedida en el hash `#trivia-N` (N va 1-based).
+ *  Si no hay un número válido —p. ej. al entrar a #trivia a secas— elige una al azar. */
+function indexFromHash(): number {
+  const m = window.location.hash.match(/^#trivia-(\d+)$/)
+  if (m) {
+    const i = Number(m[1]) - 1
+    if (i >= 0 && i < TRIVIA.length) return i
+  }
+  return pickIndex()
+}
+
+/** Página "Curiosidades": muestra la curiosidad indicada en el hash (#trivia-N). */
 export function TriviaPage() {
+  // Sincronizada con el hash: editar la URL o usar atrás/adelante cambia la
+  // curiosidad sin desmontar la página (la pantalla sigue siendo 'trivia').
+  const [index, setIndex] = useState(indexFromHash)
+  useEffect(() => {
+    const onHash = () => setIndex(indexFromHash())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+  const curio = TRIVIA[index]
   return (
     <article className="article">
       <header className="article__intro">
-        <Heading level={2} size={7}>
-          Curiosidades
-        </Heading>
+        <Heading level={1}>Curiosidades</Heading>
       </header>
 
       <section className="article__block">
-        <Steps
-          className="trivia__steps"
-          steps={TRIVIA.map((c) => ({ text: `${c.title} ${c.text}` }))}
-        />
+        <Paragraph className="trivia__title">{curio.title}</Paragraph>
+        <Paragraph>{curio.text}</Paragraph>
       </section>
     </article>
   )
