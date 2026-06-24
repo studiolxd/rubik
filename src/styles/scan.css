@@ -10,7 +10,7 @@
     max(var(--section-padding-block-md), var(--safe-bottom));
   padding-inline: max(var(--section-padding-inline), var(--safe-left))
     max(var(--section-padding-inline), var(--safe-right));
-  max-width: 640px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
 }

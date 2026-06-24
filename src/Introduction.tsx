@@ -70,17 +70,18 @@ const isCorner: CubieFocus = (c: Cubie) => c.home.filter((v) => v !== 0).length 
 const STEPS: IntroStep[] = [
   {
     group: 'Partes del cubo',
-    title: 'Esto es un centro',
+    title: 'Los centros',
     focus: isCenter,
     intro: (
       <>
         <Paragraph>
-          El cubo tiene <strong>6 centros</strong>, uno por cara, y son su brújula: van fijos al
-          núcleo y nunca cambian de sitio, ni siquiera al girar.
+          El cubo tiene <strong>6 centros</strong>, uno por cara. Son su brújula: están sujetos al
+          núcleo y <strong>nunca cambian de sitio</strong>, ni siquiera al girar.
         </Paragraph>
         <Paragraph>
-          Por eso el centro <strong>decide el color de toda su cara</strong>. Pulsa un centro para
-          marcarlo, o su casilla para girar la cámara hacia él.
+          Por eso cada centro <strong>fija el color de su cara</strong>: donde está el blanco, esa
+          es la cara blanca. Pulsa un centro para marcarlo, o su casilla para girar la cámara hacia
+          él.
         </Paragraph>
       </>
     ),
@@ -95,18 +96,19 @@ const STEPS: IntroStep[] = [
   },
   {
     group: 'Partes del cubo',
-    title: 'Esto es un lateral o arista',
+    title: 'Las aristas',
     focus: isEdge,
     intro: (
       <>
         <Paragraph>
-          Las <strong>aristas</strong> son las piezas de los bordes: llevan{' '}
-          <strong>dos colores</strong> porque pertenecen a dos caras vecinas. Hay{' '}
-          <strong>12</strong> y, al contrario que los centros, sí se mueven.
+          Las <strong>aristas</strong> son las piezas de los bordes. Llevan{' '}
+          <strong>dos colores</strong>, uno por cada cara vecina a la que pertenecen. Hay{' '}
+          <strong>12</strong> y, a diferencia de los centros, <strong>sí se mueven</strong>.
         </Paragraph>
         <Paragraph>
-          Cada una tiene un único sitio: donde sus dos colores coinciden con los centros de ambas
-          caras. Pulsa una para marcarla, o su casilla para enfocarla.
+          Aun así, cada arista tiene <strong>un único sitio</strong>: aquel donde sus dos colores
+          casan con los centros de ambas caras. Pulsa una para marcarla, o su casilla para
+          enfocarla.
         </Paragraph>
       </>
     ),
@@ -128,17 +130,18 @@ const STEPS: IntroStep[] = [
   },
   {
     group: 'Partes del cubo',
-    title: 'Esto es una esquina',
+    title: 'Las esquinas',
     focus: isCorner,
     intro: (
       <>
         <Paragraph>
-          Las <strong>esquinas</strong> son los vértices y llevan <strong>tres colores</strong>,
-          porque tocan tres caras a la vez. Hay <strong>8</strong> y también se mueven.
+          Las <strong>esquinas</strong> son los vértices del cubo. Llevan{' '}
+          <strong>tres colores</strong> porque tocan tres caras a la vez. Hay <strong>8</strong> y,
+          como las aristas, <strong>también se mueven</strong>.
         </Paragraph>
         <Paragraph>
-          Como las aristas, cada esquina tiene un único hogar: donde sus tres colores casan con los
-          centros que la rodean. Pulsa una para marcarla, o su casilla para enfocarla.
+          Cada esquina tiene <strong>un único sitio</strong>: aquel donde sus tres colores casan con
+          los centros que la rodean. Pulsa una para marcarla, o su casilla para enfocarla.
         </Paragraph>
       </>
     ),
@@ -157,16 +160,17 @@ const STEPS: IntroStep[] = [
   },
   {
     group: 'Partes del cubo',
-    title: '¿Qué es un nivel?',
+    title: 'Los niveles',
     intro: (
       <>
         <Paragraph>
-          Para resolverlo, dividimos el cubo en <strong>tres niveles</strong> horizontales: arriba,
-          en medio y abajo.
+          Para resolverlo, imaginamos el cubo dividido en <strong>tres niveles</strong>{' '}
+          horizontales: arriba, en medio y abajo.
         </Paragraph>
         <Paragraph>
-          El método capa por capa los resuelve en orden, de arriba abajo, sin estropear lo ya hecho.
-          Pulsa un nivel para resaltarlo y ver qué piezas lo forman.
+          El método <strong>capa por capa</strong> los resuelve en orden, de arriba abajo,{' '}
+          <strong>sin estropear lo ya hecho</strong>. Pulsa un nivel para resaltarlo y ver qué
+          piezas lo forman.
         </Paragraph>
       </>
     ),
@@ -182,12 +186,13 @@ const STEPS: IntroStep[] = [
     intro: (
       <>
         <Paragraph>
-          Cada cara gira por separado. Un giro en <strong>sentido horario</strong> —mirando esa cara
-          de frente— se hace pulsando la <strong>tecla de su cara</strong> (U, D, L, R, F, B).
+          Cada cara gira de forma independiente. Para un giro en <strong>sentido horario</strong>{' '}
+          —mirando esa cara de frente— pulsa la <strong>tecla de su cara</strong> (U, D, L, R, F,
+          B).
         </Paragraph>
         <Paragraph>
-          Pruébalo: pulsa una tecla y observa cómo gira solo esa capa. También puedes pulsar su
-          casilla.
+          Pruébalo: pulsa una tecla y mira cómo gira <strong>solo esa capa</strong>. También puedes
+          usar su casilla.
         </Paragraph>
       </>
     ),
@@ -199,12 +204,12 @@ const STEPS: IntroStep[] = [
     intro: (
       <>
         <Paragraph>
-          El mismo giro, al revés: para el <strong>sentido antihorario</strong> mantén{' '}
-          <strong>Mayús (Shift)</strong> y pulsa la tecla de la cara.
+          El mismo giro, pero al revés: para el <strong>sentido antihorario</strong>, mantén pulsado{' '}
+          <strong>Mayús (Shift)</strong> mientras pulsas la tecla de la cara.
         </Paragraph>
         <Paragraph>
-          Con estos dos gestos —tecla y Shift+tecla— ya puedes hacer cualquier movimiento. Practica
-          cada uno; también con su casilla.
+          Con estos dos gestos —tecla y Shift+tecla— ya puedes hacer{' '}
+          <strong>cualquier movimiento</strong>. Practica cada uno; también desde su casilla.
         </Paragraph>
       </>
     ),

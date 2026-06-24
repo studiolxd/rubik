@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
-import { List } from '@studiolxd/brand/list'
+import { Steps } from '@studiolxd/brand/steps'
 import { Card } from '@studiolxd/brand/card'
 
 /**
@@ -168,13 +168,10 @@ export function TriviaPage() {
       </header>
 
       <section className="article__block">
-        <List type="unordered" className="trivia__list">
-          {TRIVIA.map((c, i) => (
-            <li key={i}>
-              <strong>{c.title}</strong> {c.text}
-            </li>
-          ))}
-        </List>
+        <Steps
+          className="trivia__steps"
+          steps={TRIVIA.map((c) => ({ text: `${c.title} ${c.text}` }))}
+        />
       </section>
     </article>
   )

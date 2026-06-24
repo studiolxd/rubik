@@ -20,7 +20,7 @@ export const SECTIONS: Section[] = [
   { id: 'history', title: 'Origen' },
   { id: 'inside', title: 'El cubo por dentro' },
   { id: 'introduction', title: 'Partes y movimientos' },
-  { id: 'guide', title: 'Guía paso a paso' },
+  { id: 'guide', title: 'Resuélvelo paso a paso' },
   { id: 'guided', title: 'Modo guiado' },
   { id: 'practice', title: 'Modo práctica' },
   { id: 'free', title: 'Modo libre' },

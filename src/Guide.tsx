@@ -195,7 +195,7 @@ export function Guide() {
       <aside className="guide__panel">
         <div className="guide__content">
           {eyebrow && <span className="guide__step">{eyebrow}</span>}
-          <Heading level={1}>Guía paso a paso</Heading>
+          <Heading level={1}>Resuélvelo paso a paso</Heading>
 
           {preparing ? (
             <Paragraph size="small">Preparando la guía para tu cubo…</Paragraph>
