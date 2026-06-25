@@ -67,15 +67,17 @@
   flex-direction: column;
   gap: var(--spacing-2);
   padding: var(--spacing-3);
-  border: 1px solid var(--color-grey-light);
-  border-radius: var(--border-radius-md);
-  background: var(--color-grey-lightest, #f7f7f7);
+  border: 1px solid var(--color-primary);
+  background: var(--color-white);
 }
-.guide-alg__label {
-  font-size: var(--font-size-0, 0.75rem);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted-on-light);
+/* Variante de algoritmo (p. ej. inserción derecha / izquierda): etiqueta + chips. */
+.guide-alg__variant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 0.25rem);
+}
+.guide-alg__variant-label {
+  color: inherit;
 }
 .guide-alg__moves {
   display: flex;
@@ -89,7 +91,6 @@
   justify-content: center;
   min-width: 1.9rem;
   padding: 0.15rem 0.4rem;
-  border-radius: var(--border-radius-sm, 0.25rem);
   background: var(--color-primary);
   color: var(--color-white);
   font-family: var(--font-family-mono, monospace);
@@ -97,91 +98,37 @@
   font-size: var(--font-size-1);
 }
 .guide-alg__name {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-on-light);
+  color: inherit;
 }
 .guide-alg__note {
-  font-size: var(--font-size-1);
-  color: var(--color-text-muted-on-light);
+  font-size: var(--text-paragraph-font-size);
+  color: inherit;
 }
 
 /* Checkpoint: «sabrás que terminaste cuando…». */
 .guide-done {
   margin: 0;
-  font-size: var(--font-size-1);
+  font-size: var(--text-paragraph-font-size);
   color: var(--color-text-on-light);
 }
-.guide-done__label {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-success-on-light);
-}
 
-/* Progreso por los 7 pasos: etiqueta «Paso N de 7» + barra. */
-.guide-progress {
+/* Micro-actividad del caso reconocido (punto/L/línea; 0/1/2 esquinas). Mismo
+   contenedor que la caja del algoritmo; opciones (Button) y feedback (Alert) los
+   aporta el brand system. */
+.guide-case {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1, 0.25rem);
-}
-.guide-progress__label {
-  font-size: var(--font-size-0, 0.75rem);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-muted-on-light);
-}
-.guide-progress__track {
-  height: 0.375rem;
-  border-radius: 999px;
-  background: var(--color-grey-light);
-  overflow: hidden;
-}
-.guide-progress__fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--color-primary);
-  transition: width 0.3s ease;
-}
-
-/* Micro-actividad del caso reconocido (punto/L/línea; 0/1/2 esquinas). */
-.guide-case {
+  gap: var(--spacing-2);
   margin: 0;
-  padding: var(--spacing-2) var(--spacing-3);
-  border-radius: var(--border-radius-md);
-  border-left: 3px solid var(--color-primary);
-  background: var(--color-grey-lightest, #f7f7f7);
-  font-size: var(--font-size-1);
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-primary);
+  background: var(--color-white);
   color: var(--color-text-on-light);
-}
-.guide-case__q {
-  display: block;
-  font-weight: var(--font-weight-semibold);
-  margin-block-end: var(--spacing-2);
 }
 .guide-case__opts {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2);
-}
-.guide-case__opt {
-  padding: var(--spacing-1, 0.25rem) var(--spacing-3);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--color-grey-light);
-  background: var(--color-white);
-  color: var(--color-text-on-light);
-  font: inherit;
-  font-size: var(--font-size-1);
-  cursor: pointer;
-}
-.guide-case__opt.is-ok {
-  border-color: var(--color-success, #1e9e57);
-  background: var(--color-success, #1e9e57);
-  color: var(--color-white);
-}
-.guide-case__opt.is-no {
-  border-color: var(--color-danger, #c0392b);
-  color: var(--color-danger, #c0392b);
-}
-.guide-case__help {
-  margin: var(--spacing-2) 0 0;
 }
 
 /* Escritorio (≥1280): el cubo ocupa el resto y la explicación va en el aside. */

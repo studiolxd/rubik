@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Heading } from '@studiolxd/brand/heading'
 import { Paragraph } from '@studiolxd/brand/paragraph'
 import { List } from '@studiolxd/brand/list'
+import { Button } from '@studiolxd/brand/button'
+import { Alert } from '@studiolxd/brand/alert'
 import { Scene } from './three/Scene'
 import { KeyHint } from './Controls'
 import { ViewControls, type ViewControlsHandle } from './ViewControls'
@@ -19,6 +21,10 @@ interface StepInfo {
   how: string
   /** Algoritmo de la fase en notación estándar; null en fases intuitivas (la cruz). */
   algorithm: string | null
+  /** Etiqueta del algoritmo principal cuando hay variante espejo (p. ej. «Inserción a la derecha»). */
+  algorithmLabel?: string
+  /** Variante espejo del algoritmo (p. ej. la inserción a la izquierda), si la hay. */
+  mirror?: { label: string; algorithm: string }
   /** Nombre o regla mnemotécnica (siempre presente: en las fases sin algoritmo, la técnica). */
   mnemonic: string
   /** Qué hace el algoritmo, en una línea (solo fases con algoritmo). */
@@ -32,11 +38,12 @@ interface StepInfo {
 const STEP_INFO: Record<StepId, StepInfo> = {
   cross: {
     title: 'La cruz blanca',
-    what: 'Vas a formar una cruz blanca en la cara de abajo: las cuatro aristas que llevan blanco, colocadas alrededor del centro blanco.',
+    what: 'Este primer paso no sigue ningún algoritmo, tienes que resolverlo por intuición. Forma una cruz blanca en la cara de abajo: las cuatro aristas que llevan blanco, colocadas alrededor del centro blanco.',
     how: 'No basta con que el blanco mire hacia abajo: el segundo color de cada arista (rojo, verde, azul o naranja) debe coincidir con el centro de su cara lateral. La técnica: forma primero una margarita arriba (las cuatro aristas blancas alrededor del centro amarillo, con el blanco hacia arriba) y luego baja cada una a su sitio.',
     algorithm: null,
-    mnemonic: 'Empareja arriba, baja con doble giro.',
-    done: 'Verás una cruz blanca abajo y cada arista lateral formando una T con su centro.',
+    mnemonic:
+      'Forma la margarita arriba (cuatro aristas blancas alrededor del centro amarillo) y, cuando el otro color de una arista coincida con su centro lateral, gira esa cara 180° (doble giro: F2, R2, L2 o B2) para bajarla a la cruz.',
+    done: 'Habrás completado esta etapa cuando formes una cruz blanca abajo y cada arista lateral formando una T con su centro.',
   },
   'first-corners': {
     title: 'Las esquinas blancas',
@@ -45,16 +52,19 @@ const STEP_INFO: Record<StepId, StepInfo> = {
     algorithm: "R U R' U'",
     mnemonic: 'El «sexy move».',
     note: 'Repite este gatillo hasta que la esquina entre con el blanco abajo, sin romper la cruz.',
-    done: 'Toda la cara de abajo será blanca y la primera fila de cada lateral casará con su centro. ¡Primera capa, 1/3!',
+    done: 'Habrás completado esta etapa cuando toda la cara de abajo sea blanca y la primera fila de cada lateral case con su centro.',
   },
   'middle-layer': {
     title: 'La segunda capa',
     what: 'Coloca las cuatro aristas de la capa de en medio: son las que no tienen ni blanco ni amarillo.',
-    how: 'Busca en la capa de arriba una arista sin amarillo, gírala hasta que su color frontal case con el centro de esa cara y mándala a su hueco de en medio (a la izquierda o a la derecha, según su otro color), sin deshacer la primera capa.',
+    how: 'Busca en la capa de arriba una arista sin amarillo, gírala hasta que su color frontal coincida con el centro de esa cara y mándala a su hueco de en medio sin deshacer la primera capa. Según su otro color, la arista tendrá que bajar hacia la derecha o hacia la izquierda: usa el algoritmo de ese lado.',
     algorithm: "U R U' R' U' F' U F",
-    mnemonic: 'Inserción a la derecha (su espejo, a la izquierda: U’ L’ U L U F U’ F’).',
-    note: 'Lleva la arista del techo a su hueco de en medio sin deshacer la capa blanca.',
-    done: 'Las dos capas de abajo completas: cada lateral con dos tercios de su color. ¡2/3!',
+    algorithmLabel: 'Inserción a la derecha',
+    mirror: { label: 'Inserción a la izquierda', algorithm: "U' L' U L U F U' F'" },
+    mnemonic:
+      'Son el mismo algoritmo y su espejo: el de la derecha mete la arista en el hueco de la derecha; el de la izquierda, en el de la izquierda. Elige según hacia dónde tenga que bajar.',
+    note: 'Inserta la arista del techo en su hueco de en medio sin deshacer la capa blanca.',
+    done: 'Habrás completado esta etapa cuando las dos capas de abajo estén completas y cada lateral muestre dos tercios de su color.',
   },
   'last-cross': {
     title: 'La cruz amarilla',
@@ -63,7 +73,7 @@ const STEP_INFO: Record<StepId, StepInfo> = {
     algorithm: "F R U R' U' F'",
     mnemonic: 'F + el «sexy move» + F’.',
     note: 'Orienta las aristas amarillas: del punto pasarás a L, de la L a línea, y de la línea a cruz.',
-    done: 'Una cruz amarilla arriba (aunque los laterales aún no casen).',
+    done: 'Habrás completado esta etapa cuando veas una cruz amarilla arriba (aunque los laterales aún no casen).',
   },
   'last-face': {
     title: 'La cara amarilla',
@@ -71,26 +81,26 @@ const STEP_INFO: Record<StepId, StepInfo> = {
     how: 'Se repite un mismo algoritmo (el «Sune»), colocando cada vez una esquina mal orientada en la posición de partida. Tras unas pocas repeticiones, toda la cara amarilla queda mirando hacia arriba.',
     algorithm: "R U R' U R U2 R'",
     mnemonic: 'El «Sune», el algoritmo más famoso del cubo.',
-    note: 'Cicla la orientación de 3 esquinas; repítelo desde la posición correcta hasta que toda la cara sea amarilla.',
-    done: 'Toda la cara de arriba amarilla.',
+    note: 'Cada vez que lo aplicas, gira la orientación de tres esquinas a la vez; repítelo, colocando una esquina mal orientada en la posición de partida, hasta que toda la cara sea amarilla.',
+    done: 'Habrás completado esta etapa cuando toda la cara de arriba sea amarilla.',
   },
   'permute-corners': {
     title: 'Colocar las esquinas',
     what: 'Las esquinas ya son amarillas por arriba, pero puede que no estén en su sitio. Llévalas a su posición correcta.',
-    how: 'Ahora solo cambian de lugar, no de orientación: un algoritmo intercambia tres esquinas en ciclo. Repítelo (girando la capa de arriba entre medias) hasta que cada esquina quede entre sus colores correctos.',
+    how: 'Ahora solo cambian de sitio, no de orientación: un algoritmo intercambia de posición tres esquinas a la vez. Repítelo (girando la capa de arriba entre medias) hasta que cada esquina quede entre sus colores correctos.',
     algorithm: "R' F R' B2 R F' R' B2 R2",
     mnemonic: 'El cántico «Run to me fast, back back».',
-    note: 'Permuta 3 esquinas en ciclo sin tocar su orientación ni las aristas.',
-    done: 'Las 4 esquinas entre sus colores correctos (las aristas pueden faltar).',
+    note: 'Intercambia de sitio tres esquinas a la vez, sin tocar su orientación ni las aristas.',
+    done: 'Habrás completado esta etapa cuando las cuatro esquinas estén entre sus colores correctos (las aristas pueden faltar).',
   },
   'permute-edges': {
     title: 'Colocar las aristas',
     what: 'Último paso: coloca en su sitio las aristas de la última capa.',
-    how: 'Un algoritmo rota tres aristas en ciclo. En cuanto cada arista encaja con los centros de su cara… ¡el cubo queda resuelto!',
+    how: 'Un algoritmo intercambia de sitio tres aristas a la vez. En cuanto cada arista encaja con los centros de su cara… ¡el cubo queda resuelto!',
     algorithm: "R U' R U R U R U' R' U' R2",
     mnemonic: 'Un «U-perm».',
-    note: 'Rota 3 aristas en ciclo sin tocar las esquinas.',
-    done: '¡El cubo queda resuelto!',
+    note: 'Intercambia de sitio tres aristas a la vez, sin tocar las esquinas.',
+    done: 'Habrás completado esta etapa cuando cada arista encaje con su centro y el cubo quede resuelto.',
   },
 }
 
@@ -140,6 +150,13 @@ const CASE_OPTIONS: Record<StepCase['step'], { value: string | number; label: st
   ],
 }
 
+/** Pregunta de la micro-actividad, específica de cada paso (nombra lo que hay que
+ *  localizar: la forma amarilla en la cruz, las esquinas amarillas en la cara). */
+const CASE_QUESTION: Record<StepCase['step'], string> = {
+  'last-cross': '¿Qué forma dibujan las aristas amarillas de arriba?',
+  'last-face': '¿Cuántas esquinas amarillas miran hacia arriba?',
+}
+
 /** Micro-actividad: «¿qué caso ves?». Convierte el reconocimiento del patrón
  *  (punto/L/línea; 0/1/2 esquinas) en aprendizaje activo. Al elegir, revela la
  *  respuesta y la ayuda del caso. Se reinicia cuando el caso cambia. */
@@ -151,60 +168,87 @@ function CaseQuiz({ kase }: { kase: StepCase }) {
   if (!options.some((o) => o.value === kase.value)) return null
   const help = caseHelp(kase)
   const revealed = picked !== null
+  const correct = picked === kase.value
+  const correctLabel = options.find((o) => o.value === kase.value)?.label
   return (
     <div className="guide-case">
-      <span className="guide-case__q">¿Qué caso ves arriba?</span>
+      <Heading level={2} size={4}>
+        {CASE_QUESTION[kase.step]}
+      </Heading>
       <div className="guide-case__opts">
-        {options.map((o) => {
-          const cls = !revealed
-            ? 'is-idle'
-            : o.value === kase.value
-              ? 'is-ok'
-              : o.value === picked
-                ? 'is-no'
-                : 'is-idle'
-          return (
-            <button
-              key={String(o.value)}
-              type="button"
-              className={`guide-case__opt ${cls}`}
-              onClick={() => setPicked(o.value)}
-            >
-              {o.label}
-            </button>
-          )
-        })}
+        {options.map((o) => (
+          // Tras responder: la correcta se rellena (primary); la elegida por error se
+          // marca en rojo (outline destructive); el resto queda con contorno neutro.
+          <Button
+            key={String(o.value)}
+            size="sm"
+            variant={revealed && o.value === kase.value ? 'primary' : 'outline'}
+            destructive={revealed && o.value === picked && o.value !== kase.value}
+            onClick={() => setPicked(o.value)}
+          >
+            {o.label}
+          </Button>
+        ))}
       </div>
-      {revealed && help && <p className="guide-case__help">{help}</p>}
+      {revealed &&
+        (correct ? (
+          <Alert variant="success" title="¡Correcto!" description={help ?? undefined} />
+        ) : (
+          <Alert
+            variant="error"
+            title={correctLabel ? `Es «${correctLabel}»` : 'No es ese caso'}
+            description={help ?? undefined}
+          />
+        ))}
     </div>
+  )
+}
+
+/** Fila de chips de un algoritmo en notación estándar (cada giro, un chip). */
+function MoveChips({ algorithm }: { algorithm: string }) {
+  return (
+    <p className="guide-alg__moves">
+      {algorithm.split(' ').map((mv, i) => (
+        <span key={i} className="guide-alg__move">
+          {mv}
+        </span>
+      ))}
+    </p>
   )
 }
 
 /** Detalle didáctico del paso actual: objetivo, técnica, algoritmo y checkpoint. */
 function StepDetail({ step }: { step: StepId }) {
   const info = STEP_INFO[step]
-  const moves = info.algorithm ? info.algorithm.split(' ') : []
   return (
     <>
       <Paragraph>{info.what}</Paragraph>
       <Paragraph>{info.how}</Paragraph>
       <div className="guide-alg">
-        <span className="guide-alg__label">{info.algorithm ? 'El algoritmo' : 'El truco'}</span>
-        {moves.length > 0 && (
-          <p className="guide-alg__moves">
-            {moves.map((mv, i) => (
-              <span key={i} className="guide-alg__move">
-                {mv}
-              </span>
-            ))}
-          </p>
-        )}
+        <Heading level={2} size={4}>
+          {info.algorithm ? 'El algoritmo' : 'El truco'}
+        </Heading>
+        {info.algorithm &&
+          (info.mirror ? (
+            <>
+              <div className="guide-alg__variant">
+                {info.algorithmLabel && (
+                  <span className="guide-alg__variant-label">{info.algorithmLabel}</span>
+                )}
+                <MoveChips algorithm={info.algorithm} />
+              </div>
+              <div className="guide-alg__variant">
+                <span className="guide-alg__variant-label">{info.mirror.label}</span>
+                <MoveChips algorithm={info.mirror.algorithm} />
+              </div>
+            </>
+          ) : (
+            <MoveChips algorithm={info.algorithm} />
+          ))}
         <span className="guide-alg__name">{info.mnemonic}</span>
         {info.note && <span className="guide-alg__note">{info.note}</span>}
       </div>
-      <p className="guide-done">
-        <span className="guide-done__label">Lo sabrás cuando:</span> {info.done}
-      </p>
+      <p className="guide-done">{info.done}</p>
     </>
   )
 }
@@ -341,20 +385,6 @@ export function Guide() {
           {eyebrow && <span className="guide__step">{eyebrow}</span>}
           <Heading level={1}>Resuélvelo paso a paso</Heading>
 
-          {!preparing && !solved && currentIdx >= 0 && (
-            <div className="guide-progress">
-              <span className="guide-progress__label">
-                Paso {currentIdx + 1} de {STEPS.length}
-              </span>
-              <div className="guide-progress__track">
-                <div
-                  className="guide-progress__fill"
-                  style={{ width: `${(currentIdx / STEPS.length) * 100}%` }}
-                />
-              </div>
-            </div>
-          )}
-
           {preparing ? (
             <Paragraph>Preparando la guía para tu cubo…</Paragraph>
           ) : solved ? (
@@ -367,11 +397,6 @@ export function Guide() {
             </>
           ) : currentStepId ? (
             <>
-              {currentIdx === 0 && (
-                <Paragraph>
-                  Cuesta al principio; sigue las teclas y, con constancia, lo sacas.
-                </Paragraph>
-              )}
               {currentCase && <CaseQuiz kase={currentCase} />}
               <StepDetail step={currentStepId} />
             </>
@@ -384,6 +409,9 @@ export function Guide() {
           <List type="plain" className="guide-steps">
             {STEPS.map((id, i) => {
               const state = i < currentIdx ? 'done' : i === currentIdx ? 'current' : 'todo'
+              // Solo se navega hacia adelante: las etapas ya hechas (y la actual) no
+              // se pueden "rebobinar", así que se muestran pero no son pulsables.
+              const reachable = i > currentIdx
               return (
                 <li key={id}>
                   <button
@@ -391,8 +419,12 @@ export function Guide() {
                     className={`guide-steps__item is-${state}`}
                     aria-current={i === currentIdx ? 'step' : undefined}
                     onClick={() => playToStep(id)}
-                    disabled={busy}
-                    title={`Llevar el cubo al inicio de: ${STEP_INFO[id].title}`}
+                    disabled={busy || !reachable}
+                    title={
+                      reachable
+                        ? `Avanzar el cubo hasta: ${STEP_INFO[id].title}`
+                        : STEP_INFO[id].title
+                    }
                   >
                     <span className="guide-steps__marker">{state === 'done' ? '✓' : i + 1}</span>
                     <span className="guide-steps__label">{STEP_INFO[id].title}</span>

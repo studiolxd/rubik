@@ -381,8 +381,13 @@ export function useCube(initialFacelets?: string): CubeController {
   const playToStep = useCallback(
     (step: StepId) => {
       if (mode !== 'guide' || busy) return
+      const groups = lblGroups(cubiesRef.current)
+      // Solo se navega hacia adelante: si el paso ya está hecho no aparece entre los
+      // pendientes, así que no hay nada que reproducir (antes el bucle no encontraba
+      // el `break` y acababa resolviendo el cubo entero).
+      if (!groups.some((g) => g.step === step)) return
       const prefix: Move[] = []
-      for (const g of lblGroups(cubiesRef.current)) {
+      for (const g of groups) {
         if (g.step === step) break
         prefix.push(...g.moves)
       }
